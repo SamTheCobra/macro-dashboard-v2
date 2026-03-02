@@ -1,0 +1,53 @@
+[
+  {
+    "title": "USD Debasement & Hard Asset Premium",
+    "description": "The structural expansion of the Fed balance sheet, record US deficit spending (>6% GDP), and de-dollarization pressures from BRICS+ create a long-term tailwind for hard assets — gold, silver, commodities, and energy — as dollar purchasing power erodes.",
+    "keywords": ["gold", "dollar debasement", "BRICS currency", "Fed balance sheet", "commodities"],
+    "activation_date": "2024-01-15T00:00:00",
+    "conviction_entries": [
+      {"score": 7, "note": "Initiating thesis. Fed balance sheet at $7.7T, deficit widening.", "date": "2024-01-15T00:00:00"},
+      {"score": 8, "note": "Gold breaks $2,100 ATH. Central bank buying confirmed at 1,037 tonnes.", "date": "2024-03-20T00:00:00"},
+      {"score": 9, "note": "Gold $2,650. Fed cutting. China and India aggressive gold accumulation.", "date": "2024-10-01T00:00:00"},
+      {"score": 8, "note": "Trump tariffs create dollar strength headwind short-term.", "date": "2025-01-10T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "GLD", "direction": "long", "entry_price": 182.50, "target_price": 240.00, "stop_loss": 165.00, "position_size_pct": 8.0, "status": "active", "notes": "Core hard asset position."},
+      {"ticker": "GDX", "direction": "long", "entry_price": 28.00, "target_price": 45.00, "stop_loss": 22.00, "position_size_pct": 4.0, "status": "active", "notes": "Leveraged play on gold via miners."},
+      {"ticker": "COPX", "direction": "long", "entry_price": 38.00, "target_price": 58.00, "stop_loss": 30.00, "position_size_pct": 3.0, "status": "watching", "notes": "Copper = real economy debasement hedge + AI demand overlap."}
+    ]
+  },
+  {
+    "title": "AI Infrastructure Supercycle",
+    "description": "The buildout of AI training and inference capacity represents the largest CapEx cycle since the 1990s internet boom. Hyperscalers are committing $300B+ annually in data center spend through 2026, creating compounding demand across semiconductors, power, cooling, and copper.",
+    "keywords": ["AI infrastructure", "data center", "GPU demand", "hyperscaler capex", "semiconductor"],
+    "activation_date": "2023-11-01T00:00:00",
+    "conviction_entries": [
+      {"score": 8, "note": "GPT-4 moment clear. Hyperscaler capex guidance blowing out.", "date": "2023-11-01T00:00:00"},
+      {"score": 9, "note": "NVDA Q3: revenue $18.1B vs $16B est. Data center +400% YoY.", "date": "2024-01-25T00:00:00"},
+      {"score": 9, "note": "NVDA Q1 FY25: $26B revenue. Blackwell ahead of schedule.", "date": "2024-05-22T00:00:00"},
+      {"score": 8, "note": "DeepSeek concerns — open source efficiency improving faster.", "date": "2024-09-01T00:00:00"},
+      {"score": 7, "note": "DeepSeek R1: inference efficiency 10x better. Jevons paradox?", "date": "2025-01-27T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "SMH", "direction": "long", "entry_price": 142.00, "target_price": 230.00, "stop_loss": 118.00, "position_size_pct": 6.0, "status": "active", "notes": "Diversified semiconductor exposure."},
+      {"ticker": "VST", "direction": "long", "entry_price": 32.00, "target_price": 85.00, "stop_loss": 25.00, "position_size_pct": 4.0, "status": "active", "notes": "AI power demand play. Nuclear + nat gas fleet."},
+      {"ticker": "NVDA", "direction": "long", "entry_price": 480.00, "target_price": 900.00, "stop_loss": 380.00, "position_size_pct": 3.0, "status": "active", "notes": "Blackwell supercycle. Small size due to concentration risk."}
+    ]
+  },
+  {
+    "title": "Yield Curve Re-steepening",
+    "description": "As the Fed cuts short rates while long-end inflation expectations stay elevated, the curve re-steepens to +50-150bps, creating a structural tailwind for bank net interest margins.",
+    "keywords": ["yield curve", "Fed rate cuts", "bank NIM", "treasury spread", "steepening"],
+    "activation_date": "2024-06-01T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Fed starting to signal cuts. Curve still deeply inverted.", "date": "2024-06-01T00:00:00"},
+      {"score": 7, "note": "Fed cuts 50bps. 10Y-2Y spread moves from -50 to -20bps.", "date": "2024-09-18T00:00:00"},
+      {"score": 7, "note": "Curve now +10bps. KRE up 18%. Fed signaling slower cuts.", "date": "2024-12-01T00:00:00"},
+      {"score": 6, "note": "Strong jobs pushing back cut timeline. Bear steepener risk.", "date": "2025-01-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "KRE", "direction": "long", "entry_price": 48.00, "target_price": 68.00, "stop_loss": 38.00, "position_size_pct": 5.0, "status": "active", "notes": "Direct NIM expansion play."},
+      {"ticker": "TBF", "direction": "long", "entry_price": 22.00, "target_price": 28.00, "stop_loss": 18.00, "position_size_pct": 3.0, "status": "watching", "notes": "Short long bonds via TBF."}
+    ]
+  }
+]

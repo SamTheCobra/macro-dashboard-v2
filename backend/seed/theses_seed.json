@@ -49,5 +49,22 @@
       {"ticker": "KRE", "direction": "long", "entry_price": 48.00, "target_price": 68.00, "stop_loss": 38.00, "position_size_pct": 5.0, "status": "active", "notes": "Direct NIM expansion play."},
       {"ticker": "TBF", "direction": "long", "entry_price": 22.00, "target_price": 28.00, "stop_loss": 18.00, "position_size_pct": 3.0, "status": "watching", "notes": "Short long bonds via TBF."}
     ]
+  },
+  {
+    "title": "Electricity Bottleneck & Power Infrastructure",
+    "description": "AI data centers, EV adoption, and electrification of everything is creating massive electricity demand that existing grid infrastructure cannot support. This bottleneck drives investment into solar, nuclear, grid modernization, and energy storage.",
+    "keywords": ["electricity", "power grid", "solar", "nuclear", "energy storage", "infrastructure"],
+    "activation_date": "2024-03-01T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Initiating thesis. Data center power demand projections rising sharply. Grid permitting backlog growing.", "date": "2024-03-01T00:00:00"},
+      {"score": 7, "note": "Microsoft-Constellation nuclear deal signals Big Tech taking power scarcity seriously.", "date": "2024-09-20T00:00:00"},
+      {"score": 7, "note": "FERC grid interconnection queue hits 2,600 GW. Solar + storage deployments accelerating but still behind demand.", "date": "2025-01-15T00:00:00"},
+      {"score": 7, "note": "DOE projects 15% US electricity demand growth by 2030. Utilities capex guidance rising across the board.", "date": "2025-03-01T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "FSLR", "direction": "long", "entry_price": 170.00, "target_price": 280.00, "stop_loss": 135.00, "position_size_pct": 4.0, "status": "active", "notes": "US solar manufacturing leader. IRA subsidies + domestic content advantage."},
+      {"ticker": "VST", "direction": "long", "entry_price": 45.00, "target_price": 110.00, "stop_loss": 32.00, "position_size_pct": 4.0, "status": "active", "notes": "Nuclear + nat gas fleet positioned for power scarcity premium."},
+      {"ticker": "SMR", "direction": "long", "entry_price": 12.00, "target_price": 28.00, "stop_loss": 7.00, "position_size_pct": 2.0, "status": "watching", "notes": "Small modular reactor play. High risk/reward on next-gen nuclear deployment."}
+    ]
   }
 ]

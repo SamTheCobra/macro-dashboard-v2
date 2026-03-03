@@ -82,5 +82,21 @@
       {"ticker": "DUOL", "direction": "long", "entry_price": 260.00, "target_price": 400.00, "stop_loss": 200.00, "position_size_pct": 3.0, "status": "active", "notes": "Gamified learning model with strong retention. Expanding beyond language into AI/math."},
       {"ticker": "UPWK", "direction": "long", "entry_price": 12.00, "target_price": 24.00, "stop_loss": 8.00, "position_size_pct": 2.0, "status": "watching", "notes": "Freelance marketplace proxy for gig economy growth and career chapter transitions."}
     ]
+  },
+  {
+    "title": "AI Content Explosion \u2192 Verification Crisis",
+    "description": "AI-generated content flooding every channel makes it impossible to distinguish real from fake, creating urgent demand for identity verification, content provenance, and authenticity infrastructure.",
+    "keywords": ["AI content", "verification", "deepfakes", "content credentials", "digital identity", "blockchain"],
+    "activation_date": "2025-01-01T00:00:00",
+    "conviction_entries": [
+      {"score": 5, "note": "Initiating thesis. Deepfake incidents surging across elections and finance. C2PA standard gaining traction but adoption still early.", "date": "2025-01-01T00:00:00"},
+      {"score": 6, "note": "Major platforms rolling out content provenance labels. Enterprise demand for identity verification spiking post-deepfake fraud cases.", "date": "2025-02-01T00:00:00"},
+      {"score": 6, "note": "EU AI Act mandating content labeling. Coinbase verification volumes up as on-chain identity use cases expand.", "date": "2025-03-01T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "COIN", "direction": "long", "entry_price": 205.00, "target_price": 350.00, "stop_loss": 150.00, "position_size_pct": 3.0, "status": "active", "notes": "On-chain identity and verification infrastructure. Benefits from crypto + digital identity convergence."},
+      {"ticker": "OKTA", "direction": "long", "entry_price": 85.00, "target_price": 130.00, "stop_loss": 65.00, "position_size_pct": 3.0, "status": "active", "notes": "Enterprise identity leader. Zero-trust + AI content verification tailwinds."},
+      {"ticker": "PLTR", "direction": "long", "entry_price": 22.00, "target_price": 40.00, "stop_loss": 15.00, "position_size_pct": 2.0, "status": "watching", "notes": "Data provenance and AI governance platform. Government + enterprise verification use cases."}
+    ]
   }
 ]

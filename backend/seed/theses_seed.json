@@ -114,5 +114,22 @@
       {"ticker": "CPRI", "direction": "long", "entry_price": 32.00, "target_price": 55.00, "stop_loss": 24.00, "position_size_pct": 2.0, "status": "active", "notes": "Luxury conglomerate (Versace, Kors, Choo). Human craftsmanship narrative benefits premium brands."},
       {"ticker": "SPOT", "direction": "long", "entry_price": 380.00, "target_price": 550.00, "stop_loss": 300.00, "position_size_pct": 3.0, "status": "watching", "notes": "Audio platform with human creator ecosystem. Positioned to monetize authenticity premium in music/podcasts."}
     ]
+  },
+  {
+    "title": "GLP-1 Revolution & Health Optimization",
+    "description": "GLP-1 receptor agonists are reshaping obesity treatment and creating a massive cultural shift toward health optimization, driving demand across protein products, biohacking, supplements, and preventive health.",
+    "keywords": ["GLP-1", "obesity", "protein", "biohacking", "health optimization", "supplements", "preventive health"],
+    "activation_date": "2024-08-01T00:00:00",
+    "conviction_entries": [
+      {"score": 7, "note": "Initiating thesis. Wegovy/Ozempic prescriptions accelerating. GLP-1 market projected to hit $100B+ by 2030.", "date": "2024-08-01T00:00:00"},
+      {"score": 8, "note": "Lilly's Mounjaro/Zepbound demand outstripping supply. Cultural shift visible — protein consumption up, snack food stocks under pressure.", "date": "2024-11-01T00:00:00"},
+      {"score": 8, "note": "GLP-1 users driving surge in gym memberships, protein supplements, and preventive health spending. HIMS telehealth weight loss revenue exploding.", "date": "2025-01-15T00:00:00"},
+      {"score": 8, "note": "Insurance coverage expanding for GLP-1s. Medicare negotiation underway. Addressable market broadening beyond obesity to cardiovascular and NASH.", "date": "2025-03-01T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "LLY", "direction": "long", "entry_price": 750.00, "target_price": 1100.00, "stop_loss": 620.00, "position_size_pct": 5.0, "status": "active", "notes": "GLP-1 market leader with Mounjaro/Zepbound. Best-in-class pipeline across obesity and cardiometabolic."},
+      {"ticker": "NVO", "direction": "long", "entry_price": 125.00, "target_price": 180.00, "stop_loss": 95.00, "position_size_pct": 4.0, "status": "active", "notes": "Wegovy/Ozempic pioneer. Global obesity franchise with deep supply chain investment."},
+      {"ticker": "HIMS", "direction": "long", "entry_price": 18.00, "target_price": 35.00, "stop_loss": 12.00, "position_size_pct": 2.0, "status": "watching", "notes": "Telehealth platform riding GLP-1 and weight loss demand. High growth but regulatory risk on compounding."}
+    ]
   }
 ]

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Thesis, TreeNode, NodeTicker
 from ..schemas import ThesisCreate, ThesisUpdate, ThesisOut
-from ..services.scoring_service import get_all_scores
+from ..services.scoring_service import get_all_scores_fast
 from ..services.ai_service import generate_thesis_tree, store_thesis_tree
 
 router = APIRouter(prefix="/api/theses", tags=["theses"])
@@ -14,7 +14,7 @@ def list_theses(status: str = "active", db: Session = Depends(get_db)):
     theses = db.query(Thesis).filter(Thesis.status == status).all()
     results = []
     for t in theses:
-        scores = get_all_scores(db, t)
+        scores = get_all_scores_fast(db, t)
         node_count = db.query(TreeNode).filter(TreeNode.thesis_id == t.id).count()
 
         # Get top tickers
@@ -58,7 +58,7 @@ def create_thesis(data: ThesisCreate, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI generation failed: {str(e)}")
 
-    scores = get_all_scores(db, thesis)
+    scores = get_all_scores_fast(db, thesis)
     node_count = db.query(TreeNode).filter(TreeNode.thesis_id == thesis.id).count()
     tickers = db.query(NodeTicker.symbol).join(TreeNode).filter(
         TreeNode.thesis_id == thesis.id
@@ -88,7 +88,7 @@ def get_thesis(thesis_id: int, db: Session = Depends(get_db)):
     if not thesis:
         raise HTTPException(status_code=404, detail="Thesis not found")
 
-    scores = get_all_scores(db, thesis)
+    scores = get_all_scores_fast(db, thesis)
     node_count = db.query(TreeNode).filter(TreeNode.thesis_id == thesis.id).count()
     tickers = db.query(NodeTicker.symbol).join(TreeNode).filter(
         TreeNode.thesis_id == thesis.id
@@ -128,7 +128,7 @@ def update_thesis(thesis_id: int, data: ThesisUpdate, db: Session = Depends(get_
     db.commit()
     db.refresh(thesis)
 
-    scores = get_all_scores(db, thesis)
+    scores = get_all_scores_fast(db, thesis)
     node_count = db.query(TreeNode).filter(TreeNode.thesis_id == thesis.id).count()
     tickers = db.query(NodeTicker.symbol).join(TreeNode).filter(
         TreeNode.thesis_id == thesis.id

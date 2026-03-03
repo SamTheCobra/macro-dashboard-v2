@@ -71,13 +71,54 @@ def get_health_score(db: Session, thesis: Thesis) -> float:
 
 
 def get_all_scores(db: Session, thesis: Thesis) -> dict:
-    """Get all scores for a thesis."""
+    """Get all scores for a thesis. May block on yfinance calls.
+    Use get_all_scores_fast() in API endpoints to avoid blocking."""
     conviction = get_conviction_score(db, thesis.id)
     evidence = get_evidence_score(db, thesis)
     health = (conviction * 0.4 + evidence * 0.6) * 10
     health = round(min(max(health, 0), 100), 1)
     news_pulse = get_news_pulse(db, thesis.id)
     ticker_perf = _calculate_ticker_evidence(db, thesis)
+
+    return {
+        "conviction_score": conviction,
+        "evidence_score": evidence,
+        "health_score": health,
+        "news_pulse_score": news_pulse,
+        "ticker_performance_score": ticker_perf,
+    }
+
+
+def get_all_scores_fast(db: Session, thesis: Thesis) -> dict:
+    """Get scores without blocking on yfinance. Returns cached ticker scores
+    from the background updater, or neutral defaults if not yet computed."""
+    from .score_cache import get_cached_scores
+
+    cached = get_cached_scores(thesis.id)
+    if cached:
+        # Refresh conviction and news_pulse from DB (these are fast),
+        # but keep the cached ticker_performance_score from background.
+        conviction = get_conviction_score(db, thesis.id)
+        news_pulse = get_news_pulse(db, thesis.id)
+        ticker_perf = cached["ticker_performance_score"]
+        evidence = round(ticker_perf * 0.7 + news_pulse * 0.3, 1)
+        health = (conviction * 0.4 + evidence * 0.6) * 10
+        health = round(min(max(health, 0), 100), 1)
+        return {
+            "conviction_score": conviction,
+            "evidence_score": evidence,
+            "health_score": health,
+            "news_pulse_score": news_pulse,
+            "ticker_performance_score": ticker_perf,
+        }
+
+    # No cache yet — return DB-only scores with neutral ticker default
+    conviction = get_conviction_score(db, thesis.id)
+    news_pulse = get_news_pulse(db, thesis.id)
+    ticker_perf = 5.0  # neutral until background computes real value
+    evidence = round(ticker_perf * 0.7 + news_pulse * 0.3, 1)
+    health = (conviction * 0.4 + evidence * 0.6) * 10
+    health = round(min(max(health, 0), 100), 1)
 
     return {
         "conviction_score": conviction,

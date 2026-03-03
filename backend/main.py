@@ -129,7 +129,10 @@ def _generate_seed_trees(db):
 async def lifespan(app: FastAPI):
     init_db()
     seed_if_empty()
+    from .services.score_cache import start_background_updater, stop_background_updater
+    start_background_updater()
     yield
+    stop_background_updater()
 
 
 app = FastAPI(title="Macro Dashboard v2", lifespan=lifespan)

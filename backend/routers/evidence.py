@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Thesis
 from ..schemas import HealthScoreDetail
-from ..services.scoring_service import get_all_scores
+from ..services.scoring_service import get_all_scores_fast
 
 router = APIRouter(prefix="/api/theses/{thesis_id}/evidence", tags=["evidence"])
 
@@ -14,5 +14,5 @@ def get_evidence(thesis_id: int, db: Session = Depends(get_db)):
     if not thesis:
         raise HTTPException(status_code=404, detail="Thesis not found")
 
-    scores = get_all_scores(db, thesis)
+    scores = get_all_scores_fast(db, thesis)
     return HealthScoreDetail(**scores)

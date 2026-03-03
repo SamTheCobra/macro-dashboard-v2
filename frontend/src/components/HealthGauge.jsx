@@ -33,8 +33,8 @@ export default function HealthGauge({ score, size = 64 }) {
         />
       </svg>
       <span
-        className="absolute text-xs font-bold"
-        style={{ color }}
+        className="absolute font-bold"
+        style={{ color, fontSize: size >= 80 ? '16px' : size >= 64 ? '13px' : '11px' }}
       >
         {Math.round(normalizedScore)}
       </span>

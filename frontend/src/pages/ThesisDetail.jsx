@@ -4,7 +4,6 @@ import { ArrowLeft, GitBranch, BarChart3, TrendingUp, Newspaper, DollarSign, Loa
 import { getThesis, getTree, deleteThesis } from '../utils/api';
 import HealthGauge from '../components/HealthGauge';
 import TreeView from '../components/TreeView';
-import NodePanel from '../components/NodePanel';
 import ConvictionLog from '../components/ConvictionLog';
 import EvidenceChart from '../components/EvidenceChart';
 import NewsPulse from '../components/NewsPulse';
@@ -24,7 +23,6 @@ export default function ThesisDetail() {
   const [thesis, setThesis] = useState(null);
   const [tree, setTree] = useState(null);
   const [activeTab, setActiveTab] = useState('tree');
-  const [selectedNode, setSelectedNode] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,66 +53,67 @@ export default function ThesisDetail() {
   }
 
   if (!thesis) {
-    return <div className="text-center py-16 text-dim">Thesis not found.</div>;
+    return <div className="text-center py-16 text-dim" style={{ fontSize: '14px' }}>Thesis not found.</div>;
   }
 
   return (
     <div>
       {/* Header */}
-      <div className="mb-6">
-        <Link to="/" className="flex items-center gap-1 text-dim hover:text-green text-xs mb-3 no-underline transition-colors">
-          <ArrowLeft size={14} />
+      <div className="mb-8">
+        <Link to="/" className="flex items-center gap-1.5 text-dim hover:text-green no-underline transition-colors mb-4" style={{ fontSize: '13px' }}>
+          <ArrowLeft size={15} />
           Back to Dashboard
         </Link>
 
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-6">
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-text">{thesis.title}</h1>
+            <h1 className="font-bold text-text" style={{ fontSize: '24px', lineHeight: '1.3' }}>{thesis.title}</h1>
             {thesis.description && (
-              <p className="text-sm text-dim mt-2 max-w-3xl leading-relaxed">{thesis.description}</p>
+              <p className="text-dim mt-3 max-w-3xl" style={{ fontSize: '14px', lineHeight: '1.6' }}>{thesis.description}</p>
             )}
-            <div className="flex items-center gap-4 mt-3 text-xs text-dim">
+            <div className="flex items-center gap-5 mt-4 text-dim" style={{ fontSize: '13px' }}>
               {thesis.activation_date && (
                 <span>Active since {new Date(thesis.activation_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
               )}
               <span>{thesis.node_count} tree nodes</span>
               {thesis.keywords?.length > 0 && (
-                <div className="flex gap-1">
+                <div className="flex gap-1.5">
                   {thesis.keywords.map(k => (
-                    <span key={k} className="px-1.5 py-0.5 bg-muted text-dim rounded text-[10px]">{k}</span>
+                    <span key={k} className="px-2 py-0.5 bg-muted text-dim rounded" style={{ fontSize: '11px' }}>{k}</span>
                   ))}
                 </div>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <HealthGauge score={thesis.health_score} size={72} />
+          <div className="flex items-center gap-4">
+            <HealthGauge score={thesis.health_score} size={80} />
             <button
               onClick={handleDelete}
-              className="text-dim hover:text-red cursor-pointer bg-transparent border border-border rounded-lg p-2 hover:border-red/30 transition-colors"
+              className="text-dim hover:text-red cursor-pointer bg-transparent border border-border rounded-lg p-2.5 hover:border-red/30 transition-colors"
               title="Delete thesis"
             >
-              <Trash2 size={16} />
+              <Trash2 size={18} />
             </button>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 border-b border-border">
+      <div className="flex gap-1 mb-6 border-b border-border">
         {tabs.map(tab => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium border-b-2 transition-colors cursor-pointer bg-transparent ${
+              className={`flex items-center gap-2 px-5 py-3 font-medium border-b-2 transition-colors cursor-pointer bg-transparent ${
                 activeTab === tab.id
                   ? 'text-green border-green'
                   : 'text-dim border-transparent hover:text-text'
               }`}
+              style={{ fontSize: '13px' }}
             >
-              <Icon size={14} />
+              <Icon size={15} />
               {tab.label}
             </button>
           );
@@ -122,18 +121,8 @@ export default function ThesisDetail() {
       </div>
 
       {/* Tab content */}
-      <div className="mt-4">
-        {activeTab === 'tree' && (
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <TreeView tree={tree} onNodeClick={setSelectedNode} />
-            </div>
-            {selectedNode && (
-              <NodePanel node={selectedNode} onClose={() => setSelectedNode(null)} />
-            )}
-          </div>
-        )}
-
+      <div className="mt-2">
+        {activeTab === 'tree' && <TreeView tree={tree} />}
         {activeTab === 'conviction' && <ConvictionLog thesisId={parseInt(id)} />}
         {activeTab === 'evidence' && <EvidenceChart thesisId={parseInt(id)} />}
         {activeTab === 'news' && <NewsPulse thesisId={parseInt(id)} />}

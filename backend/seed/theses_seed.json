@@ -98,5 +98,21 @@
       {"ticker": "OKTA", "direction": "long", "entry_price": 85.00, "target_price": 130.00, "stop_loss": 65.00, "position_size_pct": 3.0, "status": "active", "notes": "Enterprise identity leader. Zero-trust + AI content verification tailwinds."},
       {"ticker": "PLTR", "direction": "long", "entry_price": 22.00, "target_price": 40.00, "stop_loss": 15.00, "position_size_pct": 2.0, "status": "watching", "notes": "Data provenance and AI governance platform. Government + enterprise verification use cases."}
     ]
+  },
+  {
+    "title": "AI Slop Makes Human-Made Premium",
+    "description": "As AI-generated content becomes ubiquitous and generic, authenticity becomes scarce and valuable. Human-made becomes a luxury label. Personal brands, artisanal creation, and provably-human work command premium pricing.",
+    "keywords": ["authenticity", "human-made", "creator economy", "artisanal", "personal brand", "premium"],
+    "activation_date": "2024-12-01T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Initiating thesis. Consumer fatigue with AI-generated content emerging. Etsy sellers adding 'handmade' and 'human-created' labels seeing higher conversion.", "date": "2024-12-01T00:00:00"},
+      {"score": 7, "note": "Luxury brands explicitly marketing human craftsmanship as differentiator. Spotify premium playlists curating human-only artists gaining traction.", "date": "2025-01-15T00:00:00"},
+      {"score": 7, "note": "Etsy policy update enforcing handmade verification. Creator economy platforms seeing surge in 'provably human' content premium.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "ETSY", "direction": "long", "entry_price": 55.00, "target_price": 95.00, "stop_loss": 40.00, "position_size_pct": 3.0, "status": "active", "notes": "Largest handmade marketplace. Authenticity moat strengthens as AI slop floods competitors."},
+      {"ticker": "CPRI", "direction": "long", "entry_price": 32.00, "target_price": 55.00, "stop_loss": 24.00, "position_size_pct": 2.0, "status": "active", "notes": "Luxury conglomerate (Versace, Kors, Choo). Human craftsmanship narrative benefits premium brands."},
+      {"ticker": "SPOT", "direction": "long", "entry_price": 380.00, "target_price": 550.00, "stop_loss": 300.00, "position_size_pct": 3.0, "status": "watching", "notes": "Audio platform with human creator ecosystem. Positioned to monetize authenticity premium in music/podcasts."}
+    ]
   }
 ]

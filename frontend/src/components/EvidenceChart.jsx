@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { getEvidence } from '../utils/api';
 import HealthGauge from './HealthGauge';
 
+const colorMap = { green: '#22c55e', amber: '#f59e0b', red: '#ef4444' };
+
 export default function EvidenceChart({ thesisId }) {
   const [evidence, setEvidence] = useState(null);
 
@@ -10,8 +12,10 @@ export default function EvidenceChart({ thesisId }) {
   }, [thesisId]);
 
   if (!evidence) {
-    return <div className="text-sm text-dim">Loading evidence data...</div>;
+    return <div style={{ fontSize: '13px', color: 'var(--color-dim)' }}>Loading evidence data...</div>;
   }
+
+  const healthColor = evidence.health_score >= 70 ? '#22c55e' : evidence.health_score >= 50 ? '#f59e0b' : '#ef4444';
 
   const metrics = [
     {
@@ -47,35 +51,52 @@ export default function EvidenceChart({ thesisId }) {
   return (
     <div>
       {/* Health Score gauge */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-4 flex items-center gap-6">
-        <HealthGauge score={evidence.health_score} size={100} />
+      <div style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: '12px',
+        padding: '24px',
+        marginBottom: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '24px',
+      }}>
+        <HealthGauge score={evidence.health_score} size={88} />
         <div>
-          <h3 className="text-lg font-bold text-text">Health Score</h3>
-          <p className="text-xs text-dim mt-1">
-            (Conviction x 0.4 + Evidence x 0.6) x 10
+          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>Health Score</h3>
+          <p style={{ fontSize: '11px', color: 'var(--color-dim)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
+            (Conviction × 0.4 + Evidence × 0.6) × 10
           </p>
-          <p className="text-2xl font-bold mt-2" style={{ color: evidence.health_score >= 70 ? 'var(--color-green)' : evidence.health_score >= 40 ? 'var(--color-amber)' : 'var(--color-red)' }}>
+          <p style={{ fontSize: '28px', fontWeight: 700, marginTop: '8px', color: healthColor, fontFamily: 'var(--font-mono)' }}>
             {evidence.health_score.toFixed(1)}
           </p>
         </div>
       </div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* 2x2 Metrics grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         {metrics.map(m => (
-          <div key={m.label} className="bg-card border border-border rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-dim">{m.label}</span>
-              <span className={`text-lg font-bold text-${m.color}`}>{m.value.toFixed(1)}</span>
+          <div key={m.label} style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '12px',
+            padding: '16px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <span style={{ fontSize: '12px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{m.label}</span>
+              <span style={{ fontSize: '18px', fontWeight: 700, color: colorMap[m.color], fontFamily: 'var(--font-mono)' }}>{m.value.toFixed(1)}</span>
             </div>
             {/* Bar */}
-            <div className="h-2 bg-bg rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full bg-${m.color} transition-all`}
-                style={{ width: `${(m.value / m.max) * 100}%` }}
-              />
+            <div style={{ height: '6px', background: 'var(--color-bg)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{
+                height: '100%',
+                borderRadius: '3px',
+                background: colorMap[m.color],
+                width: `${(m.value / m.max) * 100}%`,
+                transition: 'width 0.3s ease',
+              }} />
             </div>
-            <p className="text-[10px] text-dim mt-2">{m.description}</p>
+            <p style={{ fontSize: '10px', color: 'var(--color-dim)', marginTop: '8px', fontFamily: 'var(--font-sans)' }}>{m.description}</p>
           </div>
         ))}
       </div>

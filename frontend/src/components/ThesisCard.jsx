@@ -1,58 +1,108 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GitBranch, Calendar, Newspaper } from 'lucide-react';
 import HealthGauge from './HealthGauge';
 
 export default function ThesisCard({ thesis }) {
-  const pulseColor = (thesis.news_pulse || 5) > 6 ? 'text-green' : (thesis.news_pulse || 5) < 4 ? 'text-red' : 'text-amber';
+  const [hovered, setHovered] = useState(false);
 
   return (
     <Link
       to={`/thesis/${thesis.id}`}
-      className="block bg-card border border-border rounded-xl p-5 hover:border-green/30 transition-all group no-underline"
+      style={{
+        display: 'block',
+        background: hovered ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
+        border: `1px solid ${hovered ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)'}`,
+        borderRadius: '12px',
+        padding: '24px',
+        textDecoration: 'none',
+        transition: 'all 0.2s ease',
+        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-text group-hover:text-green transition-colors truncate">
-            {thesis.title}
-          </h3>
-          {thesis.description && (
-            <p className="text-xs text-dim mt-1 line-clamp-2">{thesis.description}</p>
-          )}
-        </div>
-        <HealthGauge score={thesis.health_score} size={56} />
+      {/* Title + HealthRing */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
+        <h3 style={{
+          fontSize: '15px',
+          fontWeight: 700,
+          color: hovered ? '#22c55e' : 'var(--color-text)',
+          fontFamily: 'var(--font-sans)',
+          transition: 'color 0.15s',
+          flex: 1,
+          minWidth: 0,
+        }}>
+          {thesis.title}
+        </h3>
+        <HealthGauge score={thesis.health_score} size={48} />
       </div>
 
-      <div className="mt-4 flex items-center gap-4 text-xs text-dim">
-        <span>
-          Conv: <span className="text-text font-medium">{thesis.conviction_score?.toFixed(1) ?? '-'}</span>
+      {/* Description (2 lines) */}
+      {thesis.description && (
+        <p style={{
+          fontSize: '12px',
+          color: 'var(--color-dim)',
+          marginTop: '10px',
+          lineHeight: '1.5',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          fontFamily: 'var(--font-sans)',
+        }}>
+          {thesis.description}
+        </p>
+      )}
+
+      {/* Score row in mono */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        marginTop: '14px',
+        fontFamily: 'var(--font-mono)',
+        fontSize: '11px',
+      }}>
+        <span style={{ color: 'var(--color-dim)' }}>
+          Conv <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{thesis.conviction_score?.toFixed(1) ?? '–'}</span>
         </span>
-        <span>
-          Evid: <span className="text-text font-medium">{thesis.evidence_score?.toFixed(1) ?? '-'}</span>
+        <span style={{ color: 'var(--color-dim)' }}>
+          Evid <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{thesis.evidence_score?.toFixed(1) ?? '–'}</span>
         </span>
-        <span className={`flex items-center gap-1 ${pulseColor}`}>
-          <Newspaper size={11} />
-          {thesis.news_pulse?.toFixed(1) ?? '-'}
+        <span style={{ color: 'var(--color-dim)' }}>
+          Pulse <span style={{
+            color: (thesis.news_pulse || 5) > 6 ? '#22c55e' : (thesis.news_pulse || 5) < 4 ? '#ef4444' : '#f59e0b',
+            fontWeight: 500,
+          }}>{thesis.news_pulse?.toFixed(1) ?? '–'}</span>
         </span>
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
-        <div className="flex items-center gap-3 text-xs text-dim">
+      {/* Footer: date + ticker badges */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: '14px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--color-dim)' }}>
           {thesis.activation_date && (
-            <span className="flex items-center gap-1">
-              <Calendar size={11} />
-              {new Date(thesis.activation_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-            </span>
+            <span>{new Date(thesis.activation_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
           )}
-          <span className="flex items-center gap-1">
-            <GitBranch size={11} />
-            {thesis.node_count} nodes
-          </span>
+          <span>{thesis.node_count} nodes</span>
         </div>
 
         {thesis.top_tickers?.length > 0 && (
-          <div className="flex gap-1.5">
+          <div style={{ display: 'flex', gap: '6px' }}>
             {thesis.top_tickers.map(t => (
-              <span key={t} className="px-1.5 py-0.5 bg-green/10 text-green text-[10px] rounded font-medium">
+              <span key={t} style={{
+                padding: '2px 8px',
+                background: 'rgba(34,197,94,0.1)',
+                color: '#22c55e',
+                fontSize: '10px',
+                borderRadius: '4px',
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 500,
+              }}>
                 {t}
               </span>
             ))}

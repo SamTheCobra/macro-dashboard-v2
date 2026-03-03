@@ -16,28 +16,34 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>
         <Loader2 size={24} className="text-green animate-spin" />
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 className="text-xl font-bold text-text">Active Theses</h1>
-          <p className="text-sm text-dim mt-1">Sorted by Health Score</p>
+          <h1 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>Active Theses</h1>
+          <p style={{ fontSize: '13px', color: 'var(--color-dim)', marginTop: '4px', fontFamily: 'var(--font-sans)' }}>Sorted by Health Score</p>
         </div>
-        <span className="text-sm text-dim">{theses.length} thesis{theses.length !== 1 ? 'es' : ''}</span>
+        <span style={{ fontSize: '12px', color: 'var(--color-dim)', fontFamily: 'var(--font-mono)' }}>
+          {theses.length} thesis{theses.length !== 1 ? 'es' : ''}
+        </span>
       </div>
 
       {theses.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-dim text-sm">No theses yet. Click "New Thesis" to create one.</p>
+        <div style={{ textAlign: 'center', padding: '64px 0' }}>
+          <p style={{ color: 'var(--color-dim)', fontSize: '13px' }}>No theses yet. Click "+ New Thesis" to create one.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          gap: '16px',
+        }}>
           {theses.map(t => (
             <ThesisCard key={t.id} thesis={t} />
           ))}

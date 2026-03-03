@@ -147,5 +147,21 @@
       {"ticker": "YETI", "direction": "long", "entry_price": 35.00, "target_price": 55.00, "stop_loss": 27.00, "position_size_pct": 3.0, "status": "active", "notes": "Premium outdoor lifestyle brand. Benefits from offline experience spending and outdoor recreation growth."},
       {"ticker": "GRMN", "direction": "long", "entry_price": 155.00, "target_price": 220.00, "stop_loss": 125.00, "position_size_pct": 3.0, "status": "active", "notes": "GPS and outdoor wearables leader. Fitness + outdoor segments growing as consumers seek phone-free activities."}
     ]
+  },
+  {
+    "title": "Gen Z Affordable Affluence \u2192 Micro-Luxuries",
+    "description": "Gen Z can't afford houses or cars but still wants to feel wealthy. This drives the micro-luxury trend \u2014 small affordable indulgences like premium skincare, $7 lattes, designer accessories, and treat yourself culture.",
+    "keywords": ["Gen Z", "micro-luxury", "affordable affluence", "premium everyday", "experience spending"],
+    "activation_date": "2024-10-01T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Initiating thesis. Gen Z spending data shows outsized allocation to beauty, dining, and small luxuries despite housing affordability crisis.", "date": "2024-10-01T00:00:00"},
+      {"score": 7, "note": "Estee Lauder prestige skincare recovering in Americas. Starbucks customization and premium beverage mix driving ticket growth despite traffic softness.", "date": "2025-01-01T00:00:00"},
+      {"score": 7, "note": "LVMH accessible luxury segment outperforming. 'Lipstick index' effect confirmed — small indulgences resilient even as big-ticket discretionary weakens.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "EL", "direction": "long", "entry_price": 75.00, "target_price": 130.00, "stop_loss": 58.00, "position_size_pct": 3.0, "status": "active", "notes": "Prestige beauty leader. Gen Z skincare obsession + travel retail recovery. Turnaround from inventory destocking."},
+      {"ticker": "SBUX", "direction": "long", "entry_price": 92.00, "target_price": 125.00, "stop_loss": 75.00, "position_size_pct": 3.0, "status": "active", "notes": "Quintessential micro-luxury. $7 latte as affordable indulgence. New CEO turnaround catalyst."},
+      {"ticker": "LVMUY", "direction": "long", "entry_price": 150.00, "target_price": 210.00, "stop_loss": 120.00, "position_size_pct": 3.0, "status": "watching", "notes": "Diversified luxury conglomerate. Accessible luxury lines (Sephora, cosmetics) benefit most from micro-luxury trend."}
+    ]
   }
 ]

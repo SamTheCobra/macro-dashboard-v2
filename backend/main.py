@@ -16,13 +16,9 @@ from .routers import theses, tree, conviction, evidence, news, bets, macro
 
 
 def seed_if_empty():
-    """Seed the database with v1 theses data if empty (without AI generation)."""
+    """Seed the database with theses data, adding any new entries from the seed file."""
     db = SessionLocal()
     try:
-        count = db.query(Thesis).count()
-        if count > 0:
-            return
-
         seed_path = Path(__file__).parent / "seed" / "theses_seed.json"
         if not seed_path.exists():
             return
@@ -30,7 +26,14 @@ def seed_if_empty():
         with open(seed_path) as f:
             seed_data = json.load(f)
 
-        for thesis_data in seed_data:
+        existing_titles = {t.title for t in db.query(Thesis.title).all()}
+        new_entries = [t for t in seed_data if t["title"] not in existing_titles]
+
+        if not new_entries:
+            return
+
+        new_thesis_ids = []
+        for thesis_data in new_entries:
             thesis = Thesis(
                 title=thesis_data["title"],
                 description=thesis_data.get("description", ""),
@@ -39,6 +42,7 @@ def seed_if_empty():
             )
             db.add(thesis)
             db.flush()
+            new_thesis_ids.append(thesis.id)
 
             # Create a basic tree structure from seed data
             root_node = TreeNode(
@@ -76,11 +80,11 @@ def seed_if_empty():
                 ))
 
         db.commit()
-        print(f"Seeded {len(seed_data)} theses from v1 data")
+        print(f"Seeded {len(new_entries)} new theses ({db.query(Thesis).count()} total)")
 
-        # Try to generate AI trees for seeded theses if API key available
+        # Try to generate AI trees for new theses if API key available
         if os.getenv("ANTHROPIC_API_KEY"):
-            _generate_seed_trees(db)
+            _generate_seed_trees(db, thesis_ids=new_thesis_ids)
 
     except Exception as e:
         print(f"Seed error: {e}")
@@ -89,11 +93,14 @@ def seed_if_empty():
         db.close()
 
 
-def _generate_seed_trees(db):
+def _generate_seed_trees(db, thesis_ids=None):
     """Generate AI trees for seeded theses."""
     from .services.ai_service import generate_thesis_tree, store_thesis_tree
 
-    theses = db.query(Thesis).all()
+    query = db.query(Thesis)
+    if thesis_ids:
+        query = query.filter(Thesis.id.in_(thesis_ids))
+    theses = query.all()
     for thesis in theses:
         # Skip if already has tree nodes beyond root
         node_count = db.query(TreeNode).filter(TreeNode.thesis_id == thesis.id).count()

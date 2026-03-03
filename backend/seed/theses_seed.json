@@ -66,5 +66,21 @@
       {"ticker": "VST", "direction": "long", "entry_price": 45.00, "target_price": 110.00, "stop_loss": 32.00, "position_size_pct": 4.0, "status": "active", "notes": "Nuclear + nat gas fleet positioned for power scarcity premium."},
       {"ticker": "SMR", "direction": "long", "entry_price": 12.00, "target_price": 28.00, "stop_loss": 7.00, "position_size_pct": 2.0, "status": "watching", "notes": "Small modular reactor play. High risk/reward on next-gen nuclear deployment."}
     ]
+  },
+  {
+    "title": "Reskilling Economy & Career Chapters",
+    "description": "The 30-year career at one company is dead. Average career chapters are now 12-18 months. Continuous reskilling is the norm, and 'learn to code' is being replaced by 'learn to use AI' as the essential upskilling path.",
+    "keywords": ["reskilling", "career chapters", "AI literacy", "upskilling", "freelance", "micro-credentials"],
+    "activation_date": "2025-02-01T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Initiating thesis. LinkedIn data shows median job tenure falling to 2.5 years. AI tools reshaping white-collar workflows.", "date": "2025-02-01T00:00:00"},
+      {"score": 7, "note": "Coursera and Duolingo report AI-related course enrollments up 300%+ YoY. Corporate training budgets shifting to AI literacy.", "date": "2025-02-15T00:00:00"},
+      {"score": 7, "note": "Upwork freelance AI gig postings surging. Micro-credential platforms gaining enterprise traction.", "date": "2025-03-01T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "COUR", "direction": "long", "entry_price": 8.50, "target_price": 18.00, "stop_loss": 5.50, "position_size_pct": 3.0, "status": "active", "notes": "Leading online learning platform. Enterprise + consumer AI upskilling demand."},
+      {"ticker": "DUOL", "direction": "long", "entry_price": 260.00, "target_price": 400.00, "stop_loss": 200.00, "position_size_pct": 3.0, "status": "active", "notes": "Gamified learning model with strong retention. Expanding beyond language into AI/math."},
+      {"ticker": "UPWK", "direction": "long", "entry_price": 12.00, "target_price": 24.00, "stop_loss": 8.00, "position_size_pct": 2.0, "status": "watching", "notes": "Freelance marketplace proxy for gig economy growth and career chapter transitions."}
+    ]
   }
 ]

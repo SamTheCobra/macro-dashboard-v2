@@ -179,5 +179,21 @@
       {"ticker": "VTR", "direction": "long", "entry_price": 52.00, "target_price": 75.00, "stop_loss": 40.00, "position_size_pct": 3.0, "status": "active", "notes": "Senior housing + life science REIT. Higher operating leverage than WELL on occupancy recovery."},
       {"ticker": "BKD", "direction": "long", "entry_price": 5.50, "target_price": 12.00, "stop_loss": 3.50, "position_size_pct": 2.0, "status": "watching", "notes": "Largest senior living operator. High-risk turnaround — labor cost normalization and occupancy gains are key catalysts."}
     ]
+  },
+  {
+    "title": "Use It or Lose It \u2192 AI-Induced Cognitive Decline",
+    "description": "If the neuroscience principle of use it or lose it holds, widespread AI dependency for thinking, writing, and problem-solving could trigger an explosion of early-onset cognitive decline and Alzheimer's in coming decades.",
+    "keywords": ["cognitive decline", "Alzheimer's", "neuroscience", "AI dependency", "brain training", "use it or lose it"],
+    "activation_date": "2025-02-01T00:00:00",
+    "conviction_entries": [
+      {"score": 4, "note": "Initiating thesis. Speculative but grounded in neuroscience. Early studies showing GPS dependency reduces hippocampal volume. AI delegation of cognitive tasks could amplify this.", "date": "2025-02-01T00:00:00"},
+      {"score": 5, "note": "Neuroscience researchers raising alarms about cognitive offloading. Alzheimer's drug pipeline accelerating — Lecanemab and Donanemab gaining traction.", "date": "2025-02-15T00:00:00"},
+      {"score": 5, "note": "Lilly Donanemab FDA approval expanding addressable market. ISRG robotic surgery demand growing as neurological procedure volumes increase.", "date": "2025-03-01T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "LLY", "direction": "long", "entry_price": 780.00, "target_price": 1100.00, "stop_loss": 650.00, "position_size_pct": 3.0, "status": "active", "notes": "Donanemab Alzheimer's franchise. Dual exposure with GLP-1 thesis. Cognitive decline wave would massively expand addressable market."},
+      {"ticker": "BIIB", "direction": "long", "entry_price": 160.00, "target_price": 250.00, "stop_loss": 120.00, "position_size_pct": 2.0, "status": "watching", "notes": "Lecanemab (Leqembi) co-developer. Pure-play Alzheimer's exposure but execution risk on commercialization."},
+      {"ticker": "ISRG", "direction": "long", "entry_price": 440.00, "target_price": 600.00, "stop_loss": 360.00, "position_size_pct": 2.0, "status": "watching", "notes": "Robotic surgery leader. Neurosurgical procedure growth is a long-tail beneficiary of rising neurological disease burden."}
+    ]
   }
 ]

@@ -83,7 +83,8 @@ def seed_if_empty():
         print(f"Seeded {len(new_entries)} new theses ({db.query(Thesis).count()} total)")
 
         # Try to generate AI trees for new theses if API key available
-        if os.getenv("ANTHROPIC_API_KEY"):
+        api_key = os.getenv("ANTHROPIC_API_KEY", "")
+        if api_key and not api_key.startswith("your_"):
             _generate_seed_trees(db, thesis_ids=new_thesis_ids)
 
     except Exception as e:

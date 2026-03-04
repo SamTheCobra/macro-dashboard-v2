@@ -44,10 +44,10 @@ export default function Layout() {
         padding: '0 32px',
       }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <span style={{ fontSize: '18px' }}>📈</span>
+          
           <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: '15px', letterSpacing: '-0.02em' }}>
-            <span style={{ color: 'var(--color-accent-green)' }}>MACRO</span>
-            <span style={{ color: 'var(--color-secondary)' }}>DASH</span>
+            <span style={{ color: 'var(--color-accent-green)' }}>Tangent</span>
+            <span style={{ color: 'var(--color-secondary)' }}>Book</span>
           </span>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--color-faint)', marginLeft: '2px' }}>v2</span>
         </Link>

@@ -64,6 +64,7 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
         {{
             "label": "Short label for the effect",
             "description": "Detailed description of this second-order effect",
+            "relevant_sector_etf": {{"symbol": "XLK", "rationale": "Sector ETF and why it's the right sector proxy"}},
             "tickers": [
                 {{"symbol": "TICK", "rationale": "One-line description: what this company/ETF is and why it's relevant here", "direction": "long"}},
                 {{"symbol": "TICK2", "rationale": "One-line description: what this company/ETF is and why it's relevant here", "direction": "long"}},
@@ -78,6 +79,7 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                 {{
                     "label": "Short label for 3rd order effect",
                     "description": "Detailed description",
+                    "relevant_sector_etf": {{"symbol": "XLF", "rationale": "Sector ETF and why"}},
                     "tickers": [
                         {{"symbol": "TICK", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
                         {{"symbol": "TICK2", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
@@ -92,6 +94,7 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                 {{
                     "label": "Another 3rd order effect",
                     "description": "Description",
+                    "relevant_sector_etf": {{"symbol": "XLE", "rationale": "Sector ETF and why"}},
                     "tickers": [
                         {{"symbol": "TICK", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
                         {{"symbol": "TICK2", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
@@ -106,6 +109,7 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                 {{
                     "label": "Third 3rd order effect",
                     "description": "Description",
+                    "relevant_sector_etf": {{"symbol": "XLV", "rationale": "Sector ETF and why"}},
                     "tickers": [
                         {{"symbol": "TICK", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
                         {{"symbol": "TICK2", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
@@ -125,7 +129,8 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
 IMPORTANT:
 - Generate exactly 3 second-order effects
 - Each second-order effect must have exactly 3 third-order effects (nested under it, NOT flat)
-- Each effect (both 2nd and 3rd order) must have exactly 3 tickers and 3 startup ideas
+- Each effect (both 2nd and 3rd order) must have exactly 3 tickers, 3 startup ideas, and 1 relevant_sector_etf
+- relevant_sector_etf should be a SPDR sector ETF (XLK, XLF, XLV, XLE, XLP, XLY, XLI, XLB, XLU, XLRE, XLC) that best represents the sector for that effect
 - Tickers should be real, tradeable US equity or ETF symbols
 - Direction should be "long" if the thesis benefits the ticker, "short" if it hurts it
 - Ticker rationale: say what the company/ETF actually IS and why you'd care RIGHT NOW, in plain English

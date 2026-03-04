@@ -54,13 +54,57 @@ const FALLBACK_IDEAS = [
 ];
 
 function getRootIdeas(tree) {
-  // Use actual startup_ideas from root node if available
   if (tree.startup_ideas && tree.startup_ideas.length > 0) {
     return tree.startup_ideas.slice(0, 3);
   }
-  // Deterministic fallback based on thesis title
   const bucket = hashStr(tree.label) % FALLBACK_IDEAS.length;
   return FALLBACK_IDEAS[bucket];
+}
+
+// ---------- Ticker full names ----------
+
+const TICKER_NAMES = {
+  SPY: 'SPDR S&P 500 ETF', QQQ: 'Invesco QQQ Trust', TLT: 'iShares 20+ Year Treasury Bond ETF',
+  GLD: 'SPDR Gold Shares', SLV: 'iShares Silver Trust', UUP: 'Invesco DB US Dollar Index',
+  XLF: 'Financial Select Sector SPDR', XLE: 'Energy Select Sector SPDR',
+  XLK: 'Technology Select Sector SPDR', XLV: 'Health Care Select Sector SPDR',
+  XLP: 'Consumer Staples Select Sector SPDR', XLY: 'Consumer Discretionary Select Sector SPDR',
+  XLI: 'Industrial Select Sector SPDR', XLB: 'Materials Select Sector SPDR',
+  XLU: 'Utilities Select Sector SPDR', XLRE: 'Real Estate Select Sector SPDR',
+  XLC: 'Communication Services Select Sector SPDR',
+  IWM: 'iShares Russell 2000 ETF', EEM: 'iShares MSCI Emerging Markets ETF',
+  KRE: 'SPDR S&P Regional Banking ETF', ARKK: 'ARK Innovation ETF',
+  NVDA: 'NVIDIA Corp', MSFT: 'Microsoft Corp', AAPL: 'Apple Inc',
+  GOOGL: 'Alphabet Inc', AMZN: 'Amazon.com Inc', META: 'Meta Platforms Inc',
+  TSLA: 'Tesla Inc', JPM: 'JPMorgan Chase & Co', BRK: 'Berkshire Hathaway',
+  V: 'Visa Inc', MA: 'Mastercard Inc', JNJ: 'Johnson & Johnson',
+  UNH: 'UnitedHealth Group', PG: 'Procter & Gamble', HD: 'Home Depot Inc',
+  DIS: 'Walt Disney Co', NFLX: 'Netflix Inc', CRM: 'Salesforce Inc',
+  AMD: 'Advanced Micro Devices', INTC: 'Intel Corp', AVGO: 'Broadcom Inc',
+  COST: 'Costco Wholesale', WMT: 'Walmart Inc', PEP: 'PepsiCo Inc',
+  KO: 'Coca-Cola Co', MCD: "McDonald's Corp", SBUX: 'Starbucks Corp',
+  NKE: 'Nike Inc', BA: 'Boeing Co', CAT: 'Caterpillar Inc',
+  GS: 'Goldman Sachs', MS: 'Morgan Stanley', C: 'Citigroup Inc',
+  BAC: 'Bank of America', WFC: 'Wells Fargo & Co',
+  XOM: 'Exxon Mobil Corp', CVX: 'Chevron Corp', COP: 'ConocoPhillips',
+  LLY: 'Eli Lilly & Co', PFE: 'Pfizer Inc', ABBV: 'AbbVie Inc',
+  MRK: 'Merck & Co', BMY: 'Bristol-Myers Squibb', NVO: 'Novo Nordisk',
+  COIN: 'Coinbase Global', SQ: 'Block Inc', PYPL: 'PayPal Holdings',
+  SOFI: 'SoFi Technologies', PLTR: 'Palantir Technologies', SNOW: 'Snowflake Inc',
+  NET: 'Cloudflare Inc', DDOG: 'Datadog Inc', ZS: 'Zscaler Inc',
+  PANW: 'Palo Alto Networks', CRWD: 'CrowdStrike Holdings',
+  DBA: 'Invesco DB Agriculture Fund', LIT: 'Global X Lithium & Battery Tech ETF',
+  BTC: 'Bitcoin', MSTR: 'MicroStrategy Inc', IBIT: 'iShares Bitcoin Trust',
+  SMH: 'VanEck Semiconductor ETF', SOXX: 'iShares Semiconductor ETF',
+  TAN: 'Invesco Solar ETF', ICLN: 'iShares Global Clean Energy ETF',
+  KWEB: 'KraneShares CSI China Internet ETF', FXI: 'iShares China Large-Cap ETF',
+  VNQ: 'Vanguard Real Estate ETF', ITB: 'iShares U.S. Home Construction ETF',
+  XHB: 'SPDR S&P Homebuilders ETF', IBB: 'iShares Biotechnology ETF',
+  HACK: 'ETFMG Prime Cyber Security ETF', BOTZ: 'Global X Robotics & AI ETF',
+};
+
+function getTickerName(symbol) {
+  return TICKER_NAMES[symbol] || symbol;
 }
 
 function mockTickerDescription(symbol, direction) {
@@ -96,59 +140,159 @@ function mockTickerDescription(symbol, direction) {
   return `${action} this macro trend`;
 }
 
-// ---------- Confidence Ring (32px, score below) ----------
+// ---------- Sector ETF inference ----------
 
-function ConfidenceRing({ score, size = 32 }) {
-  const sw = 3;
+const SECTOR_KEYWORDS = [
+  { keywords: ['food', 'eat', 'meal', 'grocery', 'farm', 'crop', 'agriculture', 'restaurant', 'staple', 'consumer'], etf: { symbol: 'XLP', direction: 'long' } },
+  { keywords: ['health', 'pharma', 'drug', 'biotech', 'medical', 'hospital', 'obesity', 'ozempic', 'glp'], etf: { symbol: 'XLV', direction: 'long' } },
+  { keywords: ['tech', 'software', 'ai', 'chip', 'semiconductor', 'cloud', 'data', 'compute', 'gpu', 'digital'], etf: { symbol: 'XLK', direction: 'long' } },
+  { keywords: ['bank', 'finance', 'rate', 'interest', 'yield', 'credit', 'loan', 'mortgage', 'insurance'], etf: { symbol: 'XLF', direction: 'long' } },
+  { keywords: ['energy', 'oil', 'gas', 'solar', 'wind', 'nuclear', 'power', 'utility', 'electric'], etf: { symbol: 'XLE', direction: 'long' } },
+  { keywords: ['real estate', 'housing', 'rent', 'property', 'construction', 'home', 'building'], etf: { symbol: 'XLRE', direction: 'long' } },
+  { keywords: ['retail', 'shop', 'luxury', 'fashion', 'spend', 'discretionary', 'consumer'], etf: { symbol: 'XLY', direction: 'long' } },
+  { keywords: ['industrial', 'manufacture', 'defense', 'aerospace', 'transport', 'infrastructure'], etf: { symbol: 'XLI', direction: 'long' } },
+  { keywords: ['material', 'metal', 'mining', 'steel', 'lithium', 'copper', 'commodity'], etf: { symbol: 'XLB', direction: 'long' } },
+  { keywords: ['media', 'social', 'stream', 'telecom', 'communication', 'content', 'ad'], etf: { symbol: 'XLC', direction: 'long' } },
+];
+
+function inferSectorETF(label, description) {
+  const text = `${label} ${description || ''}`.toLowerCase();
+  for (const entry of SECTOR_KEYWORDS) {
+    for (const kw of entry.keywords) {
+      if (text.includes(kw)) return entry.etf;
+    }
+  }
+  return { symbol: 'SPY', direction: 'long' };
+}
+
+// ---------- Health Ring with tooltip and pulse ----------
+
+function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const sw = size >= 64 ? 6 : 3;
   const r = (size - sw * 2) / 2;
   const circ = 2 * Math.PI * r;
   const clamped = Math.min(Math.max(score || 0, 0), 100);
   const offset = circ - (clamped / 100) * circ;
   const color = clamped >= 70 ? '#22c55e' : clamped >= 50 ? '#f59e0b' : '#ef4444';
+  const labelText = size >= 64 ? 'Health' : 'Confidence';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
-      <span style={{ fontSize: '9px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Confidence</span>
-      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.06)" strokeWidth={sw} fill="none" />
-        <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={sw} fill="none"
-          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-        />
-      </svg>
-      <span style={{ fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{Math.round(clamped)}</span>
+    <div
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: size >= 64 ? '4px' : '3px', flexShrink: 0, position: 'relative' }}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      {size >= 64 ? null : (
+        <span style={{ fontSize: '9px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{labelText}</span>
+      )}
+      <div style={{
+        position: 'relative', width: size, height: size,
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <svg width={size} height={size} style={{
+          transform: 'rotate(-90deg)',
+          transition: 'filter 0.3s',
+          filter: pulsing ? `drop-shadow(0 0 6px ${color})` : 'none',
+        }}>
+          <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.06)" strokeWidth={sw} fill="none" />
+          <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={sw} fill="none"
+            strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+            style={{ transition: 'stroke-dashoffset 0.3s, stroke 0.3s' }}
+          />
+        </svg>
+        <span style={{
+          position: 'absolute',
+          fontSize: size >= 64 ? '24px' : '12px',
+          fontWeight: 700, fontFamily: 'var(--font-mono)',
+          color, transition: 'color 0.3s',
+        }}>{Math.round(clamped)}</span>
+      </div>
+      {size >= 64 && (
+        <span style={{ fontSize: '11px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{labelText}</span>
+      )}
+
+      {/* Tooltip */}
+      {showTooltip && tooltipContent && (
+        <div style={{
+          position: 'absolute',
+          bottom: '100%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          marginBottom: '8px',
+          background: 'rgba(0,0,0,0.95)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: '12px',
+          padding: '16px',
+          maxWidth: '280px',
+          minWidth: '240px',
+          zIndex: 100,
+          pointerEvents: 'none',
+        }}>
+          {tooltipContent}
+          <div style={{
+            position: 'absolute', bottom: '-6px', left: '50%', transform: 'translateX(-50%) rotate(45deg)',
+            width: '10px', height: '10px', background: 'rgba(0,0,0,0.95)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderTop: 'none', borderLeft: 'none',
+          }} />
+        </div>
+      )}
     </div>
   );
 }
 
-// ---------- Health Ring (96px, for hero) ----------
+// ---------- Tooltip content builders ----------
 
-function HealthRing({ score, size = 96 }) {
-  const sw = 6;
-  const r = (size - sw * 2) / 2;
-  const circ = 2 * Math.PI * r;
-  const clamped = Math.min(Math.max(score || 0, 0), 100);
-  const offset = circ - (clamped / 100) * circ;
-  const color = clamped >= 70 ? '#22c55e' : clamped >= 50 ? '#f59e0b' : '#ef4444';
-
+function TooltipRow({ label, value, max }) {
+  const color = value >= 7 ? '#22c55e' : value >= 4 ? '#f59e0b' : '#ef4444';
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
-      <div style={{ position: 'relative', width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-        <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-          <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.06)" strokeWidth={sw} fill="none" />
-          <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={sw} fill="none"
-            strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-          />
-        </svg>
-        <span style={{ position: 'absolute', fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{Math.round(clamped)}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '2px 0' }}>
+      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-sans)' }}>{label}</span>
+      <span style={{ fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{value.toFixed(1)}/{max}</span>
+    </div>
+  );
+}
+
+function ParentTooltip({ conviction, secondOrderAvg, evidenceScore }) {
+  return (
+    <div>
+      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-mono)', marginBottom: '10px', lineHeight: 1.5 }}>
+        Health = (Your conviction x 50%) + (2nd order avg x 35%) + (Evidence x 15%)
       </div>
-      <span style={{ fontSize: '11px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Health</span>
+      <TooltipRow label="Core Conviction" value={conviction} max={10} />
+      <TooltipRow label="2nd Order Avg" value={secondOrderAvg} max={10} />
+      <TooltipRow label="Evidence Score" value={evidenceScore} max={10} />
+    </div>
+  );
+}
+
+function SecondOrderTooltip({ conviction, thirdOrderAvg }) {
+  return (
+    <div>
+      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-mono)', marginBottom: '10px', lineHeight: 1.5 }}>
+        Confidence = (Your conviction x 70%) + (3rd order avg x 30%)
+      </div>
+      <TooltipRow label="Your Conviction" value={conviction} max={10} />
+      <TooltipRow label="3rd Order Avg" value={thirdOrderAvg} max={10} />
+    </div>
+  );
+}
+
+function ThirdOrderTooltip({ conviction }) {
+  return (
+    <div>
+      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-mono)', marginBottom: '10px', lineHeight: 1.5 }}>
+        Confidence = Your conviction x 10
+      </div>
+      <TooltipRow label="Your Conviction" value={conviction} max={10} />
     </div>
   );
 }
 
 // ---------- Area Chart with Tooltip ----------
 
-function TickerChart({ ticker }) {
+function TickerChart({ ticker, isSector }) {
   const [tooltip, setTooltip] = useState(null);
   const isLong = ticker.direction === 'long';
   const points = useMemo(() => mockSparkline(ticker.symbol), [ticker.symbol]);
@@ -161,6 +305,7 @@ function TickerChart({ ticker }) {
   const color = trending ? '#22c55e' : '#ef4444';
   const fillColor = trending ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)';
   const desc = ticker.rationale || mockTickerDescription(ticker.symbol, ticker.direction);
+  const fullName = getTickerName(ticker.symbol);
 
   const lineD = points.map((p, i) => {
     const x = (i / (points.length - 1)) * w;
@@ -182,14 +327,24 @@ function TickerChart({ ticker }) {
     <div style={{ padding: '4px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{
-          display: 'flex', alignItems: 'center', gap: '4px', width: '70px', flexShrink: 0,
-          fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700,
-          color: isLong ? '#22c55e' : '#ef4444',
+          display: 'flex', alignItems: 'center', gap: '4px', minWidth: '70px', flexShrink: 0,
         }}>
-          <span style={{ fontSize: '10px' }}>{isLong ? '▲' : '▼'}</span>
-          {ticker.symbol}
+          <span style={{ fontSize: '10px', color: isLong ? '#22c55e' : '#ef4444' }}>{isLong ? '\u25B2' : '\u25BC'}</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700, color: isLong ? '#22c55e' : '#ef4444' }}>
+            {ticker.symbol}
+          </span>
+          {isSector && (
+            <span style={{
+              fontSize: '9px', fontWeight: 600, fontFamily: 'var(--font-mono)',
+              background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)',
+              padding: '1px 5px', borderRadius: '3px', marginLeft: '2px',
+            }}>SECTOR</span>
+          )}
         </div>
-        <div style={{ position: 'relative', flex: 1, maxWidth: '200px' }}
+        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {fullName}
+        </span>
+        <div style={{ position: 'relative', flex: 1, maxWidth: '200px', marginLeft: 'auto' }}
           onMouseMove={handleMouse}
           onMouseLeave={() => setTooltip(null)}
         >
@@ -232,26 +387,27 @@ function TickerChart({ ticker }) {
 // ---------- Conviction Slider ----------
 
 const CONVICTION_LABELS = [
-  '', 'Watching 👀', 'Watching 👀', 'Interesting 🤔', 'Interesting 🤔',
-  'Building 🔨', 'Building 🔨', 'High Conviction 🔥', 'High Conviction 🔥',
-  'Max Bet 🚀', 'Max Bet 🚀',
+  '', 'Watching', 'Watching', 'Interesting', 'Interesting',
+  'Building', 'Building', 'High Conviction', 'High Conviction',
+  'Max Bet', 'Max Bet',
 ];
 
-function ConvictionSlider({ value, onChange }) {
+function ConvictionSlider({ value, onChange, label = 'Your Conviction', large }) {
   const color = value >= 7 ? '#22c55e' : value >= 4 ? '#f59e0b' : '#ef4444';
-  const label = CONVICTION_LABELS[value] || '';
+  const convLabel = CONVICTION_LABELS[value] || '';
+  const emoji = value >= 9 ? ' \uD83D\uDE80' : value >= 7 ? ' \uD83D\uDD25' : value >= 5 ? ' \uD83D\uDD28' : value >= 3 ? ' \uD83E\uDD14' : ' \uD83D\uDC40';
   return (
-    <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <div style={{ marginTop: large ? '18px' : '14px', paddingTop: large ? '16px' : '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-        <span style={{ fontSize: '14px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Your Conviction</span>
+        <span style={{ fontSize: large ? '16px' : '14px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)', fontWeight: large ? 600 : 400 }}>{label}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '14px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{label}</span>
-          <span style={{ fontSize: '14px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{value}/10</span>
+          <span style={{ fontSize: large ? '15px' : '14px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{convLabel}{emoji}</span>
+          <span style={{ fontSize: large ? '16px' : '14px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{value}/10</span>
         </div>
       </div>
       <input type="range" min="1" max="10" value={value} onChange={e => onChange(parseInt(e.target.value))}
         className="accent-green"
-        style={{ width: '100%', height: '4px', cursor: 'pointer' }}
+        style={{ width: '100%', height: large ? '6px' : '4px', cursor: 'pointer' }}
       />
     </div>
   );
@@ -315,7 +471,6 @@ function ConvictionHistory({ thesisId }) {
         </button>
       </div>
 
-      {/* Timeline */}
       {entries.length > 0 && (
         <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', gap: '3px', marginBottom: '12px' }}>
           {entries.map((entry) => {
@@ -336,7 +491,6 @@ function ConvictionHistory({ thesisId }) {
         </div>
       )}
 
-      {/* Add form */}
       {showForm && (
         <form onSubmit={handleSubmit} style={{
           background: 'rgba(255,255,255,0.02)',
@@ -369,7 +523,6 @@ function ConvictionHistory({ thesisId }) {
         </form>
       )}
 
-      {/* Log entries */}
       <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {[...entries].reverse().map(entry => (
           <div key={entry.id} style={{
@@ -399,9 +552,29 @@ function ConvictionHistory({ thesisId }) {
   );
 }
 
+// ---------- Tickers list with sector ETF ----------
+
+function TickersList({ tickers, label, description }) {
+  const sectorETF = useMemo(() => {
+    const inferred = inferSectorETF(label || '', description || '');
+    const existing = (tickers || []).map(t => t.symbol);
+    if (existing.includes(inferred.symbol)) return null;
+    return { ...inferred, rationale: mockTickerDescription(inferred.symbol, inferred.direction) };
+  }, [tickers, label, description]);
+
+  const displayTickers = (tickers || []).slice(0, 3);
+
+  return (
+    <div>
+      {displayTickers.map((t, i) => <TickerChart key={i} ticker={t} />)}
+      {sectorETF && <TickerChart ticker={sectorETF} isSector />}
+    </div>
+  );
+}
+
 // ---------- Hero Thesis Card ----------
 
-function HeroCard({ tree, thesis, healthScore, onDelete }) {
+function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvictionChange, tooltipContent, pulsing, onDelete }) {
   const [deleteHovered, setDeleteHovered] = useState(false);
 
   const heroTickers = useMemo(() => {
@@ -427,7 +600,6 @@ function HeroCard({ tree, thesis, healthScore, onDelete }) {
   }, [tree, thesis]);
 
   const heroIdeas = useMemo(() => getRootIdeas(tree), [tree]);
-
   const tags = thesis?.keywords || [];
 
   return (
@@ -442,7 +614,6 @@ function HeroCard({ tree, thesis, healthScore, onDelete }) {
       <div style={{ display: 'flex', gap: '32px' }}>
         {/* Left 60% */}
         <div style={{ flex: '0 0 60%', minWidth: 0 }}>
-          {/* Title row with delete button */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '10px' }}>
             <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#f59e0b', fontFamily: 'var(--font-sans)', flex: 1, lineHeight: 1.3 }}>
               {tree.label}
@@ -455,8 +626,11 @@ function HeroCard({ tree, thesis, healthScore, onDelete }) {
             </p>
           )}
 
+          {/* Core Conviction slider on hero */}
+          <ConvictionSlider value={parentConviction} onChange={onParentConvictionChange} label="Core Conviction" large />
+
           {tags.length > 0 && (
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '14px', marginBottom: '14px' }}>
               {tags.map(k => (
                 <span key={k} style={{
                   padding: '2px 8px',
@@ -492,7 +666,6 @@ function HeroCard({ tree, thesis, healthScore, onDelete }) {
 
         {/* Right 40% */}
         <div style={{ flex: '0 0 38%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-          {/* Delete button top-right */}
           <div style={{ alignSelf: 'flex-end', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button
               onClick={onDelete}
@@ -513,17 +686,16 @@ function HeroCard({ tree, thesis, healthScore, onDelete }) {
             </button>
           </div>
 
-          <HealthRing score={healthScore} />
+          <HealthRing score={healthScore} tooltipContent={tooltipContent} pulsing={pulsing} />
 
           {heroTickers.length > 0 && (
             <div style={{ width: '100%' }}>
-              {heroTickers.map((t, i) => <TickerChart key={i} ticker={t} />)}
+              <TickersList tickers={heroTickers} label={tree.label} description={tree.description} />
             </div>
           )}
         </div>
       </div>
 
-      {/* Conviction History */}
       {thesis && <ConvictionHistory thesisId={thesis.id} />}
     </div>
   );
@@ -531,14 +703,9 @@ function HeroCard({ tree, thesis, healthScore, onDelete }) {
 
 // ---------- Node Cards ----------
 
-function SecondOrderCard({ node, conviction, onConvictionChange }) {
-  const tickers = (node.tickers || []).slice(0, 4);
+function SecondOrderCard({ node, conviction, onConvictionChange, healthScore, tooltipContent, pulsing }) {
+  const tickers = (node.tickers || []).slice(0, 3);
   const ideas = (node.startup_ideas || []).slice(0, 3);
-  const confidence = useMemo(() => mockNodeConfidence(node.label), [node.label]);
-
-  const displayScore = conviction !== 5
-    ? Math.round(confidence * 0.5 + conviction * 10 * 0.5)
-    : confidence;
 
   return (
     <div style={{
@@ -552,7 +719,7 @@ function SecondOrderCard({ node, conviction, onConvictionChange }) {
         <h3 style={{ color: '#06b6d4', fontSize: '17px', fontWeight: 700, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
           {node.label}
         </h3>
-        <ConfidenceRing score={displayScore} />
+        <HealthRing score={healthScore} size={32} tooltipContent={tooltipContent} pulsing={pulsing} />
       </div>
 
       {node.description && (
@@ -563,7 +730,7 @@ function SecondOrderCard({ node, conviction, onConvictionChange }) {
 
       {tickers.length > 0 && (
         <div style={{ marginBottom: ideas.length > 0 ? '12px' : '0' }}>
-          {tickers.map((t, i) => <TickerChart key={i} ticker={t} />)}
+          <TickersList tickers={tickers} label={node.label} description={node.description} />
         </div>
       )}
 
@@ -591,10 +758,9 @@ function SecondOrderCard({ node, conviction, onConvictionChange }) {
   );
 }
 
-function ThirdOrderCard({ node }) {
-  const tickers = (node.tickers || []).slice(0, 4);
+function ThirdOrderCard({ node, conviction, onConvictionChange, healthScore, tooltipContent, pulsing }) {
+  const tickers = (node.tickers || []).slice(0, 3);
   const ideas = (node.startup_ideas || []).slice(0, 3);
-  const confidence = useMemo(() => mockNodeConfidence(node.label), [node.label]);
 
   return (
     <div style={{
@@ -608,7 +774,7 @@ function ThirdOrderCard({ node }) {
         <h3 style={{ color: '#a855f7', fontSize: '15px', fontWeight: 700, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
           {node.label}
         </h3>
-        <ConfidenceRing score={confidence} size={28} />
+        <HealthRing score={healthScore} size={28} tooltipContent={tooltipContent} pulsing={pulsing} />
       </div>
 
       {node.description && (
@@ -619,7 +785,7 @@ function ThirdOrderCard({ node }) {
 
       {tickers.length > 0 && (
         <div style={{ marginBottom: ideas.length > 0 ? '10px' : '0' }}>
-          {tickers.map((t, i) => <TickerChart key={i} ticker={t} />)}
+          <TickersList tickers={tickers} label={node.label} description={node.description} />
         </div>
       )}
 
@@ -641,6 +807,8 @@ function ThirdOrderCard({ node }) {
           </ul>
         </div>
       )}
+
+      <ConvictionSlider value={conviction} onChange={onConvictionChange} />
     </div>
   );
 }
@@ -649,69 +817,123 @@ function ThirdOrderCard({ node }) {
 
 export default function TreeView({ tree, thesis, onDelete }) {
   const secondOrder = tree?.children || [];
-  const initialConviction = thesis?.conviction_score ?? 5;
-  const [convictions, setConvictions] = useState(() => {
+
+  // --- State: parent conviction ---
+  const initialParentConviction = Math.round(thesis?.conviction_score ?? 5);
+  const [parentConviction, setParentConviction] = useState(initialParentConviction);
+
+  // --- State: 2nd order convictions (keyed by node id) ---
+  const [soConvictions, setSoConvictions] = useState(() => {
     const init = {};
-    secondOrder.forEach(so => { init[so.id] = Math.round(initialConviction); });
+    secondOrder.forEach(so => {
+      init[so.id] = Math.round(mockNodeConfidence(so.label) / 10);
+    });
     return init;
   });
-  const debounceRef = useRef(null);
-  const convictionsRef = useRef(convictions);
 
-  // Keep ref in sync with state
-  useEffect(() => {
-    convictionsRef.current = convictions;
-  }, [convictions]);
+  // --- State: 3rd order convictions (keyed by node id) ---
+  const [toConvictions, setToConvictions] = useState(() => {
+    const init = {};
+    secondOrder.forEach(so => {
+      (so.children || []).forEach(to => {
+        init[to.id] = Math.round(mockNodeConfidence(to.label) / 10);
+      });
+    });
+    return init;
+  });
 
-  // Load latest conviction from API and initialize all sliders to it
+  // --- Pulse state ---
+  const [pulsingIds, setPulsingIds] = useState(new Set());
+  const pulseTimerRef = useRef(null);
+
+  const triggerPulse = useCallback((...ids) => {
+    setPulsingIds(new Set(ids));
+    clearTimeout(pulseTimerRef.current);
+    pulseTimerRef.current = setTimeout(() => setPulsingIds(new Set()), 350);
+  }, []);
+
+  useEffect(() => () => clearTimeout(pulseTimerRef.current), []);
+
+  // --- Load latest conviction from API for parent ---
   useEffect(() => {
-    if (!thesis?.id || secondOrder.length === 0) return;
+    if (!thesis?.id) return;
     getConviction(thesis.id).then(r => {
       if (r.data && r.data.length > 0) {
-        const latest = r.data[r.data.length - 1].score;
-        setConvictions(prev => {
-          const next = { ...prev };
-          for (const key of Object.keys(next)) {
-            next[key] = latest;
-          }
-          return next;
-        });
+        setParentConviction(r.data[r.data.length - 1].score);
       }
     }).catch(() => {});
-  }, [thesis?.id, secondOrder.length]);
-
-  const saveConviction = useCallback((nextConvictions) => {
-    if (!thesis?.id) return;
-    clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      const vals = Object.values(nextConvictions);
-      if (vals.length === 0) return;
-      const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
-      putConviction(thesis.id, { score: avg, note: 'Updated via slider' }).catch(() => {});
-    }, 500);
   }, [thesis?.id]);
 
-  // Cleanup debounce on unmount
-  useEffect(() => () => clearTimeout(debounceRef.current), []);
+  // --- Persist parent conviction (debounced) ---
+  const parentDebounceRef = useRef(null);
+  useEffect(() => () => clearTimeout(parentDebounceRef.current), []);
 
-  const handleConvictionChange = useCallback((nodeId, value) => {
-    setConvictions(prev => {
-      const next = { ...prev, [nodeId]: value };
-      saveConviction(next);
-      return next;
+  const handleParentConvictionChange = useCallback((value) => {
+    setParentConviction(value);
+    triggerPulse('parent');
+    if (!thesis?.id) return;
+    clearTimeout(parentDebounceRef.current);
+    parentDebounceRef.current = setTimeout(() => {
+      putConviction(thesis.id, { score: value, note: 'Updated via slider' }).catch(() => {});
+    }, 500);
+  }, [thesis?.id, triggerPulse]);
+
+  const handleSoConvictionChange = useCallback((nodeId, value) => {
+    setSoConvictions(prev => ({ ...prev, [nodeId]: value }));
+    triggerPulse(nodeId, 'parent');
+  }, [triggerPulse]);
+
+  const handleToConvictionChange = useCallback((toId, soId, value) => {
+    setToConvictions(prev => ({ ...prev, [toId]: value }));
+    triggerPulse(toId, soId, 'parent');
+  }, [triggerPulse]);
+
+  // --- Bottom-up health calculations ---
+  const evidenceScore = thesis?.evidence_score ?? 5;
+
+  // 3rd order health: slider * 10
+  const toHealthScores = useMemo(() => {
+    const map = {};
+    secondOrder.forEach(so => {
+      (so.children || []).forEach(to => {
+        map[to.id] = (toConvictions[to.id] ?? 5) * 10;
+      });
     });
-  }, [saveConviction]);
+    return map;
+  }, [secondOrder, toConvictions]);
 
-  const healthScore = useMemo(() => {
-    const baseHealth = thesis?.health_score ?? 50;
-    const baseConviction = thesis?.conviction_score ?? 5;
-    const vals = Object.values(convictions);
-    if (vals.length === 0) return Math.round(baseHealth);
-    const avgConviction = vals.reduce((a, b) => a + b, 0) / vals.length;
-    // Adjust health preview by conviction delta (conviction weight=0.4, scale=10 → factor=4)
-    const delta = (avgConviction - baseConviction) * 4;
-    return Math.round(Math.max(0, Math.min(100, baseHealth + delta)));
-  }, [thesis?.health_score, thesis?.conviction_score, convictions]);
+  // 2nd order health: (own slider * 0.7 + avg children * 0.3) * 10
+  const soHealthScores = useMemo(() => {
+    const map = {};
+    secondOrder.forEach(so => {
+      const ownSlider = soConvictions[so.id] ?? 5;
+      const children = so.children || [];
+      let childAvg = 5;
+      if (children.length > 0) {
+        const childSliderSum = children.reduce((sum, to) => sum + (toConvictions[to.id] ?? 5), 0);
+        childAvg = childSliderSum / children.length;
+      }
+      map[so.id] = (ownSlider * 0.7 + childAvg * 0.3) * 10;
+    });
+    return map;
+  }, [secondOrder, soConvictions, toConvictions]);
+
+  // Parent health: (own slider * 0.5 + avg 2nd order health/10 * 0.35 + evidence * 0.15) * 10
+  const parentHealthScore = useMemo(() => {
+    let soAvg = 5;
+    if (secondOrder.length > 0) {
+      const soSum = secondOrder.reduce((sum, so) => sum + (soHealthScores[so.id] ?? 50), 0);
+      soAvg = soSum / secondOrder.length / 10; // convert back to 0-10 scale
+    }
+    const health = (parentConviction * 0.5 + soAvg * 0.35 + evidenceScore * 0.15) * 10;
+    return Math.round(Math.max(0, Math.min(100, health)));
+  }, [parentConviction, secondOrder, soHealthScores, evidenceScore]);
+
+  // Avg values for tooltips
+  const soAvgFor10 = useMemo(() => {
+    if (secondOrder.length === 0) return 5;
+    return secondOrder.reduce((s, so) => s + (soHealthScores[so.id] ?? 50), 0) / secondOrder.length / 10;
+  }, [secondOrder, soHealthScores]);
 
   if (!tree) {
     return (
@@ -723,7 +945,22 @@ export default function TreeView({ tree, thesis, onDelete }) {
 
   return (
     <div>
-      <HeroCard tree={tree} thesis={thesis} healthScore={healthScore} onDelete={onDelete} />
+      <HeroCard
+        tree={tree}
+        thesis={thesis}
+        healthScore={parentHealthScore}
+        parentConviction={parentConviction}
+        onParentConvictionChange={handleParentConvictionChange}
+        onDelete={onDelete}
+        pulsing={pulsingIds.has('parent')}
+        tooltipContent={
+          <ParentTooltip
+            conviction={parentConviction}
+            secondOrderAvg={soAvgFor10}
+            evidenceScore={evidenceScore}
+          />
+        }
+      />
 
       {secondOrder.length > 0 && (
         <>
@@ -747,17 +984,27 @@ export default function TreeView({ tree, thesis, onDelete }) {
           }}>
             {secondOrder.map((so) => {
               const children = so.children || [];
+              const soConv = soConvictions[so.id] ?? 5;
+              const childSliders = children.map(to => toConvictions[to.id] ?? 5);
+              const childAvg = childSliders.length > 0
+                ? childSliders.reduce((a, b) => a + b, 0) / childSliders.length
+                : 5;
+
               return (
                 <div key={so.id} style={{ display: 'flex', flexDirection: 'column' }}>
                   <SecondOrderCard
                     node={so}
-                    conviction={convictions[so.id] ?? Math.round(initialConviction)}
-                    onConvictionChange={(v) => handleConvictionChange(so.id, v)}
+                    conviction={soConv}
+                    onConvictionChange={(v) => handleSoConvictionChange(so.id, v)}
+                    healthScore={Math.round(soHealthScores[so.id] ?? 50)}
+                    pulsing={pulsingIds.has(so.id)}
+                    tooltipContent={
+                      <SecondOrderTooltip conviction={soConv} thirdOrderAvg={childAvg} />
+                    }
                   />
 
                   {children.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', padding: '0 12px' }}>
-                      {/* Connecting line from 2nd-order to 3rd-order */}
                       <div style={{
                         width: '1px',
                         height: '16px',
@@ -766,23 +1013,33 @@ export default function TreeView({ tree, thesis, onDelete }) {
                       }} />
 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {children.map((to, idx) => (
-                          <div key={to.id} style={{ position: 'relative' }}>
-                            {idx > 0 && (
-                              <div style={{
-                                width: '1px',
-                                height: '8px',
-                                background: 'rgba(255,255,255,0.08)',
-                                margin: '0 auto',
-                                marginBottom: '0',
-                                position: 'absolute',
-                                top: '-8px',
-                                left: '50%',
-                              }} />
-                            )}
-                            <ThirdOrderCard node={to} />
-                          </div>
-                        ))}
+                        {children.map((to, idx) => {
+                          const toConv = toConvictions[to.id] ?? 5;
+                          return (
+                            <div key={to.id} style={{ position: 'relative' }}>
+                              {idx > 0 && (
+                                <div style={{
+                                  width: '1px',
+                                  height: '8px',
+                                  background: 'rgba(255,255,255,0.08)',
+                                  margin: '0 auto',
+                                  marginBottom: '0',
+                                  position: 'absolute',
+                                  top: '-8px',
+                                  left: '50%',
+                                }} />
+                              )}
+                              <ThirdOrderCard
+                                node={to}
+                                conviction={toConv}
+                                onConvictionChange={(v) => handleToConvictionChange(to.id, so.id, v)}
+                                healthScore={Math.round(toHealthScores[to.id] ?? 50)}
+                                pulsing={pulsingIds.has(to.id)}
+                                tooltipContent={<ThirdOrderTooltip conviction={toConv} />}
+                              />
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}

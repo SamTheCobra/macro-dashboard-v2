@@ -10,8 +10,8 @@ export default function ThesisCard({ thesis }) {
       to={`/thesis/${thesis.id}`}
       style={{
         display: 'block',
-        background: hovered ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
-        border: `1px solid ${hovered ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)'}`,
+        background: hovered ? 'var(--color-card-hover)' : 'var(--color-card)',
+        border: `1px solid ${hovered ? 'var(--color-border-hover)' : 'var(--color-border)'}`,
         borderRadius: '12px',
         padding: '24px',
         textDecoration: 'none',
@@ -26,7 +26,7 @@ export default function ThesisCard({ thesis }) {
         <h3 style={{
           fontSize: '17px',
           fontWeight: 700,
-          color: hovered ? '#22c55e' : 'var(--color-text)',
+          color: hovered ? 'var(--color-accent-green)' : 'var(--color-text)',
           fontFamily: 'var(--font-sans)',
           transition: 'color 0.15s',
           flex: 1,
@@ -96,8 +96,8 @@ export default function ThesisCard({ thesis }) {
             {thesis.top_tickers.map(t => (
               <span key={t} style={{
                 padding: '2px 8px',
-                background: 'rgba(34,197,94,0.1)',
-                color: '#22c55e',
+                background: 'var(--color-ticker-badge-bg)',
+                color: 'var(--color-accent-green)',
                 fontSize: '12px',
                 borderRadius: '4px',
                 fontFamily: 'var(--font-mono)',

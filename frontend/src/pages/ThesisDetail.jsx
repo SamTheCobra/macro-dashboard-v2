@@ -43,7 +43,7 @@ export default function ThesisDetail() {
   }
 
   return (
-    <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', overflowX: 'hidden' }}>
       <Link
         to="/"
         style={{
@@ -57,7 +57,7 @@ export default function ThesisDetail() {
           marginBottom: '20px',
           transition: 'color 0.15s',
         }}
-        onMouseEnter={e => e.currentTarget.style.color = '#22c55e'}
+        onMouseEnter={e => e.currentTarget.style.color = 'var(--color-accent-green)'}
         onMouseLeave={e => e.currentTarget.style.color = 'var(--color-dim)'}
       >
         ← Back to Dashboard

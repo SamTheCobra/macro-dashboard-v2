@@ -2,12 +2,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0a0e14;
-  --color-card: rgba(255, 255, 255, 0.02);
-  --color-card-hover: rgba(255, 255, 255, 0.04);
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-hover: rgba(255, 255, 255, 0.12);
-  --color-muted: rgba(255, 255, 255, 0.04);
+  --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
   --color-green: #22c55e;
   --color-amber: #f59e0b;
   --color-red: #ef4444;
@@ -17,13 +13,98 @@
   --color-pink: #ec4899;
   --color-teal: #14b8a6;
   --color-rose: #f43f5e;
+}
+
+/* Dark theme (default) */
+:root, [data-theme="dark"] {
+  --color-bg: #0a0e14;
+  --color-card: rgba(255, 255, 255, 0.02);
+  --color-card-hover: rgba(255, 255, 255, 0.04);
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-hover: rgba(255, 255, 255, 0.12);
+  --color-muted: rgba(255, 255, 255, 0.04);
   --color-text: rgba(255, 255, 255, 0.95);
   --color-secondary: rgba(255, 255, 255, 0.7);
   --color-dim: rgba(255, 255, 255, 0.45);
   --color-faint: rgba(255, 255, 255, 0.3);
   --color-ghost: rgba(255, 255, 255, 0.2);
-  --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --color-ring-track: rgba(255, 255, 255, 0.06);
+  --color-header-bg: rgba(255, 255, 255, 0.02);
+  --color-header-border: rgba(255, 255, 255, 0.06);
+  --color-tooltip-bg: rgba(0, 0, 0, 0.95);
+  --color-tooltip-border: rgba(255, 255, 255, 0.1);
+  --color-tag-bg: rgba(255, 255, 255, 0.04);
+  --color-tag-text: rgba(255, 255, 255, 0.35);
+  --color-ticker-badge-bg: rgba(34, 197, 94, 0.1);
+  --color-modal-overlay: rgba(0, 0, 0, 0.7);
+  --color-modal-bg: #0a0e14;
+  --color-input-bg: rgba(255, 255, 255, 0.04);
+  --color-input-border: rgba(255, 255, 255, 0.08);
+  --color-error-bg: rgba(239, 68, 68, 0.08);
+  --color-error-border: rgba(239, 68, 68, 0.2);
+  --color-btn-new-bg: rgba(34, 197, 94, 0.1);
+  --color-btn-new-border: rgba(34, 197, 94, 0.3);
+  --color-btn-new-hover: rgba(34, 197, 94, 0.2);
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-connector: rgba(255, 255, 255, 0.06);
+  --color-delete-border: rgba(255, 255, 255, 0.06);
+  --color-delete-hover-border: rgba(239, 68, 68, 0.3);
+  --color-delete-text: rgba(255, 255, 255, 0.25);
+  --color-slider-track: rgba(255, 255, 255, 0.15);
+  --color-accent-amber: #f59e0b;
+  --color-accent-cyan: #06b6d4;
+  --color-accent-purple: #a855f7;
+  --color-accent-green: #22c55e;
+  --color-chart-up: #22c55e;
+  --color-chart-down: #ef4444;
+  --color-chart-up-fill: rgba(34, 197, 94, 0.12);
+  --color-chart-down-fill: rgba(239, 68, 68, 0.12);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --color-bg: #faf9f6;
+  --color-card: #ffffff;
+  --color-card-hover: #f8f8f6;
+  --color-border: rgba(0, 0, 0, 0.06);
+  --color-border-hover: rgba(0, 0, 0, 0.12);
+  --color-muted: rgba(0, 0, 0, 0.03);
+  --color-text: #1a1a1a;
+  --color-secondary: #444444;
+  --color-dim: #8a8a8a;
+  --color-faint: #aaaaaa;
+  --color-ghost: #cccccc;
+  --color-ring-track: rgba(0, 0, 0, 0.06);
+  --color-header-bg: rgba(255, 255, 255, 0.85);
+  --color-header-border: rgba(0, 0, 0, 0.06);
+  --color-tooltip-bg: #1a1a1a;
+  --color-tooltip-border: rgba(255, 255, 255, 0.15);
+  --color-tag-bg: #f0ede8;
+  --color-tag-text: #666666;
+  --color-ticker-badge-bg: rgba(34, 150, 80, 0.1);
+  --color-modal-overlay: rgba(0, 0, 0, 0.4);
+  --color-modal-bg: #ffffff;
+  --color-input-bg: rgba(0, 0, 0, 0.03);
+  --color-input-border: rgba(0, 0, 0, 0.08);
+  --color-error-bg: rgba(239, 68, 68, 0.06);
+  --color-error-border: rgba(239, 68, 68, 0.15);
+  --color-btn-new-bg: #1a1a1a;
+  --color-btn-new-border: #1a1a1a;
+  --color-btn-new-hover: #333333;
+  --color-shadow: rgba(0, 0, 0, 0.08);
+  --color-connector: rgba(0, 0, 0, 0.08);
+  --color-delete-border: rgba(0, 0, 0, 0.08);
+  --color-delete-hover-border: rgba(239, 68, 68, 0.3);
+  --color-delete-text: #aaaaaa;
+  --color-slider-track: #e0e0e0;
+  --color-accent-amber: #d4a855;
+  --color-accent-cyan: #5ba8b5;
+  --color-accent-purple: #9b7bc7;
+  --color-accent-green: #22c55e;
+  --color-chart-up: #2d8a56;
+  --color-chart-down: #c75050;
+  --color-chart-up-fill: rgba(45, 138, 86, 0.1);
+  --color-chart-down-fill: rgba(199, 80, 80, 0.1);
 }
 
 * {
@@ -39,6 +120,7 @@ body {
   -webkit-font-smoothing: antialiased;
   font-size: 14px;
   line-height: 1.5;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 ::-webkit-scrollbar {
@@ -49,11 +131,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-ghost);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--color-faint);
 }
 
 @keyframes fadeIn {
@@ -69,4 +151,38 @@ body {
 
 .animate-fade-in {
   animation: fadeIn 0.3s ease both;
+}
+
+/* Slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-slider-track);
+}
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-slider-track);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-accent-green);
+  margin-top: -5px;
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-accent-green);
+  border: none;
+  cursor: pointer;
 }

@@ -21,7 +21,7 @@ export default function HealthGauge({ score, size = 64 }) {
     '#f97316': 'rgba(249,115,22,0.3)',
     '#ef4444': 'rgba(239,68,68,0.3)',
   };
-  const glow = glowMap[color] || 'rgba(255,255,255,0.1)';
+  const glow = glowMap[color] || 'rgba(128,128,128,0.2)';
 
   return (
     <div style={{
@@ -40,7 +40,7 @@ export default function HealthGauge({ score, size = 64 }) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="rgba(255,255,255,0.06)"
+          stroke="var(--color-ring-track)"
           strokeWidth={strokeWidth}
           fill="none"
         />

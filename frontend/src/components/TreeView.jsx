@@ -61,50 +61,114 @@ function getRootIdeas(tree) {
   return FALLBACK_IDEAS[bucket];
 }
 
-// ---------- Ticker full names ----------
+// ---------- Ticker full names (~200 entries) ----------
 
 const TICKER_NAMES = {
-  SPY: 'SPDR S&P 500 ETF', QQQ: 'Invesco QQQ Trust', TLT: 'iShares 20+ Year Treasury Bond ETF',
-  GLD: 'SPDR Gold Shares', SLV: 'iShares Silver Trust', UUP: 'Invesco DB US Dollar Index',
+  // Major indices & broad ETFs
+  SPY: 'SPDR S&P 500 ETF', QQQ: 'Invesco QQQ Trust', DIA: 'SPDR Dow Jones Industrial Avg',
+  IWM: 'iShares Russell 2000 ETF', IWF: 'iShares Russell 1000 Growth', IWD: 'iShares Russell 1000 Value',
+  VTI: 'Vanguard Total Stock Market', VOO: 'Vanguard S&P 500 ETF', VEA: 'Vanguard FTSE Developed Markets',
+  VWO: 'Vanguard FTSE Emerging Markets', EEM: 'iShares MSCI Emerging Markets ETF', EFA: 'iShares MSCI EAFE ETF',
+  // Sector ETFs
   XLF: 'Financial Select Sector SPDR', XLE: 'Energy Select Sector SPDR',
   XLK: 'Technology Select Sector SPDR', XLV: 'Health Care Select Sector SPDR',
   XLP: 'Consumer Staples Select Sector SPDR', XLY: 'Consumer Discretionary Select Sector SPDR',
   XLI: 'Industrial Select Sector SPDR', XLB: 'Materials Select Sector SPDR',
   XLU: 'Utilities Select Sector SPDR', XLRE: 'Real Estate Select Sector SPDR',
   XLC: 'Communication Services Select Sector SPDR',
-  IWM: 'iShares Russell 2000 ETF', EEM: 'iShares MSCI Emerging Markets ETF',
-  KRE: 'SPDR S&P Regional Banking ETF', ARKK: 'ARK Innovation ETF',
-  NVDA: 'NVIDIA Corp', MSFT: 'Microsoft Corp', AAPL: 'Apple Inc',
-  GOOGL: 'Alphabet Inc', AMZN: 'Amazon.com Inc', META: 'Meta Platforms Inc',
-  TSLA: 'Tesla Inc', JPM: 'JPMorgan Chase & Co', BRK: 'Berkshire Hathaway',
-  V: 'Visa Inc', MA: 'Mastercard Inc', JNJ: 'Johnson & Johnson',
-  UNH: 'UnitedHealth Group', PG: 'Procter & Gamble', HD: 'Home Depot Inc',
-  DIS: 'Walt Disney Co', NFLX: 'Netflix Inc', CRM: 'Salesforce Inc',
-  AMD: 'Advanced Micro Devices', INTC: 'Intel Corp', AVGO: 'Broadcom Inc',
-  COST: 'Costco Wholesale', WMT: 'Walmart Inc', PEP: 'PepsiCo Inc',
-  KO: 'Coca-Cola Co', MCD: "McDonald's Corp", SBUX: 'Starbucks Corp',
-  NKE: 'Nike Inc', BA: 'Boeing Co', CAT: 'Caterpillar Inc',
-  GS: 'Goldman Sachs', MS: 'Morgan Stanley', C: 'Citigroup Inc',
-  BAC: 'Bank of America', WFC: 'Wells Fargo & Co',
-  XOM: 'Exxon Mobil Corp', CVX: 'Chevron Corp', COP: 'ConocoPhillips',
-  LLY: 'Eli Lilly & Co', PFE: 'Pfizer Inc', ABBV: 'AbbVie Inc',
-  MRK: 'Merck & Co', BMY: 'Bristol-Myers Squibb', NVO: 'Novo Nordisk',
-  COIN: 'Coinbase Global', SQ: 'Block Inc', PYPL: 'PayPal Holdings',
-  SOFI: 'SoFi Technologies', PLTR: 'Palantir Technologies', SNOW: 'Snowflake Inc',
-  NET: 'Cloudflare Inc', DDOG: 'Datadog Inc', ZS: 'Zscaler Inc',
-  PANW: 'Palo Alto Networks', CRWD: 'CrowdStrike Holdings',
-  DBA: 'Invesco DB Agriculture Fund', LIT: 'Global X Lithium & Battery Tech ETF',
-  BTC: 'Bitcoin', MSTR: 'MicroStrategy Inc', IBIT: 'iShares Bitcoin Trust',
-  SMH: 'VanEck Semiconductor ETF', SOXX: 'iShares Semiconductor ETF',
-  TAN: 'Invesco Solar ETF', ICLN: 'iShares Global Clean Energy ETF',
+  // Fixed income & commodities
+  TLT: 'iShares 20+ Year Treasury Bond ETF', TBF: 'ProShares Short 20+ Year Treasury',
+  SHY: 'iShares 1-3 Year Treasury Bond', IEF: 'iShares 7-10 Year Treasury Bond',
+  HYG: 'iShares iBoxx High Yield Corporate Bond', LQD: 'iShares iBoxx Investment Grade Corporate Bond',
+  GLD: 'SPDR Gold Shares', SLV: 'iShares Silver Trust', UUP: 'Invesco DB US Dollar Index',
+  DBA: 'Invesco DB Agriculture Fund', USO: 'United States Oil Fund',
+  // Thematic ETFs
+  ARKK: 'ARK Innovation ETF', ARKG: 'ARK Genomic Revolution ETF',
+  KRE: 'SPDR S&P Regional Banking ETF', SMH: 'VanEck Semiconductor ETF',
+  SOXX: 'iShares Semiconductor ETF', TAN: 'Invesco Solar ETF',
+  ICLN: 'iShares Global Clean Energy ETF', LIT: 'Global X Lithium & Battery Tech ETF',
   KWEB: 'KraneShares CSI China Internet ETF', FXI: 'iShares China Large-Cap ETF',
   VNQ: 'Vanguard Real Estate ETF', ITB: 'iShares U.S. Home Construction ETF',
   XHB: 'SPDR S&P Homebuilders ETF', IBB: 'iShares Biotechnology ETF',
   HACK: 'ETFMG Prime Cyber Security ETF', BOTZ: 'Global X Robotics & AI ETF',
+  GDX: 'VanEck Gold Miners ETF', COPX: 'Global X Copper Miners ETF',
+  WFH: 'Direxion Work From Home ETF', IBIT: 'iShares Bitcoin Trust',
+  // Mega-cap tech
+  NVDA: 'NVIDIA Corp', MSFT: 'Microsoft Corp', AAPL: 'Apple Inc',
+  GOOGL: 'Alphabet Inc', GOOG: 'Alphabet Inc (Class C)', AMZN: 'Amazon.com Inc',
+  META: 'Meta Platforms Inc', TSLA: 'Tesla Inc', AVGO: 'Broadcom Inc',
+  // Semiconductors
+  AMD: 'Advanced Micro Devices', INTC: 'Intel Corp', QCOM: 'Qualcomm Inc',
+  TXN: 'Texas Instruments', MU: 'Micron Technology', AMAT: 'Applied Materials',
+  LRCX: 'Lam Research', KLAC: 'KLA Corp', MRVL: 'Marvell Technology',
+  // Software & cloud
+  CRM: 'Salesforce Inc', NOW: 'ServiceNow Inc', SNOW: 'Snowflake Inc',
+  NET: 'Cloudflare Inc', DDOG: 'Datadog Inc', ZS: 'Zscaler Inc',
+  PANW: 'Palo Alto Networks', CRWD: 'CrowdStrike Holdings', OKTA: 'Okta Inc',
+  PLTR: 'Palantir Technologies', TWLO: 'Twilio Inc', TTD: 'The Trade Desk',
+  PUBM: 'PubMatic Inc', DUOL: 'Duolingo Inc',
+  // Fintech & payments
+  V: 'Visa Inc', MA: 'Mastercard Inc', PYPL: 'PayPal Holdings',
+  SQ: 'Block Inc', COIN: 'Coinbase Global', SOFI: 'SoFi Technologies',
+  // Banks & financials
+  JPM: 'JPMorgan Chase & Co', BAC: 'Bank of America', WFC: 'Wells Fargo & Co',
+  GS: 'Goldman Sachs', MS: 'Morgan Stanley', C: 'Citigroup Inc',
+  BRK: 'Berkshire Hathaway', PGR: 'Progressive Corp',
+  // Healthcare & pharma
+  JNJ: 'Johnson & Johnson', UNH: 'UnitedHealth Group', LLY: 'Eli Lilly & Co',
+  PFE: 'Pfizer Inc', ABBV: 'AbbVie Inc', MRK: 'Merck & Co',
+  BMY: 'Bristol-Myers Squibb', NVO: 'Novo Nordisk', AMGN: 'Amgen Inc',
+  GILD: 'Gilead Sciences', BIIB: 'Biogen Inc', ISRG: 'Intuitive Surgical',
+  SYK: 'Stryker Corp', IDXX: 'IDEXX Laboratories', HIMS: 'Hims & Hers Health',
+  TDOC: 'Teladoc Health', AMWL: 'Amwell', USPH: 'US Physical Therapy',
+  TRUP: 'Trupanion Inc',
+  // Consumer
+  PG: 'Procter & Gamble', KO: 'Coca-Cola Co', PEP: 'PepsiCo Inc',
+  COST: 'Costco Wholesale', WMT: 'Walmart Inc', HD: 'Home Depot Inc',
+  LOW: "Lowe's Companies", MCD: "McDonald's Corp", SBUX: 'Starbucks Corp',
+  NKE: 'Nike Inc', DIS: 'Walt Disney Co', NFLX: 'Netflix Inc',
+  SPOT: 'Spotify Technology', DG: 'Dollar General', BJ: "BJ's Wholesale Club",
+  EL: 'Estee Lauder Companies', CPRI: 'Capri Holdings', LVMUY: 'LVMH',
+  DECK: 'Deckers Outdoor', YETI: 'YETI Holdings', WSM: 'Williams-Sonoma',
+  ETSY: 'Etsy Inc', CHWY: 'Chewy Inc',
+  // E-commerce & delivery
+  DASH: 'DoorDash Inc', CART: 'Instacart (Maplebear)', TOST: 'Toast Inc',
+  // Industrials & defense
+  BA: 'Boeing Co', CAT: 'Caterpillar Inc', DE: 'Deere & Company',
+  HON: 'Honeywell International', UNP: 'Union Pacific', UPS: 'United Parcel Service',
+  RTX: 'RTX Corp (Raytheon)', LMT: 'Lockheed Martin', GE: 'GE Aerospace',
+  // Energy
+  XOM: 'Exxon Mobil Corp', CVX: 'Chevron Corp', COP: 'ConocoPhillips',
+  EOG: 'EOG Resources', SLB: 'Schlumberger', VST: 'Vistra Corp',
+  SMR: 'NuScale Power', FSLR: 'First Solar Inc',
+  // Real estate & REITs
+  AMT: 'American Tower Corp', PLD: 'Prologis Inc', O: 'Realty Income Corp',
+  EQR: 'Equity Residential', VNO: 'Vornado Realty Trust', EXR: 'Extra Space Storage',
+  VTR: 'Ventas Inc', WELL: 'Welltower Inc', UMH: 'UMH Properties',
+  AMH: 'American Homes 4 Rent', DHI: 'D.R. Horton', LEN: 'Lennar Corp',
+  // Telecom & media
+  T: 'AT&T Inc', VZ: 'Verizon Communications', TMUS: 'T-Mobile US',
+  CMCSA: 'Comcast Corp', MSGS: 'Madison Square Garden Sports',
+  // Internet & social
+  SNAP: 'Snap Inc', PINS: 'Pinterest Inc', RBLX: 'Roblox Corp',
+  ZM: 'Zoom Video Communications', MTCH: 'Match Group', UPWK: 'Upwork Inc',
+  DKNG: 'DraftKings Inc', PTON: 'Peloton Interactive',
+  // Autos & EV
+  F: 'Ford Motor Co', GM: 'General Motors', RIVN: 'Rivian Automotive',
+  LCID: 'Lucid Group',
+  // Utilities & water
+  NEE: 'NextEra Energy', DUK: 'Duke Energy', SO: 'Southern Company',
+  AWK: 'American Water Works', XYL: 'Xylem Inc',
+  // Materials & packaging
+  AMCR: 'Amcor PLC', FCX: 'Freeport-McMoRan',
+  // Specialty
+  BTC: 'Bitcoin', MSTR: 'MicroStrategy Inc', GRMN: 'Garmin Ltd',
+  MLKN: 'MillerKnoll Inc', TPX: 'Tempur Sealy International',
+  BKD: 'Brookdale Senior Living', COUR: 'Coursera Inc', EAR: 'Eargo Inc',
 };
 
 function getTickerName(symbol) {
-  return TICKER_NAMES[symbol] || symbol;
+  return TICKER_NAMES[symbol] || null;
 }
 
 function mockTickerDescription(symbol, direction) {
@@ -191,7 +255,7 @@ function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
           transition: 'filter 0.3s',
           filter: pulsing ? `drop-shadow(0 0 6px ${color})` : 'none',
         }}>
-          <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.06)" strokeWidth={sw} fill="none" />
+          <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--color-ring-track)" strokeWidth={sw} fill="none" />
           <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={sw} fill="none"
             strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
             style={{ transition: 'stroke-dashoffset 0.3s, stroke 0.3s' }}
@@ -205,7 +269,7 @@ function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
         }}>{Math.round(clamped)}</span>
       </div>
       {size >= 64 && (
-        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em' }}>Health</span>
+        <span style={{ fontSize: '10px', color: 'var(--color-faint)', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em' }}>Health</span>
       )}
 
       {showTooltip && tooltipContent && (
@@ -215,8 +279,8 @@ function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
           left: '50%',
           transform: 'translateX(-50%)',
           marginBottom: '8px',
-          background: 'rgba(0,0,0,0.95)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          background: 'var(--color-tooltip-bg)',
+          border: '1px solid var(--color-tooltip-border)',
           borderRadius: '12px',
           padding: '16px',
           maxWidth: '280px',
@@ -227,8 +291,8 @@ function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
           {tooltipContent}
           <div style={{
             position: 'absolute', bottom: '-6px', left: '50%', transform: 'translateX(-50%) rotate(45deg)',
-            width: '10px', height: '10px', background: 'rgba(0,0,0,0.95)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            width: '10px', height: '10px', background: 'var(--color-tooltip-bg)',
+            border: '1px solid var(--color-tooltip-border)',
             borderTop: 'none', borderLeft: 'none',
           }} />
         </div>
@@ -297,11 +361,11 @@ function TickerChart({ ticker, isSector }) {
   const range = max - min || 1;
   const w = 180, h = 24;
   const trending = vals[vals.length - 1] > vals[0];
-  const color = trending ? '#22c55e' : '#ef4444';
-  const fillColor = trending ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)';
+  const color = trending ? 'var(--color-chart-up)' : 'var(--color-chart-down)';
+  const fillColor = trending ? 'var(--color-chart-up-fill)' : 'var(--color-chart-down-fill)';
   const desc = ticker.rationale || mockTickerDescription(ticker.symbol, ticker.direction);
   const fullName = getTickerName(ticker.symbol);
-  const accentColor = isLong ? '#22c55e' : '#ef4444';
+  const accentColor = isLong ? 'var(--color-chart-up)' : 'var(--color-chart-down)';
 
   const lineD = points.map((p, i) => {
     const x = (i / (points.length - 1)) * w;
@@ -324,19 +388,21 @@ function TickerChart({ ticker, isSector }) {
   return (
     <div style={{ opacity: rowOpacity }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'baseline', gap: '0' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'baseline', gap: '0', overflow: 'hidden' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700, color: accentColor, flexShrink: 0 }}>
             {ticker.symbol}
           </span>
-          <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-sans)', marginLeft: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            · {fullName}
-          </span>
+          {fullName && (
+            <span style={{ fontSize: '14px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)', marginLeft: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              · {fullName}
+            </span>
+          )}
         </div>
-        <div style={{ position: 'relative', width: '180px', flexShrink: 0 }}
+        <div style={{ position: 'relative', width: '180px', maxWidth: '100%', flexShrink: 0 }}
           onMouseMove={handleMouse}
           onMouseLeave={() => setTooltip(null)}
         >
-          <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ display: 'block', borderRadius: '4px' }}>
+          <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ display: 'block', borderRadius: '4px', maxWidth: '100%' }}>
             <path d={areaD} fill={fillColor} />
             <path d={lineD} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -346,13 +412,13 @@ function TickerChart({ ticker, isSector }) {
               left: `${(tooltip.x / w) * 100}%`,
               top: '-24px',
               transform: 'translateX(-50%)',
-              background: 'rgba(0,0,0,0.9)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--color-tooltip-bg)',
+              border: '1px solid var(--color-border)',
               borderRadius: '4px',
               padding: '2px 6px',
               fontSize: '10px',
               fontFamily: 'var(--font-mono)',
-              color: '#fff',
+              color: 'var(--color-text)',
               whiteSpace: 'nowrap',
               pointerEvents: 'none',
               zIndex: 10,
@@ -363,7 +429,7 @@ function TickerChart({ ticker, isSector }) {
         </div>
       </div>
       <div style={{
-        fontSize: '12px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-sans)',
+        fontSize: '12px', color: 'var(--color-faint)', fontFamily: 'var(--font-sans)',
         marginTop: '2px', lineHeight: 1.3,
       }}>
         {desc}
@@ -403,21 +469,20 @@ function ConvictionSlider({ value, onChange, label = 'Your Conviction', large })
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
         <span style={{
           fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.06em',
-          color: 'rgba(255,255,255,0.3)', fontFamily: 'var(--font-sans)', fontWeight: large ? 600 : 500,
+          color: 'var(--color-faint)', fontFamily: 'var(--font-sans)', fontWeight: large ? 600 : 500,
         }}>{label}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{
-            fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-sans)',
+            fontSize: '13px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)',
             opacity: showLabel ? 1 : 0, transition: 'opacity 0.3s',
           }}>{convLabel}</span>
-          <span style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-mono)', color: showLabel ? color : 'rgba(255,255,255,0.35)' }}>{value}/10</span>
+          <span style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-mono)', color: showLabel ? color : 'var(--color-faint)' }}>{value}/10</span>
         </div>
       </div>
       <input type="range" min="1" max="10" value={value}
         onChange={e => onChange(parseInt(e.target.value))}
         onMouseDown={startDrag} onMouseUp={endDrag}
         onTouchStart={startDrag} onTouchEnd={endDrag}
-        className="accent-green"
         style={{ width: '100%', height: '4px', cursor: 'pointer' }}
       />
     </div>
@@ -449,13 +514,13 @@ function TickersList({ tickers, label, description }) {
 function IdeasList({ ideas }) {
   if (!ideas || ideas.length === 0) return null;
   return (
-    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
+    <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '16px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {ideas.map((idea, i) => (
           <div key={i}>
             <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>{idea.name}</span>
             {idea.description && (
-              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-sans)' }}> — {idea.description}</span>
+              <span style={{ fontSize: '13px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}> — {idea.description}</span>
             )}
           </div>
         ))}
@@ -497,23 +562,24 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
   return (
     <div style={{
       padding: '28px',
-      background: 'rgba(255,255,255,0.02)',
-      borderLeft: '3px solid #f59e0b',
+      background: 'var(--color-card)',
+      borderLeft: '3px solid var(--color-accent-amber)',
       borderRadius: '8px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+      boxShadow: '0 1px 3px var(--color-shadow)',
       marginBottom: '32px',
+      overflow: 'hidden',
     }}>
       <div style={{ display: 'flex', gap: '32px' }}>
         {/* Left */}
-        <div style={{ flex: '0 0 60%', minWidth: 0, borderRight: '1px solid rgba(255,255,255,0.06)', paddingRight: '32px' }}>
+        <div style={{ flex: '0 0 60%', minWidth: 0, borderRight: '1px solid var(--color-border)', paddingRight: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#f59e0b', fontFamily: 'var(--font-sans)', flex: 1, lineHeight: 1.3 }}>
+            <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--color-accent-amber)', fontFamily: 'var(--font-sans)', flex: 1, lineHeight: 1.3 }}>
               {tree.label}
             </h2>
           </div>
 
           {tree.description && (
-            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '14px', lineHeight: 1.5, marginBottom: '20px', fontFamily: 'var(--font-sans)' }}>
+            <p style={{ color: 'var(--color-secondary)', fontSize: '14px', lineHeight: 1.5, marginBottom: '20px', fontFamily: 'var(--font-sans)' }}>
               {tree.description}
             </p>
           )}
@@ -525,8 +591,8 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
               {tags.map(k => (
                 <span key={k} style={{
                   padding: '2px 8px',
-                  background: 'rgba(255,255,255,0.04)',
-                  color: 'rgba(255,255,255,0.35)',
+                  background: 'var(--color-tag-bg)',
+                  color: 'var(--color-tag-text)',
                   borderRadius: '4px',
                   fontSize: '12px',
                   fontFamily: 'var(--font-mono)',
@@ -545,7 +611,7 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
         </div>
 
         {/* Right */}
-        <div style={{ flex: '0 0 38%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+        <div style={{ flex: '0 0 38%', maxWidth: '40%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', overflow: 'hidden' }}>
           <div style={{ alignSelf: 'flex-end' }}>
             <button
               onClick={onDelete}
@@ -553,10 +619,10 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
               onMouseLeave={() => setDeleteHovered(false)}
               style={{
                 background: 'transparent',
-                border: `1px solid ${deleteHovered ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                border: `1px solid ${deleteHovered ? 'var(--color-delete-hover-border)' : 'var(--color-delete-border)'}`,
                 borderRadius: '6px',
                 padding: '6px',
-                color: deleteHovered ? '#ef4444' : 'rgba(255,255,255,0.25)',
+                color: deleteHovered ? '#ef4444' : 'var(--color-delete-text)',
                 cursor: 'pointer',
                 transition: 'all 0.15s',
               }}
@@ -569,7 +635,7 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
           <HealthRing score={healthScore} tooltipContent={tooltipContent} pulsing={pulsing} />
 
           {heroTickers.length > 0 && (
-            <div style={{ width: '100%' }}>
+            <div style={{ width: '100%', overflow: 'hidden' }}>
               <TickersList tickers={heroTickers} label={tree.label} description={tree.description} />
             </div>
           )}
@@ -589,20 +655,20 @@ function SecondOrderCard({ node, conviction, onConvictionChange, healthScore, to
   return (
     <div style={{
       padding: '28px',
-      background: 'rgba(255,255,255,0.02)',
-      borderLeft: '3px solid #06b6d4',
+      background: 'var(--color-card)',
+      borderLeft: '3px solid var(--color-accent-cyan)',
       borderRadius: '8px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+      boxShadow: '0 1px 3px var(--color-shadow)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-        <h3 style={{ color: '#06b6d4', fontSize: '16px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
+        <h3 style={{ color: 'var(--color-accent-cyan)', fontSize: '16px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
           {node.label}
         </h3>
         <HealthRing score={healthScore} size={28} tooltipContent={tooltipContent} pulsing={pulsing} />
       </div>
 
       {node.description && (
-        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '14px', lineHeight: 1.5, marginBottom: '20px', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ color: 'var(--color-secondary)', fontSize: '14px', lineHeight: 1.5, marginBottom: '20px', fontFamily: 'var(--font-sans)' }}>
           {node.description}
         </p>
       )}
@@ -631,20 +697,20 @@ function ThirdOrderCard({ node, conviction, onConvictionChange, healthScore, too
   return (
     <div style={{
       padding: '28px',
-      background: 'rgba(255,255,255,0.02)',
-      borderLeft: '3px solid #a855f7',
+      background: 'var(--color-card)',
+      borderLeft: '3px solid var(--color-accent-purple)',
       borderRadius: '8px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+      boxShadow: '0 1px 3px var(--color-shadow)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-        <h3 style={{ color: '#a855f7', fontSize: '14px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
+        <h3 style={{ color: 'var(--color-accent-purple)', fontSize: '14px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
           {node.label}
         </h3>
         <HealthRing score={healthScore} size={28} tooltipContent={tooltipContent} pulsing={pulsing} />
       </div>
 
       {node.description && (
-        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '14px', lineHeight: 1.5, marginBottom: '20px', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ color: 'var(--color-secondary)', fontSize: '14px', lineHeight: 1.5, marginBottom: '20px', fontFamily: 'var(--font-sans)' }}>
           {node.description}
         </p>
       )}
@@ -779,7 +845,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
 
   if (!tree) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '384px', color: 'rgba(255,255,255,0.35)', fontSize: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '384px', color: 'var(--color-faint)', fontSize: '14px' }}>
         No tree data available. Generate a tree to see the causal analysis.
       </div>
     );
@@ -811,7 +877,8 @@ export default function TreeView({ tree, thesis, onDelete }) {
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
-            color: 'rgba(6,182,212,0.6)',
+            color: 'var(--color-accent-cyan)',
+            opacity: 0.6,
             fontFamily: 'var(--font-sans)',
             marginBottom: '12px',
           }}>
@@ -821,8 +888,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
           <div style={{
             display: 'grid',
             gap: '16px',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            overflowX: secondOrder.length > 3 ? 'auto' : 'visible',
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
           }}>
             {secondOrder.map((so) => {
               const children = so.children || [];
@@ -833,7 +899,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
                 : 5;
 
               return (
-                <div key={so.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                <div key={so.id} style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                   <SecondOrderCard
                     node={so}
                     conviction={soConv}
@@ -850,7 +916,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
                       <div style={{
                         width: '1px',
                         height: '16px',
-                        background: 'rgba(255,255,255,0.06)',
+                        background: 'var(--color-connector)',
                         margin: '0 auto',
                       }} />
 
@@ -863,7 +929,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
                                 <div style={{
                                   width: '1px',
                                   height: '8px',
-                                  background: 'rgba(255,255,255,0.06)',
+                                  background: 'var(--color-connector)',
                                   margin: '0 auto',
                                   position: 'absolute',
                                   top: '-8px',

@@ -37,7 +37,7 @@ export default function NewThesisModal({ onClose }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(0,0,0,0.7)',
+        background: 'var(--color-modal-overlay)',
         backdropFilter: 'blur(4px)',
         WebkitBackdropFilter: 'blur(4px)',
       }}
@@ -46,11 +46,12 @@ export default function NewThesisModal({ onClose }) {
         width: '100%',
         maxWidth: '560px',
         margin: '0 16px',
-        background: 'var(--color-bg, #0a0e14)',
-        border: '1px solid rgba(255,255,255,0.1)',
+        background: 'var(--color-modal-bg)',
+        border: '1px solid var(--color-border-hover)',
         borderRadius: '16px',
         padding: '32px',
         position: 'relative',
+        boxShadow: '0 8px 32px var(--color-shadow)',
       }}>
         {/* Close button */}
         <button
@@ -76,11 +77,11 @@ export default function NewThesisModal({ onClose }) {
         <h2 style={{
           fontSize: '22px',
           fontWeight: 700,
-          color: '#f59e0b',
+          color: 'var(--color-accent-amber)',
           fontFamily: 'var(--font-sans)',
           marginBottom: '8px',
         }}>
-          ✨ New Thesis
+          New Thesis
         </h2>
 
         {/* Subtitle */}
@@ -104,8 +105,8 @@ export default function NewThesisModal({ onClose }) {
             style={{
               width: '100%',
               minHeight: '120px',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--color-input-bg)',
+              border: '1px solid var(--color-input-border)',
               borderRadius: '10px',
               padding: '16px',
               fontSize: '15px',
@@ -118,15 +119,15 @@ export default function NewThesisModal({ onClose }) {
               boxSizing: 'border-box',
             }}
             onFocus={e => e.target.style.borderColor = 'rgba(34,197,94,0.4)'}
-            onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+            onBlur={e => e.target.style.borderColor = 'var(--color-input-border)'}
           />
 
           {error && (
             <div style={{
               marginTop: '12px',
               padding: '12px 16px',
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.2)',
+              background: 'var(--color-error-bg)',
+              border: '1px solid var(--color-error-border)',
               borderRadius: '8px',
               fontSize: '14px',
               color: '#ef4444',

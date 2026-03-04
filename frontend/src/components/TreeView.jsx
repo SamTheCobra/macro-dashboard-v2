@@ -529,6 +529,96 @@ function IdeasList({ ideas }) {
   );
 }
 
+// ---------- Sticky Hero Bar ----------
+
+function StickyHeroBar({ visible, title, healthScore, conviction, tickers }) {
+  const color = healthScore >= 70 ? '#22c55e' : healthScore >= 50 ? '#f59e0b' : '#ef4444';
+  const convColor = conviction >= 7 ? '#22c55e' : conviction >= 4 ? '#f59e0b' : '#ef4444';
+  const tickerSymbols = (tickers || []).slice(0, 3);
+
+  return (
+    <div style={{
+      position: 'sticky',
+      top: '52px',
+      zIndex: 40,
+      height: '48px',
+      background: 'var(--color-header-bg)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderBottom: '1px solid var(--color-border)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0 24px',
+      opacity: visible ? 1 : 0,
+      pointerEvents: visible ? 'auto' : 'none',
+      transition: 'opacity 0.2s',
+    }}>
+      {/* Left: title */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        style={{
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          maxWidth: '400px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          fontSize: '15px',
+          fontWeight: 600,
+          color: 'var(--color-text)',
+          fontFamily: 'var(--font-sans)',
+          textAlign: 'left',
+        }}
+        title={title}
+      >
+        {title}
+      </button>
+
+      {/* Center: mini health ring + score */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <svg width={24} height={24} style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
+          <circle cx={12} cy={12} r={9} stroke="var(--color-ring-track)" strokeWidth={2.5} fill="none" />
+          <circle cx={12} cy={12} r={9} stroke={color} strokeWidth={2.5} fill="none"
+            strokeDasharray={2 * Math.PI * 9}
+            strokeDashoffset={2 * Math.PI * 9 - (Math.min(Math.max(healthScore, 0), 100) / 100) * 2 * Math.PI * 9}
+            strokeLinecap="round"
+          />
+        </svg>
+        <span style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>
+          {Math.round(healthScore)}
+        </span>
+      </div>
+
+      {/* Right: conviction + ticker badges */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <span style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: 'var(--color-dim)' }}>
+          Conv: <span style={{ fontWeight: 700, color: convColor }}>{conviction}/10</span>
+        </span>
+        {tickerSymbols.length > 0 && (
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {tickerSymbols.map(t => (
+              <span key={t.symbol} style={{
+                padding: '2px 6px',
+                background: 'var(--color-ticker-badge-bg)',
+                color: 'var(--color-accent-green)',
+                fontSize: '11px',
+                fontWeight: 700,
+                borderRadius: '3px',
+                fontFamily: 'var(--font-mono)',
+              }}>
+                {t.symbol}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ---------- Hero Thesis Card ----------
 
 function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvictionChange, tooltipContent, pulsing, onDelete }) {
@@ -843,6 +933,45 @@ export default function TreeView({ tree, thesis, onDelete }) {
     return secondOrder.reduce((s, so) => s + (soHealthScores[so.id] ?? 50), 0) / secondOrder.length / 10;
   }, [secondOrder, soHealthScores]);
 
+  // Sticky bar: IntersectionObserver on hero card
+  const heroRef = useRef(null);
+  const [heroVisible, setHeroVisible] = useState(true);
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [tree]);
+
+  // Compute hero tickers at TreeView level for the sticky bar
+  const heroTickers = useMemo(() => {
+    if (!tree) return [];
+    if (thesis?.top_tickers?.length) {
+      return thesis.top_tickers.slice(0, 3).map(sym => ({
+        symbol: sym,
+        direction: hashStr(sym) % 2 === 0 ? 'long' : 'short',
+      }));
+    }
+    const seen = new Set();
+    const tickers = [];
+    for (const child of (tree.children || [])) {
+      for (const t of (child.tickers || [])) {
+        if (!seen.has(t.symbol)) {
+          seen.add(t.symbol);
+          tickers.push(t);
+        }
+        if (tickers.length >= 3) break;
+      }
+      if (tickers.length >= 3) break;
+    }
+    return tickers;
+  }, [tree, thesis]);
+
   if (!tree) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '384px', color: 'var(--color-faint)', fontSize: '14px' }}>
@@ -853,22 +982,32 @@ export default function TreeView({ tree, thesis, onDelete }) {
 
   return (
     <div>
-      <HeroCard
-        tree={tree}
-        thesis={thesis}
+      <StickyHeroBar
+        visible={!heroVisible}
+        title={tree.label}
         healthScore={parentHealthScore}
-        parentConviction={parentConviction}
-        onParentConvictionChange={handleParentConvictionChange}
-        onDelete={onDelete}
-        pulsing={pulsingIds.has('parent')}
-        tooltipContent={
-          <ParentTooltip
-            conviction={parentConviction}
-            secondOrderAvg={soAvgFor10}
-            evidenceScore={evidenceScore}
-          />
-        }
+        conviction={parentConviction}
+        tickers={heroTickers}
       />
+
+      <div ref={heroRef}>
+        <HeroCard
+          tree={tree}
+          thesis={thesis}
+          healthScore={parentHealthScore}
+          parentConviction={parentConviction}
+          onParentConvictionChange={handleParentConvictionChange}
+          onDelete={onDelete}
+          pulsing={pulsingIds.has('parent')}
+          tooltipContent={
+            <ParentTooltip
+              conviction={parentConviction}
+              secondOrderAvg={soAvgFor10}
+              evidenceScore={evidenceScore}
+            />
+          }
+        />
+      </div>
 
       {secondOrder.length > 0 && (
         <>

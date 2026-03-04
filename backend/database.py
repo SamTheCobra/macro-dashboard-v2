@@ -20,3 +20,17 @@ def get_db():
 def init_db():
     from . import models  # noqa: F401
     Base.metadata.create_all(bind=engine)
+    _migrate_add_columns()
+
+
+def _migrate_add_columns():
+    """Add new columns to existing tables if they don't exist (SQLite migration)."""
+    from sqlalchemy import text, inspect
+    insp = inspect(engine)
+    if "theses" in insp.get_table_names():
+        cols = {c["name"] for c in insp.get_columns("theses")}
+        with engine.begin() as conn:
+            if "evidence_score" not in cols:
+                conn.execute(text("ALTER TABLE theses ADD COLUMN evidence_score FLOAT DEFAULT 5.0"))
+            if "last_evidence_refresh" not in cols:
+                conn.execute(text("ALTER TABLE theses ADD COLUMN last_evidence_refresh DATETIME"))

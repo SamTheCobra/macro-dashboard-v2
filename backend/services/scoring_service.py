@@ -15,12 +15,15 @@ def get_conviction_score(db: Session, thesis_id: int) -> float:
 
 
 def get_evidence_score(db: Session, thesis: Thesis) -> float:
-    """Calculate evidence score (0-10) from ticker performance and news pulse.
-    70% ticker performance, 30% news pulse."""
+    """Get the evidence score for a thesis.
+    If Google Trends evidence has been refreshed, use the stored score.
+    Otherwise fall back to ticker performance + news pulse."""
+    if thesis.last_evidence_refresh is not None:
+        return float(thesis.evidence_score) if thesis.evidence_score is not None else 5.0
 
+    # Legacy fallback: ticker performance + news pulse
     ticker_score = _calculate_ticker_evidence(db, thesis)
     news_pulse = get_news_pulse(db, thesis.id)
-
     return round(ticker_score * 0.7 + news_pulse * 0.3, 1)
 
 
@@ -63,10 +66,16 @@ def _calculate_ticker_evidence(db: Session, thesis: Thesis) -> float:
 
 def get_health_score(db: Session, thesis: Thesis) -> float:
     """Calculate health score (0-100).
-    Formula: (conviction_score * 0.4 + evidence_score * 0.6) * 10"""
+    If evidence has been refreshed (not default): health = (conviction * 0.4 + evidence * 0.6) * 10
+    If evidence is still default: health = conviction * 10 (pure conviction)"""
     conviction = get_conviction_score(db, thesis.id)
     evidence = get_evidence_score(db, thesis)
-    health = (conviction * 0.4 + evidence * 0.6) * 10
+
+    if thesis.last_evidence_refresh is not None:
+        health = (conviction * 0.4 + evidence * 0.6) * 10
+    else:
+        health = conviction * 10
+
     return round(min(max(health, 0), 100), 1)
 
 
@@ -75,7 +84,12 @@ def get_all_scores(db: Session, thesis: Thesis) -> dict:
     Use get_all_scores_fast() in API endpoints to avoid blocking."""
     conviction = get_conviction_score(db, thesis.id)
     evidence = get_evidence_score(db, thesis)
-    health = (conviction * 0.4 + evidence * 0.6) * 10
+
+    if thesis.last_evidence_refresh is not None:
+        health = (conviction * 0.4 + evidence * 0.6) * 10
+    else:
+        health = conviction * 10
+
     health = round(min(max(health, 0), 100), 1)
     news_pulse = get_news_pulse(db, thesis.id)
     ticker_perf = _calculate_ticker_evidence(db, thesis)
@@ -94,31 +108,19 @@ def get_all_scores_fast(db: Session, thesis: Thesis) -> dict:
     from the background updater, or neutral defaults if not yet computed."""
     from .score_cache import get_cached_scores
 
-    cached = get_cached_scores(thesis.id)
-    if cached:
-        # Refresh conviction and news_pulse from DB (these are fast),
-        # but keep the cached ticker_performance_score from background.
-        conviction = get_conviction_score(db, thesis.id)
-        news_pulse = get_news_pulse(db, thesis.id)
-        ticker_perf = cached["ticker_performance_score"]
-        evidence = round(ticker_perf * 0.7 + news_pulse * 0.3, 1)
-        health = (conviction * 0.4 + evidence * 0.6) * 10
-        health = round(min(max(health, 0), 100), 1)
-        return {
-            "conviction_score": conviction,
-            "evidence_score": evidence,
-            "health_score": health,
-            "news_pulse_score": news_pulse,
-            "ticker_performance_score": ticker_perf,
-        }
-
-    # No cache yet — return DB-only scores with neutral ticker default
     conviction = get_conviction_score(db, thesis.id)
-    news_pulse = get_news_pulse(db, thesis.id)
-    ticker_perf = 5.0  # neutral until background computes real value
-    evidence = round(ticker_perf * 0.7 + news_pulse * 0.3, 1)
-    health = (conviction * 0.4 + evidence * 0.6) * 10
+    evidence = get_evidence_score(db, thesis)
+
+    if thesis.last_evidence_refresh is not None:
+        health = (conviction * 0.4 + evidence * 0.6) * 10
+    else:
+        health = conviction * 10
+
     health = round(min(max(health, 0), 100), 1)
+
+    cached = get_cached_scores(thesis.id)
+    news_pulse = get_news_pulse(db, thesis.id)
+    ticker_perf = cached["ticker_performance_score"] if cached else 5.0
 
     return {
         "conviction_score": conviction,

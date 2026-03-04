@@ -28,6 +28,7 @@ class ThesisOut(BaseModel):
     news_pulse: Optional[float] = None
     node_count: int = 0
     top_tickers: list[str] = []
+    last_evidence_refresh: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 

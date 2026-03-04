@@ -194,6 +194,21 @@ def regenerate_incomplete_trees():
         db.close()
 
 
+def _auto_refresh_evidence():
+    """Auto-refresh evidence scores on startup if stale (>24h)."""
+    import threading
+    def _run():
+        import time as _time
+        _time.sleep(10)  # Wait for server to be ready
+        try:
+            from .routers.evidence import _refresh_all_evidence_background
+            _refresh_all_evidence_background()
+        except Exception as e:
+            print(f"[evidence] Auto-refresh error: {e}")
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
@@ -201,6 +216,7 @@ async def lifespan(app: FastAPI):
     regenerate_incomplete_trees()
     from .services.score_cache import start_background_updater, stop_background_updater
     start_background_updater()
+    _auto_refresh_evidence()
     yield
     stop_background_updater()
 

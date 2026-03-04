@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Trash2 } from 'lucide-react';
-import { getConviction, putConviction, getThesis } from '../utils/api';
+import { Trash2, RefreshCw } from 'lucide-react';
+import { getConviction, putConviction, getThesis, refreshEvidence } from '../utils/api';
 
 // ---------- Mock data generators ----------
 
@@ -635,7 +635,7 @@ function StickyHeroBar({ visible, title, healthScore, conviction, tickers }) {
 
 // ---------- Hero Thesis Card ----------
 
-function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvictionChange, tooltipContent, pulsing, onDelete }) {
+function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvictionChange, tooltipContent, pulsing, onDelete, evidenceScore, onRefreshEvidence, refreshingEvidence }) {
   const [deleteHovered, setDeleteHovered] = useState(false);
 
   const heroTickers = useMemo(() => {
@@ -737,6 +737,43 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
           </div>
 
           <HealthRing score={healthScore} tooltipContent={tooltipContent} pulsing={pulsing} />
+
+          {/* Evidence section */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: '20px',
+                fontWeight: 700,
+                fontFamily: 'var(--font-mono)',
+                color: evidenceScore >= 7 ? '#22c55e' : evidenceScore >= 4 ? '#f59e0b' : '#ef4444',
+              }}>
+                {evidenceScore?.toFixed(1) ?? '–'}
+              </div>
+              <div style={{ fontSize: '10px', color: 'var(--color-faint)', fontFamily: 'var(--font-sans)' }}>
+                Evidence
+              </div>
+              <div style={{ fontSize: '9px', color: 'var(--color-faint)', fontFamily: 'var(--font-sans)', opacity: 0.6 }}>
+                via Google Trends
+              </div>
+            </div>
+            <button
+              onClick={onRefreshEvidence}
+              disabled={refreshingEvidence}
+              title="Refresh evidence from Google Trends"
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--color-border)',
+                borderRadius: '6px',
+                padding: '5px',
+                color: 'var(--color-dim)',
+                cursor: refreshingEvidence ? 'not-allowed' : 'pointer',
+                transition: 'all 0.15s',
+                opacity: refreshingEvidence ? 0.5 : 1,
+              }}
+            >
+              <RefreshCw size={13} style={refreshingEvidence ? { animation: 'spin 1s linear infinite' } : {}} />
+            </button>
+          </div>
 
           {heroTickers.length > 0 && (
             <div style={{ width: '100%', overflow: 'hidden' }}>
@@ -843,6 +880,22 @@ export default function TreeView({ tree, thesis, onDelete }) {
 
   // Health score: backend is source of truth
   const [healthScore, setHealthScore] = useState(thesis?.health_score ?? 50);
+
+  // Evidence score from backend (Google Trends)
+  const [evidenceScore, setEvidenceScore] = useState(thesis?.evidence_score ?? 5);
+  const [refreshingEvidence, setRefreshingEvidence] = useState(false);
+
+  const handleRefreshEvidence = useCallback(() => {
+    if (!thesis?.id || refreshingEvidence) return;
+    setRefreshingEvidence(true);
+    refreshEvidence(thesis.id)
+      .then(r => {
+        if (r.data?.evidence_score != null) setEvidenceScore(r.data.evidence_score);
+        if (r.data?.health_score != null) setHealthScore(r.data.health_score);
+      })
+      .catch(() => {})
+      .finally(() => setRefreshingEvidence(false));
+  }, [thesis?.id, refreshingEvidence]);
 
   const initialParentConviction = Math.round(thesis?.conviction_score ?? 5);
   const [parentConviction, setParentConviction] = useState(initialParentConviction);
@@ -1022,10 +1075,13 @@ export default function TreeView({ tree, thesis, onDelete }) {
           onParentConvictionChange={handleParentConvictionChange}
           onDelete={onDelete}
           pulsing={pulsingIds.has('parent')}
+          evidenceScore={evidenceScore}
+          onRefreshEvidence={handleRefreshEvidence}
+          refreshingEvidence={refreshingEvidence}
           tooltipContent={
             <ParentTooltip
               conviction={parentConviction}
-              evidenceScore={thesis?.evidence_score ?? 5}
+              evidenceScore={evidenceScore}
             />
           }
         />

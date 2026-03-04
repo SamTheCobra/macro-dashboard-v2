@@ -23,6 +23,8 @@ export const putConviction = (thesisId, data) => api.put(`/theses/${thesisId}/co
 
 // Evidence
 export const getEvidence = (thesisId) => api.get(`/theses/${thesisId}/evidence`);
+export const refreshEvidence = (thesisId) => api.post(`/theses/${thesisId}/refresh-evidence`);
+export const refreshAllEvidence = () => api.post('/evidence/refresh-all');
 
 // News
 export const getNews = (thesisId) => api.get(`/theses/${thesisId}/news`);

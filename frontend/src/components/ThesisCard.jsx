@@ -66,9 +66,11 @@ export default function ThesisCard({ thesis }) {
         <span style={{ color: 'var(--color-dim)' }}>
           Conv <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{thesis.conviction_score?.toFixed(1) ?? '–'}</span>
         </span>
-        <span style={{ color: 'var(--color-dim)' }}>
-          Evid <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{thesis.evidence_score?.toFixed(1) ?? '–'}</span>
-        </span>
+        {thesis.last_evidence_refresh && (
+          <span style={{ color: 'var(--color-dim)' }}>
+            Evid <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{thesis.evidence_score?.toFixed(1) ?? '–'}</span>
+          </span>
+        )}
       </div>
 
       {/* Footer: date + ticker badges */}

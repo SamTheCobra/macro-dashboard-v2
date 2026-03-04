@@ -38,6 +38,7 @@ def list_theses(status: str = "active", db: Session = Depends(get_db)):
             news_pulse=scores["news_pulse_score"],
             node_count=node_count,
             top_tickers=top_tickers,
+            last_evidence_refresh=t.last_evidence_refresh,
         ))
 
     results.sort(key=lambda x: x.health_score or 0, reverse=True)
@@ -79,6 +80,7 @@ def create_thesis(data: ThesisCreate, db: Session = Depends(get_db)):
         news_pulse=scores["news_pulse_score"],
         node_count=node_count,
         top_tickers=[tk[0] for tk in tickers],
+        last_evidence_refresh=thesis.last_evidence_refresh,
     )
 
 
@@ -109,6 +111,7 @@ def get_thesis(thesis_id: int, db: Session = Depends(get_db)):
         news_pulse=scores["news_pulse_score"],
         node_count=node_count,
         top_tickers=[tk[0] for tk in tickers],
+        last_evidence_refresh=thesis.last_evidence_refresh,
     )
 
 
@@ -149,6 +152,7 @@ def update_thesis(thesis_id: int, data: ThesisUpdate, db: Session = Depends(get_
         news_pulse=scores["news_pulse_score"],
         node_count=node_count,
         top_tickers=[tk[0] for tk in tickers],
+        last_evidence_refresh=thesis.last_evidence_refresh,
     )
 
 

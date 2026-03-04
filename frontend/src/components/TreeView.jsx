@@ -543,7 +543,7 @@ function IdeasList({ ideas }) {
 
 // ---------- Sticky Hero Bar ----------
 
-function StickyHeroBar({ visible, title, healthScore, conviction, tickers }) {
+function StickyHeroBar({ visible, title, description, healthScore, conviction, tickers }) {
   const color = healthScore >= 70 ? '#22c55e' : healthScore >= 50 ? '#f59e0b' : '#ef4444';
   const convColor = conviction >= 7 ? '#22c55e' : conviction >= 4 ? '#f59e0b' : '#ef4444';
   const tickerSymbols = (tickers || []).slice(0, 3);
@@ -555,80 +555,102 @@ function StickyHeroBar({ visible, title, healthScore, conviction, tickers }) {
       left: 0,
       right: 0,
       zIndex: 40,
-      height: '48px',
+      height: '56px',
       background: 'var(--color-header-bg)',
       backdropFilter: 'blur(12px)',
       WebkitBackdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--color-border)',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: 'column',
+      justifyContent: 'center',
       padding: '0 24px',
+      gap: '2px',
       opacity: visible ? 1 : 0,
       pointerEvents: visible ? 'auto' : 'none',
       transition: 'opacity 0.2s',
     }}>
-      {/* Left: title */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        style={{
-          background: 'none',
-          border: 'none',
-          padding: 0,
-          cursor: 'pointer',
-          maxWidth: '400px',
+      {/* Row 1: health ring + title on left, conv + tickers on right */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+          {/* Mini health ring */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+            <svg width={24} height={24} style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
+              <circle cx={12} cy={12} r={9} stroke="var(--color-ring-track)" strokeWidth={2.5} fill="none" />
+              <circle cx={12} cy={12} r={9} stroke={color} strokeWidth={2.5} fill="none"
+                strokeDasharray={2 * Math.PI * 9}
+                strokeDashoffset={2 * Math.PI * 9 - (Math.min(Math.max(healthScore, 0), 100) / 100) * 2 * Math.PI * 9}
+                strokeLinecap="round"
+              />
+            </svg>
+            <span style={{ fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>
+              {Math.round(healthScore)}
+            </span>
+          </div>
+
+          {/* Title */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: '15px',
+              fontWeight: 600,
+              color: 'var(--color-text)',
+              fontFamily: 'var(--font-sans)',
+              textAlign: 'left',
+              minWidth: 0,
+            }}
+            title={title}
+          >
+            {title}
+          </button>
+        </div>
+
+        {/* Right: conviction + ticker badges */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0, marginLeft: '16px' }}>
+          <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--color-dim)' }}>
+            Conv: <span style={{ fontWeight: 700, color: convColor }}>{conviction}/10</span>
+          </span>
+          {tickerSymbols.length > 0 && (
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {tickerSymbols.map(t => (
+                <span key={t.symbol} style={{
+                  padding: '2px 6px',
+                  background: 'var(--color-ticker-badge-bg)',
+                  color: 'var(--color-accent-green)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  borderRadius: '3px',
+                  fontFamily: 'var(--font-mono)',
+                }}>
+                  {t.symbol}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Row 2: description */}
+      {description && (
+        <div style={{
+          fontSize: '12px',
+          color: 'var(--color-dim)',
+          fontFamily: 'var(--font-sans)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
-          fontSize: '15px',
-          fontWeight: 600,
-          color: 'var(--color-text)',
-          fontFamily: 'var(--font-sans)',
-          textAlign: 'left',
-        }}
-        title={title}
-      >
-        {title}
-      </button>
-
-      {/* Center: mini health ring + score */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <svg width={24} height={24} style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
-          <circle cx={12} cy={12} r={9} stroke="var(--color-ring-track)" strokeWidth={2.5} fill="none" />
-          <circle cx={12} cy={12} r={9} stroke={color} strokeWidth={2.5} fill="none"
-            strokeDasharray={2 * Math.PI * 9}
-            strokeDashoffset={2 * Math.PI * 9 - (Math.min(Math.max(healthScore, 0), 100) / 100) * 2 * Math.PI * 9}
-            strokeLinecap="round"
-          />
-        </svg>
-        <span style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>
-          {Math.round(healthScore)}
-        </span>
-      </div>
-
-      {/* Right: conviction + ticker badges */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: 'var(--color-dim)' }}>
-          Conv: <span style={{ fontWeight: 700, color: convColor }}>{conviction}/10</span>
-        </span>
-        {tickerSymbols.length > 0 && (
-          <div style={{ display: 'flex', gap: '4px' }}>
-            {tickerSymbols.map(t => (
-              <span key={t.symbol} style={{
-                padding: '2px 6px',
-                background: 'var(--color-ticker-badge-bg)',
-                color: 'var(--color-accent-green)',
-                fontSize: '11px',
-                fontWeight: 700,
-                borderRadius: '3px',
-                fontFamily: 'var(--font-mono)',
-              }}>
-                {t.symbol}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
+          maxWidth: '600px',
+          paddingLeft: '36px',
+        }}>
+          {description}
+        </div>
+      )}
     </div>
   );
 }
@@ -1074,6 +1096,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
       <StickyHeroBar
         visible={!heroVisible}
         title={tree.label}
+        description={tree.description}
         healthScore={healthScore}
         conviction={parentConviction}
         tickers={heroTickers}

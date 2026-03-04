@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Lightbulb, Trash2 } from 'lucide-react';
-import { getConviction, addConviction } from '../utils/api';
+import { getConviction, addConviction, putConviction } from '../utils/api';
 
 // ---------- Mock data generators ----------
 
@@ -654,6 +654,52 @@ export default function TreeView({ tree, thesis, onDelete }) {
     secondOrder.forEach(so => { init[so.id] = 5; });
     return init;
   });
+  const debounceRef = useRef(null);
+  const convictionsRef = useRef(convictions);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    convictionsRef.current = convictions;
+  }, [convictions]);
+
+  // Load latest conviction from API and initialize all sliders to it
+  useEffect(() => {
+    if (!thesis?.id || secondOrder.length === 0) return;
+    getConviction(thesis.id).then(r => {
+      if (r.data && r.data.length > 0) {
+        const latest = r.data[r.data.length - 1].score;
+        setConvictions(prev => {
+          const next = { ...prev };
+          for (const key of Object.keys(next)) {
+            next[key] = latest;
+          }
+          return next;
+        });
+      }
+    }).catch(() => {});
+  }, [thesis?.id, secondOrder.length]);
+
+  const saveConviction = useCallback((nextConvictions) => {
+    if (!thesis?.id) return;
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const vals = Object.values(nextConvictions);
+      if (vals.length === 0) return;
+      const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+      putConviction(thesis.id, { score: avg, note: 'Updated via slider' }).catch(() => {});
+    }, 500);
+  }, [thesis?.id]);
+
+  // Cleanup debounce on unmount
+  useEffect(() => () => clearTimeout(debounceRef.current), []);
+
+  const handleConvictionChange = useCallback((nodeId, value) => {
+    setConvictions(prev => {
+      const next = { ...prev, [nodeId]: value };
+      saveConviction(next);
+      return next;
+    });
+  }, [saveConviction]);
 
   const healthScore = useMemo(() => {
     if (secondOrder.length === 0) return 50;
@@ -703,7 +749,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
                   <SecondOrderCard
                     node={so}
                     conviction={convictions[so.id] ?? 5}
-                    onConvictionChange={(v) => setConvictions(prev => ({ ...prev, [so.id]: v }))}
+                    onConvictionChange={(v) => handleConvictionChange(so.id, v)}
                   />
 
                   {children.length > 0 && (

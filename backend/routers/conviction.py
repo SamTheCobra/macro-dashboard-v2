@@ -37,6 +37,23 @@ def add_conviction(thesis_id: int, data: ConvictionCreate, db: Session = Depends
     return entry
 
 
+@router.put("", response_model=ConvictionOut)
+def put_conviction(thesis_id: int, data: ConvictionCreate, db: Session = Depends(get_db)):
+    thesis = db.query(Thesis).filter(Thesis.id == thesis_id).first()
+    if not thesis:
+        raise HTTPException(status_code=404, detail="Thesis not found")
+
+    entry = ConvictionEntry(
+        thesis_id=thesis_id,
+        score=max(0, min(10, data.score)),
+        note=data.note,
+    )
+    db.add(entry)
+    db.commit()
+    db.refresh(entry)
+    return entry
+
+
 @router.delete("/{entry_id}")
 def delete_conviction(thesis_id: int, entry_id: int, db: Session = Depends(get_db)):
     entry = db.query(ConvictionEntry).filter(

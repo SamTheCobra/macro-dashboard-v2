@@ -19,6 +19,7 @@ export const getTreeFlat = (thesisId) => api.get(`/theses/${thesisId}/tree/flat`
 // Conviction
 export const getConviction = (thesisId) => api.get(`/theses/${thesisId}/conviction`);
 export const addConviction = (thesisId, data) => api.post(`/theses/${thesisId}/conviction`, data);
+export const putConviction = (thesisId, data) => api.put(`/theses/${thesisId}/conviction`, data);
 
 // Evidence
 export const getEvidence = (thesisId) => api.get(`/theses/${thesisId}/evidence`);

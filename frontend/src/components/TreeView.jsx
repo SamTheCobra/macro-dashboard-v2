@@ -220,13 +220,23 @@ function TickerChart({ ticker }) {
 
 // ---------- Conviction Slider ----------
 
+const CONVICTION_LABELS = [
+  '', 'Watching 👀', 'Watching 👀', 'Interesting 🤔', 'Interesting 🤔',
+  'Building 🔨', 'Building 🔨', 'High Conviction 🔥', 'High Conviction 🔥',
+  'Max Bet 🚀', 'Max Bet 🚀',
+];
+
 function ConvictionSlider({ value, onChange }) {
   const color = value >= 7 ? '#22c55e' : value >= 4 ? '#f59e0b' : '#ef4444';
+  const label = CONVICTION_LABELS[value] || '';
   return (
     <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
         <span style={{ fontSize: '11px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Your Conviction</span>
-        <span style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{value}/10</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '12px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{label}</span>
+          <span style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{value}/10</span>
+        </div>
       </div>
       <input type="range" min="1" max="10" value={value} onChange={e => onChange(parseInt(e.target.value))}
         className="accent-green"

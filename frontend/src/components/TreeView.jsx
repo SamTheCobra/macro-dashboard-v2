@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, ChevronDown, ChevronRight } from 'lucide-react';
 
 // ---------- Mock data generators ----------
 
@@ -16,14 +16,18 @@ function hashStr(s) {
   return Math.abs(h);
 }
 
+const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 function mockSparkline(symbol) {
   const rand = seededRandom(hashStr(symbol));
   const points = [];
   let val = 50;
-  for (let i = 0; i < 20; i++) {
-    val += (rand() - 0.46) * 6;
+  const now = new Date();
+  for (let i = 0; i < 12; i++) {
+    val += (rand() - 0.46) * 8;
     val = Math.max(10, Math.min(90, val));
-    points.push({ value: val, date: `2025-${String(1 + Math.floor(i / 2)).padStart(2, '0')}-${String(1 + (i % 28)).padStart(2, '0')}` });
+    const d = new Date(now.getFullYear(), now.getMonth() - 11 + i, 1);
+    points.push({ value: val, date: `${MONTH_ABBR[d.getMonth()]} ${d.getFullYear()}` });
   }
   return points;
 }
@@ -32,10 +36,50 @@ function mockNodeConfidence(label) {
   return 40 + (hashStr(label) % 55);
 }
 
-// ---------- Mini Donut Ring (24px) ----------
+// Generate mock startup ideas for the root thesis
+function mockRootIdeas(title) {
+  const rand = seededRandom(hashStr(title + '_ideas'));
+  const prefixes = ['Track','Pulse','Signal','Scope','Lens','Edge','Wave','Core'];
+  const ideas = [];
+  for (let i = 0; i < 3; i++) {
+    const pIdx = Math.floor(rand() * prefixes.length);
+    const word = title.split(' ').find(w => w.length > 3) || 'Macro';
+    ideas.push({
+      name: `${word}${prefixes[pIdx]}`,
+      description: `Analytics dashboard for ${title.toLowerCase()} indicators and signals`,
+    });
+  }
+  return ideas;
+}
 
-function ConfidenceRing({ score, size = 24 }) {
-  const sw = 2.5;
+// ---------- Confidence Ring (32px, score below) ----------
+
+function ConfidenceRing({ score, size = 32 }) {
+  const sw = 3;
+  const r = (size - sw * 2) / 2;
+  const circ = 2 * Math.PI * r;
+  const clamped = Math.min(Math.max(score || 0, 0), 100);
+  const offset = circ - (clamped / 100) * circ;
+  const color = clamped >= 70 ? '#22c55e' : clamped >= 50 ? '#f59e0b' : '#ef4444';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
+      <span style={{ fontSize: '9px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Confidence</span>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.06)" strokeWidth={sw} fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={sw} fill="none"
+          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+        />
+      </svg>
+      <span style={{ fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{Math.round(clamped)}</span>
+    </div>
+  );
+}
+
+// ---------- Health Ring (48px, for hero) ----------
+
+function HealthRing({ score, size = 48 }) {
+  const sw = 4;
   const r = (size - sw * 2) / 2;
   const circ = 2 * Math.PI * r;
   const clamped = Math.min(Math.max(score || 0, 0), 100);
@@ -44,7 +88,6 @@ function ConfidenceRing({ score, size = 24 }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
-      <span style={{ fontSize: '9px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Confidence</span>
       <div style={{ position: 'relative', width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
         <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
           <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.06)" strokeWidth={sw} fill="none" />
@@ -52,8 +95,9 @@ function ConfidenceRing({ score, size = 24 }) {
             strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           />
         </svg>
-        <span style={{ position: 'absolute', fontSize: '8px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{Math.round(clamped)}</span>
+        <span style={{ position: 'absolute', fontSize: '14px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{Math.round(clamped)}</span>
       </div>
+      <span style={{ fontSize: '10px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Health</span>
     </div>
   );
 }
@@ -150,14 +194,104 @@ function ConvictionSlider({ value, onChange }) {
   );
 }
 
+// ---------- Card accent colors ----------
+
+const CARD_ACCENTS = [
+  { border: '#f59e0b', bg: 'rgba(245,158,11,0.06)', borderSolid: 'rgba(245,158,11,0.3)' },
+  { border: '#3b82f6', bg: 'rgba(59,130,246,0.06)', borderSolid: 'rgba(59,130,246,0.3)' },
+  { border: '#8b5cf6', bg: 'rgba(139,92,246,0.06)', borderSolid: 'rgba(139,92,246,0.3)' },
+  { border: '#22c55e', bg: 'rgba(34,197,94,0.06)', borderSolid: 'rgba(34,197,94,0.3)' },
+  { border: '#ec4899', bg: 'rgba(236,72,153,0.06)', borderSolid: 'rgba(236,72,153,0.3)' },
+  { border: '#06b6d4', bg: 'rgba(6,182,212,0.06)', borderSolid: 'rgba(6,182,212,0.3)' },
+];
+
+// ---------- Hero Thesis Card ----------
+
+function HeroCard({ tree, thesis, healthScore }) {
+  // Use top_tickers from the thesis as mock tickers for the hero
+  const heroTickers = useMemo(() => {
+    if (thesis?.top_tickers?.length) {
+      return thesis.top_tickers.slice(0, 3).map(sym => ({
+        symbol: sym,
+        direction: hashStr(sym) % 2 === 0 ? 'long' : 'short',
+      }));
+    }
+    // Fallback: collect unique tickers from children
+    const seen = new Set();
+    const tickers = [];
+    for (const child of (tree.children || [])) {
+      for (const t of (child.tickers || [])) {
+        if (!seen.has(t.symbol)) {
+          seen.add(t.symbol);
+          tickers.push(t);
+        }
+        if (tickers.length >= 3) break;
+      }
+      if (tickers.length >= 3) break;
+    }
+    return tickers;
+  }, [tree, thesis]);
+
+  const heroIdeas = useMemo(() => mockRootIdeas(tree.label), [tree.label]);
+
+  return (
+    <div style={{
+      padding: '24px',
+      background: 'linear-gradient(to right, rgba(245,158,11,0.08), transparent)',
+      borderLeft: '3px solid #f59e0b',
+      borderRadius: '8px',
+      border: '1px solid rgba(245,158,11,0.2)',
+      borderLeftWidth: '3px',
+      borderLeftColor: '#f59e0b',
+      marginBottom: '32px',
+      position: 'relative',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', marginBottom: '10px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#f59e0b', fontFamily: 'var(--font-sans)', flex: 1, lineHeight: 1.3 }}>
+          {tree.label}
+        </h2>
+        <HealthRing score={healthScore} />
+      </div>
+
+      {tree.description && (
+        <p style={{ color: 'var(--color-dim)', fontSize: '14px', lineHeight: 1.6, marginBottom: '16px', fontFamily: 'var(--font-sans)', maxWidth: '720px' }}>
+          {tree.description}
+        </p>
+      )}
+
+      {heroTickers.length > 0 && (
+        <div style={{ marginBottom: heroIdeas.length > 0 ? '14px' : '0' }}>
+          {heroTickers.map((t, i) => <TickerChart key={i} ticker={t} />)}
+        </div>
+      )}
+
+      {heroIdeas.length > 0 && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '12px' }}>
+            <Lightbulb size={12} />
+            <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
+          </div>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {heroIdeas.map((idea, i) => (
+              <li key={i} style={{ fontSize: '12px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
+                <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{idea.name}</span>
+                <span style={{ color: 'var(--color-dim)' }}> — {idea.description}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ---------- Node Cards ----------
 
-function SecondOrderCard({ node, color, borderColor, bgTint, conviction, onConvictionChange }) {
+function SecondOrderCard({ node, accent, conviction, onConvictionChange }) {
   const tickers = (node.tickers || []).slice(0, 4);
   const ideas = (node.startup_ideas || []).slice(0, 3);
   const confidence = useMemo(() => mockNodeConfidence(node.label), [node.label]);
 
-  // Blend conviction into confidence for the ring display
   const displayScore = conviction !== 5
     ? Math.round(confidence * 0.5 + conviction * 10 * 0.5)
     : confidence;
@@ -165,12 +299,13 @@ function SecondOrderCard({ node, color, borderColor, bgTint, conviction, onConvi
   return (
     <div style={{
       padding: '20px',
-      background: bgTint,
-      border: `1px solid ${borderColor}`,
+      background: accent.bg,
+      border: `1px solid ${accent.borderSolid}`,
+      borderLeft: `3px solid ${accent.border}`,
       borderRadius: '8px',
     }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
-        <h3 style={{ color, fontSize: '14px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
+        <h3 style={{ color: accent.border, fontSize: '14px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
           {node.label}
         </h3>
         <ConfidenceRing score={displayScore} />
@@ -212,46 +347,46 @@ function SecondOrderCard({ node, color, borderColor, bgTint, conviction, onConvi
   );
 }
 
-function ThirdOrderCard({ node, color, borderColor, bgTint }) {
+function ThirdOrderCard({ node, parentAccent }) {
   const tickers = (node.tickers || []).slice(0, 4);
   const ideas = (node.startup_ideas || []).slice(0, 3);
   const confidence = useMemo(() => mockNodeConfidence(node.label), [node.label]);
 
   return (
     <div style={{
-      padding: '20px',
-      background: bgTint,
-      border: `1px solid ${borderColor}`,
+      padding: '16px',
+      background: 'rgba(139,92,246,0.04)',
+      border: '1px solid rgba(139,92,246,0.2)',
       borderRadius: '8px',
     }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
-        <h3 style={{ color, fontSize: '13px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '6px' }}>
+        <h3 style={{ color: 'var(--color-purple)', fontSize: '13px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
           {node.label}
         </h3>
-        <ConfidenceRing score={confidence} />
+        <ConfidenceRing score={confidence} size={28} />
       </div>
 
       {node.description && (
-        <p style={{ color: 'var(--color-dim)', fontSize: '12px', lineHeight: 1.5, marginBottom: '10px', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ color: 'var(--color-dim)', fontSize: '12px', lineHeight: 1.5, marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
           {node.description}
         </p>
       )}
 
       {tickers.length > 0 && (
-        <div style={{ marginBottom: ideas.length > 0 ? '12px' : '0' }}>
+        <div style={{ marginBottom: ideas.length > 0 ? '10px' : '0' }}>
           {tickers.map((t, i) => <TickerChart key={i} ticker={t} />)}
         </div>
       )}
 
       {ideas.length > 0 && (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '11px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', color: 'var(--color-purple)', fontSize: '11px' }}>
             <Lightbulb size={11} />
             <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
           </div>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {ideas.map((idea, i) => (
-              <li key={i} style={{ fontSize: '12px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
+              <li key={i} style={{ fontSize: '12px', marginBottom: '4px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
                 <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{idea.name}</span>
                 {idea.description && (
                   <span style={{ color: 'var(--color-dim)' }}> — {idea.description}</span>
@@ -265,15 +400,77 @@ function ThirdOrderCard({ node, color, borderColor, bgTint }) {
   );
 }
 
+// ---------- Collapsible 3rd-order group ----------
+
+function ThirdOrderGroup({ children, parentAccent }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!children || children.length === 0) return null;
+
+  return (
+    <div style={{ marginLeft: '40px', position: 'relative' }}>
+      {/* Connecting line */}
+      <div style={{
+        position: 'absolute',
+        left: '-20px',
+        top: 0,
+        bottom: 0,
+        width: '1px',
+        background: 'rgba(255,255,255,0.1)',
+      }} />
+
+      <button
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          background: 'transparent',
+          border: 'none',
+          color: 'var(--color-dim)',
+          fontSize: '11px',
+          fontFamily: 'var(--font-sans)',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          cursor: 'pointer',
+          padding: '6px 0',
+          marginBottom: expanded ? '10px' : '0',
+        }}
+      >
+        {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+        3rd Order Effects ({children.length})
+      </button>
+
+      {expanded && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {children.map((to) => (
+            <ThirdOrderCard key={to.id} node={to} parentAccent={parentAccent} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ---------- Main Tree View ----------
 
-export default function TreeView({ tree }) {
+export default function TreeView({ tree, thesis }) {
   const secondOrder = tree?.children || [];
   const [convictions, setConvictions] = useState(() => {
     const init = {};
     secondOrder.forEach(so => { init[so.id] = 5; });
     return init;
   });
+
+  // Weighted average health from conviction sliders (scaled to 0-100)
+  const healthScore = useMemo(() => {
+    if (secondOrder.length === 0) return 50;
+    let total = 0;
+    for (const so of secondOrder) {
+      total += (convictions[so.id] ?? 5);
+    }
+    return Math.round((total / secondOrder.length) * 10);
+  }, [secondOrder, convictions]);
 
   if (!tree) {
     return (
@@ -285,35 +482,45 @@ export default function TreeView({ tree }) {
 
   return (
     <div>
-      {secondOrder.length > 0 && (
-        <div style={{
-          display: 'grid',
-          gap: '16px',
-          gridTemplateColumns: `repeat(${Math.min(secondOrder.length, 3)}, 1fr)`,
-        }}>
-          {secondOrder.map((so) => (
-            <div key={so.id} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <SecondOrderCard
-                node={so}
-                color="var(--color-amber)"
-                borderColor="rgba(245,158,11,0.3)"
-                bgTint="rgba(245,158,11,0.06)"
-                conviction={convictions[so.id] ?? 5}
-                onConvictionChange={(v) => setConvictions(prev => ({ ...prev, [so.id]: v }))}
-              />
+      {/* Hero thesis card */}
+      <HeroCard tree={tree} thesis={thesis} healthScore={healthScore} />
 
-              {(so.children || []).map((to) => (
-                <ThirdOrderCard
-                  key={to.id}
-                  node={to}
-                  color="var(--color-purple)"
-                  borderColor="rgba(139,92,246,0.3)"
-                  bgTint="rgba(139,92,246,0.06)"
-                />
-              ))}
-            </div>
-          ))}
-        </div>
+      {/* 2nd Order Effects */}
+      {secondOrder.length > 0 && (
+        <>
+          <div style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            color: 'var(--color-dim)',
+            fontFamily: 'var(--font-sans)',
+            marginBottom: '12px',
+          }}>
+            2nd Order Effects
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gap: '16px',
+            gridTemplateColumns: `repeat(${Math.min(secondOrder.length, 3)}, 1fr)`,
+          }}>
+            {secondOrder.map((so, idx) => {
+              const accent = CARD_ACCENTS[idx % CARD_ACCENTS.length];
+              return (
+                <div key={so.id} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <SecondOrderCard
+                    node={so}
+                    accent={accent}
+                    conviction={convictions[so.id] ?? 5}
+                    onConvictionChange={(v) => setConvictions(prev => ({ ...prev, [so.id]: v }))}
+                  />
+                  <ThirdOrderGroup children={so.children || []} parentAccent={accent} />
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );

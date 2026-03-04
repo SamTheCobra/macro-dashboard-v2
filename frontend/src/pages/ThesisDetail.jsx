@@ -181,7 +181,7 @@ export default function ThesisDetail() {
 
       {/* Tab content */}
       <div>
-        {activeTab === 'tree' && <TreeView tree={tree} />}
+        {activeTab === 'tree' && <TreeView tree={tree} thesis={thesis} />}
         {activeTab === 'health' && <HealthTab thesisId={parseInt(id)} />}
       </div>
     </div>

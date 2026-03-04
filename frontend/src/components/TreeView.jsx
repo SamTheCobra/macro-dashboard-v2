@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Trash2 } from 'lucide-react';
-import { getConviction, putConviction } from '../utils/api';
+import { getConviction, putConviction, getThesis } from '../utils/api';
 
 // ---------- Mock data generators ----------
 
@@ -313,15 +313,14 @@ function TooltipRow({ label, value, max }) {
   );
 }
 
-function ParentTooltip({ conviction, secondOrderAvg, evidenceScore }) {
+function ParentTooltip({ conviction, evidenceScore }) {
   return (
     <div>
       <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)', marginBottom: '10px', lineHeight: 1.5 }}>
-        Health = (Your conviction x 50%) + (2nd order avg x 35%) + (Evidence x 15%)
+        Health = (Conviction x 40%) + (Evidence x 60%) &times; 10
       </div>
-      <TooltipRow label="Core Conviction" value={conviction} max={10} />
-      <TooltipRow label="2nd Order Avg" value={secondOrderAvg} max={10} />
-      <TooltipRow label="Evidence Score" value={evidenceScore} max={10} />
+      <TooltipRow label="Conviction" value={conviction} max={10} />
+      <TooltipRow label="Evidence" value={evidenceScore} max={10} />
     </div>
   );
 }
@@ -827,6 +826,9 @@ function ThirdOrderCard({ node, conviction, onConvictionChange, healthScore, too
 export default function TreeView({ tree, thesis, onDelete }) {
   const secondOrder = tree?.children || [];
 
+  // Health score: backend is source of truth
+  const [healthScore, setHealthScore] = useState(thesis?.health_score ?? 50);
+
   const initialParentConviction = Math.round(thesis?.conviction_score ?? 5);
   const [parentConviction, setParentConviction] = useState(initialParentConviction);
 
@@ -868,8 +870,24 @@ export default function TreeView({ tree, thesis, onDelete }) {
     }).catch(() => {});
   }, [thesis?.id]);
 
+  // Re-fetch health from backend after conviction changes
+  const refreshHealthRef = useRef(null);
+  const refreshHealth = useCallback(() => {
+    if (!thesis?.id) return;
+    getThesis(thesis.id).then(r => {
+      if (r.data?.health_score != null) {
+        setHealthScore(r.data.health_score);
+      }
+    }).catch(() => {});
+  }, [thesis?.id]);
+
   const parentDebounceRef = useRef(null);
-  useEffect(() => () => clearTimeout(parentDebounceRef.current), []);
+  useEffect(() => {
+    return () => {
+      clearTimeout(parentDebounceRef.current);
+      clearTimeout(refreshHealthRef.current);
+    };
+  }, []);
 
   const handleParentConvictionChange = useCallback((value) => {
     setParentConviction(value);
@@ -877,9 +895,15 @@ export default function TreeView({ tree, thesis, onDelete }) {
     if (!thesis?.id) return;
     clearTimeout(parentDebounceRef.current);
     parentDebounceRef.current = setTimeout(() => {
-      putConviction(thesis.id, { score: value, note: 'Updated via slider' }).catch(() => {});
+      putConviction(thesis.id, { score: value, note: 'Updated via slider' })
+        .then(() => {
+          // Re-fetch thesis to get backend-computed health_score
+          clearTimeout(refreshHealthRef.current);
+          refreshHealthRef.current = setTimeout(refreshHealth, 200);
+        })
+        .catch(() => {});
     }, 500);
-  }, [thesis?.id, triggerPulse]);
+  }, [thesis?.id, triggerPulse, refreshHealth]);
 
   const handleSoConvictionChange = useCallback((nodeId, value) => {
     setSoConvictions(prev => ({ ...prev, [nodeId]: value }));
@@ -891,8 +915,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
     triggerPulse(toId, soId, 'parent');
   }, [triggerPulse]);
 
-  const evidenceScore = thesis?.evidence_score ?? 5;
-
+  // Sub-card health scores (local display only, not stored in backend)
   const toHealthScores = useMemo(() => {
     const map = {};
     secondOrder.forEach(so => {
@@ -917,21 +940,6 @@ export default function TreeView({ tree, thesis, onDelete }) {
     });
     return map;
   }, [secondOrder, soConvictions, toConvictions]);
-
-  const parentHealthScore = useMemo(() => {
-    let soAvg = 5;
-    if (secondOrder.length > 0) {
-      const soSum = secondOrder.reduce((sum, so) => sum + (soHealthScores[so.id] ?? 50), 0);
-      soAvg = soSum / secondOrder.length / 10;
-    }
-    const health = (parentConviction * 0.5 + soAvg * 0.35 + evidenceScore * 0.15) * 10;
-    return Math.round(Math.max(0, Math.min(100, health)));
-  }, [parentConviction, secondOrder, soHealthScores, evidenceScore]);
-
-  const soAvgFor10 = useMemo(() => {
-    if (secondOrder.length === 0) return 5;
-    return secondOrder.reduce((s, so) => s + (soHealthScores[so.id] ?? 50), 0) / secondOrder.length / 10;
-  }, [secondOrder, soHealthScores]);
 
   // Sticky bar: IntersectionObserver on hero card
   const heroRef = useRef(null);
@@ -985,7 +993,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
       <StickyHeroBar
         visible={!heroVisible}
         title={tree.label}
-        healthScore={parentHealthScore}
+        healthScore={healthScore}
         conviction={parentConviction}
         tickers={heroTickers}
       />
@@ -994,7 +1002,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
         <HeroCard
           tree={tree}
           thesis={thesis}
-          healthScore={parentHealthScore}
+          healthScore={healthScore}
           parentConviction={parentConviction}
           onParentConvictionChange={handleParentConvictionChange}
           onDelete={onDelete}
@@ -1002,8 +1010,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
           tooltipContent={
             <ParentTooltip
               conviction={parentConviction}
-              secondOrderAvg={soAvgFor10}
-              evidenceScore={evidenceScore}
+              evidenceScore={thesis?.evidence_score ?? 5}
             />
           }
         />

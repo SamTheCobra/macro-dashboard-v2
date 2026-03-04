@@ -37,19 +37,30 @@ function mockNodeConfidence(label) {
   return 40 + (hashStr(label) % 55);
 }
 
-function mockRootIdeas(title) {
-  const rand = seededRandom(hashStr(title + '_ideas'));
-  const prefixes = ['Track','Pulse','Signal','Scope','Lens','Edge','Wave','Core'];
-  const ideas = [];
-  for (let i = 0; i < 3; i++) {
-    const pIdx = Math.floor(rand() * prefixes.length);
-    const word = title.split(' ').find(w => w.length > 3) || 'Macro';
-    ideas.push({
-      name: `${word}${prefixes[pIdx]}`,
-      description: `Analytics dashboard for ${title.toLowerCase()} indicators and signals`,
-    });
+// Curated fallback startup ideas keyed by hash bucket
+const FALLBACK_IDEAS = [
+  [{ name: 'SignalDrift', description: 'Alerts retail traders when institutional flows diverge from price action' },
+   { name: 'MacroPulse', description: 'Weekly SMS digest that explains what the Fed actually said, in plain English' },
+   { name: 'TrendLock', description: 'Auto-rebalances your portfolio when macro regime shifts — no thinking required' }],
+  [{ name: 'ShelfLife', description: 'Tracks which consumer brands are losing shelf space to new entrants in real time' },
+   { name: 'DemandFlip', description: 'Predicts demand crashes 90 days out by scraping supplier order books' },
+   { name: 'PriceGhost', description: 'Shows you the "real" inflation rate for your specific spending habits' }],
+  [{ name: 'ChainPing', description: 'Monitors supply chain bottlenecks and pings you before they hit earnings' },
+   { name: 'EdgeBook', description: 'Crowdsourced investment memos from industry insiders, ranked by track record' },
+   { name: 'BetaBreak', description: 'Finds stocks that stopped correlating with their sector — usually means something big is happening' }],
+  [{ name: 'FlowHound', description: 'Tracks dark pool activity and unusual options flow in one clean dashboard' },
+   { name: 'NarrativeAI', description: 'Scores how much a stock is trading on story vs fundamentals right now' },
+   { name: 'CycleSense', description: 'Maps where we are in the business cycle and what historically works next' }],
+];
+
+function getRootIdeas(tree) {
+  // Use actual startup_ideas from root node if available
+  if (tree.startup_ideas && tree.startup_ideas.length > 0) {
+    return tree.startup_ideas.slice(0, 3);
   }
-  return ideas;
+  // Deterministic fallback based on thesis title
+  const bucket = hashStr(tree.label) % FALLBACK_IDEAS.length;
+  return FALLBACK_IDEAS[bucket];
 }
 
 function mockTickerDescription(symbol, direction) {
@@ -209,7 +220,7 @@ function TickerChart({ ticker }) {
         </div>
       </div>
       <div style={{
-        fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-sans)',
+        fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-sans)',
         marginLeft: '80px', marginTop: '1px', lineHeight: 1.3,
       }}>
         {desc}
@@ -232,10 +243,10 @@ function ConvictionSlider({ value, onChange }) {
   return (
     <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-        <span style={{ fontSize: '11px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Your Conviction</span>
+        <span style={{ fontSize: '14px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Your Conviction</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '12px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{label}</span>
-          <span style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{value}/10</span>
+          <span style={{ fontSize: '14px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{label}</span>
+          <span style={{ fontSize: '14px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{value}/10</span>
         </div>
       </div>
       <input type="range" min="1" max="10" value={value} onChange={e => onChange(parseInt(e.target.value))}
@@ -415,7 +426,7 @@ function HeroCard({ tree, thesis, healthScore, onDelete }) {
     return tickers;
   }, [tree, thesis]);
 
-  const heroIdeas = useMemo(() => mockRootIdeas(tree.label), [tree.label]);
+  const heroIdeas = useMemo(() => getRootIdeas(tree), [tree]);
 
   const tags = thesis?.keywords || [];
 
@@ -439,7 +450,7 @@ function HeroCard({ tree, thesis, healthScore, onDelete }) {
           </div>
 
           {tree.description && (
-            <p style={{ color: 'var(--color-dim)', fontSize: '15px', lineHeight: 1.6, marginBottom: '14px', fontFamily: 'var(--font-sans)' }}>
+            <p style={{ color: 'var(--color-dim)', fontSize: '16px', lineHeight: 1.7, marginBottom: '14px', fontFamily: 'var(--font-sans)' }}>
               {tree.description}
             </p>
           )}
@@ -452,7 +463,7 @@ function HeroCard({ tree, thesis, healthScore, onDelete }) {
                   background: 'rgba(255,255,255,0.04)',
                   color: 'var(--color-dim)',
                   borderRadius: '4px',
-                  fontSize: '11px',
+                  fontSize: '13px',
                   fontFamily: 'var(--font-mono)',
                 }}>
                   {k}
@@ -463,15 +474,15 @@ function HeroCard({ tree, thesis, healthScore, onDelete }) {
 
           {heroIdeas.length > 0 && (
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '13px' }}>
-                <Lightbulb size={13} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '14px' }}>
+                <Lightbulb size={14} />
                 <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {heroIdeas.map((idea, i) => (
-                  <li key={i} style={{ fontSize: '13px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
-                    <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '14px' }}>{idea.name}</span>
-                    <span style={{ color: 'var(--color-dim)', fontSize: '13px' }}> — {idea.description}</span>
+                  <li key={i} style={{ fontSize: '14px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
+                    <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '15px' }}>{idea.name}</span>
+                    <span style={{ color: 'var(--color-dim)', fontSize: '14px' }}> — {idea.description}</span>
                   </li>
                 ))}
               </ul>
@@ -545,7 +556,7 @@ function SecondOrderCard({ node, conviction, onConvictionChange }) {
       </div>
 
       {node.description && (
-        <p style={{ color: 'var(--color-dim)', fontSize: '14px', lineHeight: 1.5, marginBottom: '10px', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ color: 'var(--color-dim)', fontSize: '15px', lineHeight: 1.6, marginBottom: '10px', fontFamily: 'var(--font-sans)' }}>
           {node.description}
         </p>
       )}
@@ -558,16 +569,16 @@ function SecondOrderCard({ node, conviction, onConvictionChange }) {
 
       {ideas.length > 0 && (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '13px' }}>
-            <Lightbulb size={13} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '14px' }}>
+            <Lightbulb size={14} />
             <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
           </div>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {ideas.map((idea, i) => (
-              <li key={i} style={{ fontSize: '13px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
-                <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '14px' }}>{idea.name}</span>
+              <li key={i} style={{ fontSize: '14px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
+                <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '15px' }}>{idea.name}</span>
                 {idea.description && (
-                  <span style={{ color: 'var(--color-dim)', fontSize: '13px' }}> — {idea.description}</span>
+                  <span style={{ color: 'var(--color-dim)', fontSize: '14px' }}> — {idea.description}</span>
                 )}
               </li>
             ))}
@@ -601,7 +612,7 @@ function ThirdOrderCard({ node }) {
       </div>
 
       {node.description && (
-        <p style={{ color: 'var(--color-dim)', fontSize: '13px', lineHeight: 1.5, marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ color: 'var(--color-dim)', fontSize: '14px', lineHeight: 1.6, marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
           {node.description}
         </p>
       )}
@@ -614,60 +625,22 @@ function ThirdOrderCard({ node }) {
 
       {ideas.length > 0 && (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', color: '#a855f7', fontSize: '12px' }}>
-            <Lightbulb size={12} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', color: '#a855f7', fontSize: '13px' }}>
+            <Lightbulb size={13} />
             <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
           </div>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {ideas.map((idea, i) => (
-              <li key={i} style={{ fontSize: '13px', marginBottom: '4px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
-                <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '14px' }}>{idea.name}</span>
+              <li key={i} style={{ fontSize: '14px', marginBottom: '4px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
+                <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '15px' }}>{idea.name}</span>
                 {idea.description && (
-                  <span style={{ color: 'var(--color-dim)', fontSize: '13px' }}> — {idea.description}</span>
+                  <span style={{ color: 'var(--color-dim)', fontSize: '14px' }}> — {idea.description}</span>
                 )}
               </li>
             ))}
           </ul>
         </div>
       )}
-    </div>
-  );
-}
-
-// ---------- 3rd-order group (always visible) ----------
-
-function ThirdOrderGroup({ children: nodes }) {
-  if (!nodes || nodes.length === 0) return null;
-
-  return (
-    <div style={{ marginLeft: '40px', position: 'relative' }}>
-      {/* Connecting line */}
-      <div style={{
-        position: 'absolute',
-        left: '-20px',
-        top: 0,
-        bottom: 0,
-        width: '1px',
-        background: 'rgba(255,255,255,0.1)',
-      }} />
-
-      <div style={{
-        fontSize: '11px',
-        fontWeight: 600,
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em',
-        color: '#a855f7',
-        fontFamily: 'var(--font-sans)',
-        marginBottom: '10px',
-      }}>
-        3rd Order Effects →
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-        {nodes.map((to) => (
-          <ThirdOrderCard key={to.id} node={to} />
-        ))}
-      </div>
     </div>
   );
 }
@@ -706,7 +679,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
       {secondOrder.length > 0 && (
         <>
           <div style={{
-            fontSize: '11px',
+            fontSize: '13px',
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
@@ -720,18 +693,53 @@ export default function TreeView({ tree, thesis, onDelete }) {
           <div style={{
             display: 'grid',
             gap: '16px',
-            gridTemplateColumns: 'repeat(2, 1fr)',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            overflowX: secondOrder.length > 3 ? 'auto' : 'visible',
           }}>
-            {secondOrder.map((so) => (
-              <div key={so.id} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <SecondOrderCard
-                  node={so}
-                  conviction={convictions[so.id] ?? 5}
-                  onConvictionChange={(v) => setConvictions(prev => ({ ...prev, [so.id]: v }))}
-                />
-                <ThirdOrderGroup children={so.children || []} />
-              </div>
-            ))}
+            {secondOrder.map((so) => {
+              const children = so.children || [];
+              return (
+                <div key={so.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                  <SecondOrderCard
+                    node={so}
+                    conviction={convictions[so.id] ?? 5}
+                    onConvictionChange={(v) => setConvictions(prev => ({ ...prev, [so.id]: v }))}
+                  />
+
+                  {children.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', padding: '0 12px' }}>
+                      {/* Connecting line from 2nd-order to 3rd-order */}
+                      <div style={{
+                        width: '1px',
+                        height: '16px',
+                        background: 'rgba(255,255,255,0.08)',
+                        margin: '0 auto',
+                      }} />
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {children.map((to, idx) => (
+                          <div key={to.id} style={{ position: 'relative' }}>
+                            {idx > 0 && (
+                              <div style={{
+                                width: '1px',
+                                height: '8px',
+                                background: 'rgba(255,255,255,0.08)',
+                                margin: '0 auto',
+                                marginBottom: '0',
+                                position: 'absolute',
+                                top: '-8px',
+                                left: '50%',
+                              }} />
+                            )}
+                            <ThirdOrderCard node={to} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </>
       )}

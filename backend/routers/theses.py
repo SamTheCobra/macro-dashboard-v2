@@ -4,7 +4,7 @@ from ..database import get_db
 from ..models import Thesis, TreeNode, NodeTicker
 from ..schemas import ThesisCreate, ThesisUpdate, ThesisOut
 from ..services.scoring_service import get_all_scores_fast
-from ..services.ai_service import generate_thesis_tree, store_thesis_tree
+from ..services.ai_service import generate_thesis_tree, store_thesis_tree, condense_title
 
 router = APIRouter(prefix="/api/theses", tags=["theses"])
 
@@ -47,7 +47,8 @@ def list_theses(status: str = "active", db: Session = Depends(get_db)):
 
 @router.post("", response_model=ThesisOut)
 def create_thesis(data: ThesisCreate, db: Session = Depends(get_db)):
-    thesis = Thesis(title=data.title)
+    condensed = condense_title(data.title)
+    thesis = Thesis(title=condensed)
     db.add(thesis)
     db.commit()
     db.refresh(thesis)
@@ -164,3 +165,12 @@ def delete_thesis(thesis_id: int, db: Session = Depends(get_db)):
     db.delete(thesis)
     db.commit()
     return {"ok": True}
+
+
+@router.post("/condense")
+def condense_thesis_title(data: dict):
+    from ..services.ai_service import condense_title
+    raw = data.get("title", "")
+    if not raw:
+        return {"condensed": raw}
+    return {"condensed": condense_title(raw)}

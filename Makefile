@@ -4,7 +4,7 @@ start:
 	trap 'kill 0' SIGINT; make backend & make frontend & wait
 
 backend:
-	cd backend && uvicorn main:app --reload
+	source .venv/bin/activate && uvicorn backend.main:app --reload
 
 frontend:
 	cd frontend && npm run dev

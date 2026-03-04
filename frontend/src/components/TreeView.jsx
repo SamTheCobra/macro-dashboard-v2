@@ -649,9 +649,10 @@ function ThirdOrderCard({ node }) {
 
 export default function TreeView({ tree, thesis, onDelete }) {
   const secondOrder = tree?.children || [];
+  const initialConviction = thesis?.conviction_score ?? 5;
   const [convictions, setConvictions] = useState(() => {
     const init = {};
-    secondOrder.forEach(so => { init[so.id] = 5; });
+    secondOrder.forEach(so => { init[so.id] = Math.round(initialConviction); });
     return init;
   });
   const debounceRef = useRef(null);
@@ -702,13 +703,15 @@ export default function TreeView({ tree, thesis, onDelete }) {
   }, [saveConviction]);
 
   const healthScore = useMemo(() => {
-    if (secondOrder.length === 0) return 50;
-    let total = 0;
-    for (const so of secondOrder) {
-      total += (convictions[so.id] ?? 5);
-    }
-    return Math.round((total / secondOrder.length) * 10);
-  }, [secondOrder, convictions]);
+    const baseHealth = thesis?.health_score ?? 50;
+    const baseConviction = thesis?.conviction_score ?? 5;
+    const vals = Object.values(convictions);
+    if (vals.length === 0) return Math.round(baseHealth);
+    const avgConviction = vals.reduce((a, b) => a + b, 0) / vals.length;
+    // Adjust health preview by conviction delta (conviction weight=0.4, scale=10 → factor=4)
+    const delta = (avgConviction - baseConviction) * 4;
+    return Math.round(Math.max(0, Math.min(100, baseHealth + delta)));
+  }, [thesis?.health_score, thesis?.conviction_score, convictions]);
 
   if (!tree) {
     return (
@@ -748,7 +751,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
                 <div key={so.id} style={{ display: 'flex', flexDirection: 'column' }}>
                   <SecondOrderCard
                     node={so}
-                    conviction={convictions[so.id] ?? 5}
+                    conviction={convictions[so.id] ?? Math.round(initialConviction)}
                     onConvictionChange={(v) => handleConvictionChange(so.id, v)}
                   />
 

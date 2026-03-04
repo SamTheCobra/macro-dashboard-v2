@@ -288,5 +288,82 @@
       {"ticker": "SQ", "direction": "long", "entry_price": 75.00, "target_price": 110.00, "stop_loss": 58.00, "position_size_pct": 3.0, "status": "active", "notes": "Square/Block — restaurant POS + marketing tools. Helps small restaurants compete visually with chains."},
       {"ticker": "DASH", "direction": "long", "entry_price": 165.00, "target_price": 220.00, "stop_loss": 130.00, "position_size_pct": 2.0, "status": "watching", "notes": "DoorDash — delivery platform where food photography directly drives orders. Photo-first discovery is their moat."}
     ]
+  },
+  {
+    "title": "Microplastics in Your Blood \u2192 Clean Premium Explodes",
+    "description": "They found microplastics in human blood, breast milk, and placentas. That's not a fringe concern anymore — that's a mainstream panic waiting to happen. 'Plastic-free certified' is about to become the next 'organic' label but at 3x the price.",
+    "keywords": ["microplastics", "clean water", "organic premium", "food safety", "water filtration"],
+    "activation_date": "2025-01-01T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Initiating thesis. Studies confirming microplastics in 80%+ of human blood samples. Consumer awareness accelerating on social media.", "date": "2025-01-01T00:00:00"},
+      {"score": 7, "note": "Premium glass-bottled water brands seeing 50%+ sales growth. Brita and Berkey search volume spiking. First 'plastic-free' food certifications launching.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "XYL", "direction": "long", "entry_price": 130.00, "target_price": 175.00, "stop_loss": 105.00, "position_size_pct": 3.0, "status": "active", "notes": "Xylem — water treatment and filtration tech. Directly benefits from home and municipal filtration demand spike."},
+      {"ticker": "WMT", "direction": "long", "entry_price": 180.00, "target_price": 220.00, "stop_loss": 155.00, "position_size_pct": 3.0, "status": "active", "notes": "Walmart — largest grocery retailer. First mover advantage on stocking 'plastic-free certified' product lines."},
+      {"ticker": "AMCR", "direction": "short", "entry_price": 9.50, "target_price": 6.00, "stop_loss": 12.00, "position_size_pct": 2.0, "status": "watching", "notes": "Amcor — plastic packaging giant. If plastic-free becomes the new organic, their core business faces existential headwind."}
+    ]
+  },
+  {
+    "title": "Earbuds All Day \u2192 Hearing Aids at 35",
+    "description": "Americans wear AirPods 6+ hours a day at volumes their ears weren't designed for. Hearing loss is hitting people in their 30s now. The hearing aid industry is about to rebrand as cool consumer tech a full generation ahead of schedule.",
+    "keywords": ["hearing loss", "earbuds", "hearing aids", "consumer audio", "AirPods", "health tech"],
+    "activation_date": "2025-02-01T00:00:00",
+    "conviction_entries": [
+      {"score": 5, "note": "Initiating thesis. WHO warns 1B+ young people at risk of hearing loss from personal audio devices. OTC hearing aid market opened in 2022.", "date": "2025-02-01T00:00:00"},
+      {"score": 6, "note": "Apple adding hearing health features to AirPods Pro. Audiologist visits up 35% among 25-40 age group. OTC hearing aid market growing 25%+ annually.", "date": "2025-03-01T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "AAPL", "direction": "long", "entry_price": 225.00, "target_price": 280.00, "stop_loss": 195.00, "position_size_pct": 3.0, "status": "active", "notes": "Apple — AirPods Pro already has hearing test and aid features. Positioned to own the 'cool hearing aid' category."},
+      {"ticker": "EAR", "direction": "long", "entry_price": 22.00, "target_price": 40.00, "stop_loss": 15.00, "position_size_pct": 2.0, "status": "watching", "notes": "Eargo — DTC hearing aid company. Pure play on OTC hearing aid adoption by younger demographics."},
+      {"ticker": "SYK", "direction": "long", "entry_price": 370.00, "target_price": 450.00, "stop_loss": 320.00, "position_size_pct": 3.0, "status": "active", "notes": "Stryker — med-tech conglomerate with ENT surgical instruments. Benefits from rising audiological procedure volumes."}
+    ]
+  },
+  {
+    "title": "Kids Quit Sports \u2192 Pro Athlete Pipeline Dries Up",
+    "description": "Youth sports participation has cratered — down 30% in a decade. The kids who would've been future NFL/NBA players are gaming instead. Leagues are going to be forced to recruit globally or watch talent quality visibly drop on TV.",
+    "keywords": ["youth sports", "athlete pipeline", "esports", "global recruiting", "sports media"],
+    "activation_date": "2024-12-01T00:00:00",
+    "conviction_entries": [
+      {"score": 5, "note": "Initiating thesis. Aspen Institute data shows organized youth sports participation down 30% since 2010. Travel sports costs pricing out middle class.", "date": "2024-12-01T00:00:00"},
+      {"score": 6, "note": "NBA, MLB expanding international scouting dramatically. FIFA and NBA Academy programs in Africa and Asia scaling up. Esports viewership overtaking traditional sports for under-25.", "date": "2025-02-01T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "DKNG", "direction": "long", "entry_price": 38.00, "target_price": 60.00, "stop_loss": 28.00, "position_size_pct": 3.0, "status": "active", "notes": "DraftKings — sports betting benefits from globalized sports. More international games = more betting opportunities."},
+      {"ticker": "RBLX", "direction": "long", "entry_price": 48.00, "target_price": 75.00, "stop_loss": 35.00, "position_size_pct": 2.0, "status": "watching", "notes": "Roblox — gaming platform where kids spend their time instead of playing sports. The replacement activity."},
+      {"ticker": "MSGS", "direction": "long", "entry_price": 190.00, "target_price": 250.00, "stop_loss": 155.00, "position_size_pct": 2.0, "status": "watching", "notes": "MSG Sports — Knicks/Rangers owner. Premium sports franchises gain value as live sports become scarcer entertainment."}
+    ]
+  },
+  {
+    "title": "Trust Influencers Over Doctors \u2192 Pharma Goes Creator",
+    "description": "People trust random TikTok creators over their actual doctors for health advice. Pharma companies noticed — they're quietly shifting billions from medical sales reps to influencer partnerships. The entire drug marketing playbook is being rewritten.",
+    "keywords": ["pharma marketing", "influencer marketing", "creator economy", "DTC health", "telehealth"],
+    "activation_date": "2024-08-01T00:00:00",
+    "conviction_entries": [
+      {"score": 7, "note": "Initiating thesis. Survey: 42% of Gen Z trust health influencers over doctors. Pharma influencer marketing spend up 300% since 2021.", "date": "2024-08-01T00:00:00"},
+      {"score": 7, "note": "Hims & Hers built entire brand on influencer/DTC. Pfizer and Lilly both launched creator partnership programs. Drug pricing pressure making DTC more attractive.", "date": "2025-01-01T00:00:00"},
+      {"score": 8, "note": "GLP-1 drugs going viral on TikTok drove more prescriptions than any traditional campaign. Pharma finally gets it — creators convert better than ads.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "HIMS", "direction": "long", "entry_price": 22.00, "target_price": 45.00, "stop_loss": 14.00, "position_size_pct": 3.0, "status": "active", "notes": "Hims & Hers — the poster child for influencer-driven pharma. DTC telehealth model built on creator marketing."},
+      {"ticker": "PUBM", "direction": "long", "entry_price": 15.00, "target_price": 28.00, "stop_loss": 10.00, "position_size_pct": 2.0, "status": "watching", "notes": "PubMatic — programmatic ad platform. Benefits from pharma shifting digital ad budgets to creator/social channels."},
+      {"ticker": "PFE", "direction": "long", "entry_price": 26.00, "target_price": 38.00, "stop_loss": 22.00, "position_size_pct": 3.0, "status": "active", "notes": "Pfizer — pivoting marketing strategy toward DTC and creator partnerships. Huge marketing budget to redeploy."}
+    ]
+  },
+  {
+    "title": "Sleep Is the New Status Symbol",
+    "description": "People are openly flexing their Oura ring sleep scores like they used to flex watches. Eight Sleep pods cost $4k and have waitlists. Sleep optimization is the wellness flex that replaced SoulCycle, and the TAM is way bigger than anyone thinks.",
+    "keywords": ["sleep tech", "wearables", "wellness", "sleep optimization", "mattress", "health tracking"],
+    "activation_date": "2024-07-01T00:00:00",
+    "conviction_entries": [
+      {"score": 7, "note": "Initiating thesis. Sleep tech market growing 15%+ CAGR. Oura Ring valuation hit $5B. Eight Sleep, Whoop, and Garmin all competing for the bedroom.", "date": "2024-07-01T00:00:00"},
+      {"score": 7, "note": "Apple Watch adding advanced sleep tracking. Mattress companies like Casper dying while smart mattress category booming. Sleep supplements market $1B+.", "date": "2025-01-01T00:00:00"},
+      {"score": 8, "note": "Sleep tracking mentioned in 30%+ of wellness creator content. Corporate wellness programs adding sleep optimization benefits. It's fully mainstream.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "AAPL", "direction": "long", "entry_price": 220.00, "target_price": 275.00, "stop_loss": 190.00, "position_size_pct": 3.0, "status": "active", "notes": "Apple Watch sleep tracking + Health app ecosystem. Best positioned to own the sleep data layer."},
+      {"ticker": "GRMN", "direction": "long", "entry_price": 170.00, "target_price": 240.00, "stop_loss": 140.00, "position_size_pct": 3.0, "status": "active", "notes": "Garmin — wearables with best-in-class sleep analytics. Hardcore wellness crowd loves them."},
+      {"ticker": "TPX", "direction": "long", "entry_price": 50.00, "target_price": 75.00, "stop_loss": 38.00, "position_size_pct": 2.0, "status": "watching", "notes": "Tempur-Sealy — premium mattress leader. Sleep-as-status benefits the high-end mattress category."}
+    ]
   }
 ]

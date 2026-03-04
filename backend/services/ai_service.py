@@ -28,9 +28,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
             "label": "Short label for the effect",
             "description": "Detailed description of this second-order effect",
             "tickers": [
-                {{"symbol": "TICK", "rationale": "Why this ticker benefits/suffers", "direction": "long"}},
-                {{"symbol": "TICK2", "rationale": "Why this ticker benefits/suffers", "direction": "long"}},
-                {{"symbol": "TICK3", "rationale": "Why this ticker benefits/suffers", "direction": "long"}}
+                {{"symbol": "TICK", "rationale": "One-line description: what this company/ETF is and why it's relevant here", "direction": "long"}},
+                {{"symbol": "TICK2", "rationale": "One-line description: what this company/ETF is and why it's relevant here", "direction": "long"}},
+                {{"symbol": "TICK3", "rationale": "One-line description: what this company/ETF is and why it's relevant here", "direction": "long"}}
             ],
             "startup_ideas": [
                 {{"name": "CatchyBrandName", "description": "One-line plain-English pitch of what this startup builds and for whom"}},
@@ -42,9 +42,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                     "label": "Short label for 3rd order effect",
                     "description": "Detailed description",
                     "tickers": [
-                        {{"symbol": "TICK", "rationale": "Why this ticker is relevant", "direction": "long"}},
-                        {{"symbol": "TICK2", "rationale": "Why", "direction": "long"}},
-                        {{"symbol": "TICK3", "rationale": "Why", "direction": "short"}}
+                        {{"symbol": "TICK", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
+                        {{"symbol": "TICK2", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
+                        {{"symbol": "TICK3", "rationale": "One-line: what this is and why it's relevant", "direction": "short"}}
                     ],
                     "startup_ideas": [
                         {{"name": "BrandName", "description": "One-line pitch of what it builds and for whom"}},
@@ -56,9 +56,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                     "label": "Another 3rd order effect",
                     "description": "Description",
                     "tickers": [
-                        {{"symbol": "TICK", "rationale": "Why", "direction": "long"}},
-                        {{"symbol": "TICK2", "rationale": "Why", "direction": "long"}},
-                        {{"symbol": "TICK3", "rationale": "Why", "direction": "long"}}
+                        {{"symbol": "TICK", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
+                        {{"symbol": "TICK2", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
+                        {{"symbol": "TICK3", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}}
                     ],
                     "startup_ideas": [
                         {{"name": "BrandName", "description": "One-line pitch of what it builds and for whom"}},
@@ -70,9 +70,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                     "label": "Third 3rd order effect",
                     "description": "Description",
                     "tickers": [
-                        {{"symbol": "TICK", "rationale": "Why", "direction": "long"}},
-                        {{"symbol": "TICK2", "rationale": "Why", "direction": "long"}},
-                        {{"symbol": "TICK3", "rationale": "Why", "direction": "long"}}
+                        {{"symbol": "TICK", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
+                        {{"symbol": "TICK2", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
+                        {{"symbol": "TICK3", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}}
                     ],
                     "startup_ideas": [
                         {{"name": "BrandName", "description": "One-line pitch of what it builds and for whom"}},
@@ -91,6 +91,10 @@ IMPORTANT:
 - Each effect (both 2nd and 3rd order) must have exactly 3 tickers and 3 startup ideas
 - Tickers should be real, tradeable US equity or ETF symbols
 - Direction should be "long" if the thesis benefits the ticker, "short" if it hurts it
+- Ticker rationale must be a concise one-line description: what the company/ETF is + why it's relevant to THIS specific effect
+  Example: "Largest US bank, benefits directly from wider net interest margins"
+  Example: "Regional bank ETF, most leveraged to yield curve steepening"
+  NOT: "Benefits from this trend" (too generic)
 - Keywords should be search terms useful for finding relevant news articles
 - Be specific and actionable, not generic
 - Startup idea names should be catchy, colloquial brand names (like "AppetiteTrack", "GridLeap", "ProofLayer")

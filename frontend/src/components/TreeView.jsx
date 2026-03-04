@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from 'react';
-import { Lightbulb, ChevronDown, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Lightbulb, Trash2 } from 'lucide-react';
+import { getConviction, addConviction } from '../utils/api';
 
 // ---------- Mock data generators ----------
 
@@ -36,7 +37,6 @@ function mockNodeConfidence(label) {
   return 40 + (hashStr(label) % 55);
 }
 
-// Generate mock startup ideas for the root thesis
 function mockRootIdeas(title) {
   const rand = seededRandom(hashStr(title + '_ideas'));
   const prefixes = ['Track','Pulse','Signal','Scope','Lens','Edge','Wave','Core'];
@@ -50,6 +50,39 @@ function mockRootIdeas(title) {
     });
   }
   return ideas;
+}
+
+function mockTickerDescription(symbol, direction) {
+  const descs = {
+    SPY: 'S&P 500 ETF, broad US equity market proxy',
+    QQQ: 'Nasdaq-100 ETF, tech-heavy large cap exposure',
+    TLT: 'Long-term treasury ETF, inverse rate sensitivity',
+    GLD: 'Gold ETF, inflation and debasement hedge',
+    SLV: 'Silver ETF, industrial-monetary hybrid play',
+    UUP: 'US Dollar Index ETF, dollar strength tracker',
+    XLF: 'Financial sector ETF, rate-sensitive banks',
+    XLE: 'Energy sector ETF, oil & gas producers',
+    XLK: 'Technology sector ETF, mega-cap tech',
+    XLV: 'Healthcare sector ETF, pharma & biotech',
+    IWM: 'Russell 2000 ETF, small-cap US equities',
+    EEM: 'Emerging markets ETF, developing economy exposure',
+    KRE: 'Regional bank ETF, most leveraged to yield curve',
+    ARKK: 'Disruptive innovation ETF, high-growth tech bets',
+    NVDA: 'AI chip leader, GPU compute infrastructure',
+    MSFT: 'Cloud & AI platform, enterprise software giant',
+    AAPL: 'Consumer tech ecosystem, hardware + services',
+    GOOGL: 'Search & cloud, AI integration across products',
+    AMZN: 'E-commerce & AWS cloud, logistics scale',
+    META: 'Social/messaging platforms, ad-tech leader',
+    TSLA: 'EV manufacturer, energy & autonomy plays',
+    JPM: 'Largest US bank, diversified financial services',
+    BTC: 'Bitcoin, decentralized store of value',
+    DBA: 'Agriculture commodity ETF, food price tracker',
+    LIT: 'Lithium & battery tech ETF, EV supply chain',
+  };
+  if (descs[symbol]) return descs[symbol];
+  const action = direction === 'long' ? 'benefits from' : 'pressured by';
+  return `${action} this macro trend`;
 }
 
 // ---------- Confidence Ring (32px, score below) ----------
@@ -76,10 +109,10 @@ function ConfidenceRing({ score, size = 32 }) {
   );
 }
 
-// ---------- Health Ring (48px, for hero) ----------
+// ---------- Health Ring (96px, for hero) ----------
 
-function HealthRing({ score, size = 48 }) {
-  const sw = 4;
+function HealthRing({ score, size = 96 }) {
+  const sw = 6;
   const r = (size - sw * 2) / 2;
   const circ = 2 * Math.PI * r;
   const clamped = Math.min(Math.max(score || 0, 0), 100);
@@ -87,7 +120,7 @@ function HealthRing({ score, size = 48 }) {
   const color = clamped >= 70 ? '#22c55e' : clamped >= 50 ? '#f59e0b' : '#ef4444';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
       <div style={{ position: 'relative', width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
         <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
           <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.06)" strokeWidth={sw} fill="none" />
@@ -95,9 +128,9 @@ function HealthRing({ score, size = 48 }) {
             strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           />
         </svg>
-        <span style={{ position: 'absolute', fontSize: '14px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{Math.round(clamped)}</span>
+        <span style={{ position: 'absolute', fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{Math.round(clamped)}</span>
       </div>
-      <span style={{ fontSize: '10px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Health</span>
+      <span style={{ fontSize: '11px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Health</span>
     </div>
   );
 }
@@ -116,6 +149,7 @@ function TickerChart({ ticker }) {
   const trending = vals[vals.length - 1] > vals[0];
   const color = trending ? '#22c55e' : '#ef4444';
   const fillColor = trending ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)';
+  const desc = ticker.rationale || mockTickerDescription(ticker.symbol, ticker.direction);
 
   const lineD = points.map((p, i) => {
     const x = (i / (points.length - 1)) * w;
@@ -134,49 +168,57 @@ function TickerChart({ ticker }) {
   }, [points]);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 0' }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: '4px', width: '70px', flexShrink: 0,
-        fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 600,
-        color: isLong ? '#22c55e' : '#ef4444',
-      }}>
-        <span style={{ fontSize: '10px' }}>{isLong ? '▲' : '▼'}</span>
-        {ticker.symbol}
+    <div style={{ padding: '4px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '4px', width: '70px', flexShrink: 0,
+          fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700,
+          color: isLong ? '#22c55e' : '#ef4444',
+        }}>
+          <span style={{ fontSize: '10px' }}>{isLong ? '▲' : '▼'}</span>
+          {ticker.symbol}
+        </div>
+        <div style={{ position: 'relative', flex: 1, maxWidth: '200px' }}
+          onMouseMove={handleMouse}
+          onMouseLeave={() => setTooltip(null)}
+        >
+          <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ display: 'block' }}>
+            <path d={areaD} fill={fillColor} />
+            <path d={lineD} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {tooltip && (
+            <div style={{
+              position: 'absolute',
+              left: `${(tooltip.x / w) * 100}%`,
+              top: '-28px',
+              transform: 'translateX(-50%)',
+              background: 'rgba(0,0,0,0.85)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '4px',
+              padding: '2px 6px',
+              fontSize: '10px',
+              fontFamily: 'var(--font-mono)',
+              color: '#fff',
+              whiteSpace: 'nowrap',
+              pointerEvents: 'none',
+              zIndex: 10,
+            }}>
+              {tooltip.point.value.toFixed(1)} · {tooltip.point.date}
+            </div>
+          )}
+        </div>
       </div>
-      <div style={{ position: 'relative', flex: 1, maxWidth: '200px' }}
-        onMouseMove={handleMouse}
-        onMouseLeave={() => setTooltip(null)}
-      >
-        <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ display: 'block' }}>
-          <path d={areaD} fill={fillColor} />
-          <path d={lineD} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        {tooltip && (
-          <div style={{
-            position: 'absolute',
-            left: `${(tooltip.x / w) * 100}%`,
-            top: '-28px',
-            transform: 'translateX(-50%)',
-            background: 'rgba(0,0,0,0.85)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '4px',
-            padding: '2px 6px',
-            fontSize: '10px',
-            fontFamily: 'var(--font-mono)',
-            color: '#fff',
-            whiteSpace: 'nowrap',
-            pointerEvents: 'none',
-            zIndex: 10,
-          }}>
-            {tooltip.point.value.toFixed(1)} · {tooltip.point.date}
-          </div>
-        )}
+      <div style={{
+        fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-sans)',
+        marginLeft: '80px', marginTop: '1px', lineHeight: 1.3,
+      }}>
+        {desc}
       </div>
     </div>
   );
 }
 
-// ---------- Conviction Slider (2nd-order only) ----------
+// ---------- Conviction Slider ----------
 
 function ConvictionSlider({ value, onChange }) {
   const color = value >= 7 ? '#22c55e' : value >= 4 ? '#f59e0b' : '#ef4444';
@@ -194,21 +236,153 @@ function ConvictionSlider({ value, onChange }) {
   );
 }
 
-// ---------- Card accent colors ----------
+// ---------- Conviction History (embedded in hero) ----------
 
-const CARD_ACCENTS = [
-  { border: '#f59e0b', bg: 'rgba(245,158,11,0.06)', borderSolid: 'rgba(245,158,11,0.3)' },
-  { border: '#3b82f6', bg: 'rgba(59,130,246,0.06)', borderSolid: 'rgba(59,130,246,0.3)' },
-  { border: '#8b5cf6', bg: 'rgba(139,92,246,0.06)', borderSolid: 'rgba(139,92,246,0.3)' },
-  { border: '#22c55e', bg: 'rgba(34,197,94,0.06)', borderSolid: 'rgba(34,197,94,0.3)' },
-  { border: '#ec4899', bg: 'rgba(236,72,153,0.06)', borderSolid: 'rgba(236,72,153,0.3)' },
-  { border: '#06b6d4', bg: 'rgba(6,182,212,0.06)', borderSolid: 'rgba(6,182,212,0.3)' },
-];
+function scoreColor(s) {
+  if (s >= 7) return '#22c55e';
+  if (s >= 4) return '#f59e0b';
+  return '#ef4444';
+}
+
+function scoreBg(s) {
+  if (s >= 7) return 'rgba(34,197,94,0.15)';
+  if (s >= 4) return 'rgba(245,158,11,0.15)';
+  return 'rgba(239,68,68,0.15)';
+}
+
+function ConvictionHistory({ thesisId }) {
+  const [entries, setEntries] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [score, setScore] = useState(5);
+  const [note, setNote] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const loadEntries = useCallback(() => {
+    getConviction(thesisId).then(r => setEntries(r.data)).catch(() => {});
+  }, [thesisId]);
+
+  useEffect(() => { loadEntries(); }, [loadEntries]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await addConviction(thesisId, { score: parseInt(score), note });
+      setNote('');
+      setScore(5);
+      setShowForm(false);
+      loadEntries();
+    } catch { /* ignore */ }
+    setSaving(false);
+  };
+
+  return (
+    <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>Conviction History</h3>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '4px',
+            padding: '4px 10px', fontSize: '11px',
+            background: 'rgba(34,197,94,0.1)', color: '#22c55e',
+            border: '1px solid rgba(34,197,94,0.3)', borderRadius: '6px',
+            cursor: 'pointer', fontFamily: 'var(--font-sans)',
+          }}
+        >
+          + Add Entry
+        </button>
+      </div>
+
+      {/* Timeline */}
+      {entries.length > 0 && (
+        <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', gap: '3px', marginBottom: '12px' }}>
+          {entries.map((entry) => {
+            const pct = Math.max(0, Math.min(100, (entry.score / 10) * 100));
+            return (
+              <div key={entry.id} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+                title={`${entry.score}/10 – ${entry.note || ''}`}
+              >
+                <span style={{ fontSize: '9px', color: 'var(--color-dim)', fontFamily: 'var(--font-mono)' }}>{entry.score}</span>
+                <div style={{
+                  width: '100%', borderRadius: '2px 2px 0 0',
+                  background: scoreColor(entry.score),
+                  height: `${pct}%`, minHeight: '3px',
+                }} />
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Add form */}
+      {showForm && (
+        <form onSubmit={handleSubmit} style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: '8px', padding: '12px', marginBottom: '10px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <label style={{ fontSize: '11px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Score:</label>
+            <input type="range" min="0" max="10" value={score} onChange={e => setScore(e.target.value)} className="accent-green" style={{ flex: 1 }} />
+            <span style={{ fontSize: '13px', fontWeight: 700, color: '#22c55e', width: '20px', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>{score}</span>
+          </div>
+          <textarea
+            value={note} onChange={e => setNote(e.target.value)}
+            placeholder="What changed your conviction?"
+            style={{
+              width: '100%', background: 'var(--color-bg)', border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '6px', padding: '8px 10px', fontSize: '12px', color: 'var(--color-text)',
+              resize: 'none', height: '60px', fontFamily: 'var(--font-sans)', outline: 'none',
+            }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
+            <button type="submit" disabled={saving} style={{
+              padding: '4px 12px', background: '#22c55e', color: 'var(--color-bg)',
+              fontSize: '11px', fontWeight: 600, borderRadius: '6px', border: 'none',
+              cursor: 'pointer', opacity: saving ? 0.5 : 1, fontFamily: 'var(--font-sans)',
+            }}>
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Log entries */}
+      <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {[...entries].reverse().map(entry => (
+          <div key={entry.id} style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '8px', padding: '10px',
+            display: 'flex', alignItems: 'flex-start', gap: '10px',
+          }}>
+            <div style={{
+              flexShrink: 0, width: '28px', height: '28px', borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)',
+              background: scoreBg(entry.score), color: scoreColor(entry.score),
+            }}>
+              {entry.score}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {entry.note && <p style={{ fontSize: '12px', color: 'var(--color-text)', fontFamily: 'var(--font-sans)', lineHeight: 1.4 }}>{entry.note}</p>}
+              <span style={{ fontSize: '10px', color: 'var(--color-dim)', marginTop: '2px', display: 'block', fontFamily: 'var(--font-mono)' }}>
+                {entry.date ? new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // ---------- Hero Thesis Card ----------
 
-function HeroCard({ tree, thesis, healthScore }) {
-  // Use top_tickers from the thesis as mock tickers for the hero
+function HeroCard({ tree, thesis, healthScore, onDelete }) {
+  const [deleteHovered, setDeleteHovered] = useState(false);
+
   const heroTickers = useMemo(() => {
     if (thesis?.top_tickers?.length) {
       return thesis.top_tickers.slice(0, 3).map(sym => ({
@@ -216,7 +390,6 @@ function HeroCard({ tree, thesis, healthScore }) {
         direction: hashStr(sym) % 2 === 0 ? 'long' : 'short',
       }));
     }
-    // Fallback: collect unique tickers from children
     const seen = new Set();
     const tickers = [];
     for (const child of (tree.children || [])) {
@@ -234,60 +407,110 @@ function HeroCard({ tree, thesis, healthScore }) {
 
   const heroIdeas = useMemo(() => mockRootIdeas(tree.label), [tree.label]);
 
+  const tags = thesis?.keywords || [];
+
   return (
     <div style={{
-      padding: '24px',
-      background: 'linear-gradient(to right, rgba(245,158,11,0.08), transparent)',
+      padding: '28px',
+      background: 'linear-gradient(to right, rgba(245,158,11,0.06), transparent)',
+      border: '1px solid rgba(245,158,11,0.2)',
       borderLeft: '3px solid #f59e0b',
       borderRadius: '8px',
-      border: '1px solid rgba(245,158,11,0.2)',
-      borderLeftWidth: '3px',
-      borderLeftColor: '#f59e0b',
       marginBottom: '32px',
-      position: 'relative',
     }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', marginBottom: '10px' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#f59e0b', fontFamily: 'var(--font-sans)', flex: 1, lineHeight: 1.3 }}>
-          {tree.label}
-        </h2>
-        <HealthRing score={healthScore} />
+      <div style={{ display: 'flex', gap: '32px' }}>
+        {/* Left 60% */}
+        <div style={{ flex: '0 0 60%', minWidth: 0 }}>
+          {/* Title row with delete button */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '10px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#f59e0b', fontFamily: 'var(--font-sans)', flex: 1, lineHeight: 1.3 }}>
+              {tree.label}
+            </h2>
+          </div>
+
+          {tree.description && (
+            <p style={{ color: 'var(--color-dim)', fontSize: '15px', lineHeight: 1.6, marginBottom: '14px', fontFamily: 'var(--font-sans)' }}>
+              {tree.description}
+            </p>
+          )}
+
+          {tags.length > 0 && (
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
+              {tags.map(k => (
+                <span key={k} style={{
+                  padding: '2px 8px',
+                  background: 'rgba(255,255,255,0.04)',
+                  color: 'var(--color-dim)',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono)',
+                }}>
+                  {k}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {heroIdeas.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '13px' }}>
+                <Lightbulb size={13} />
+                <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {heroIdeas.map((idea, i) => (
+                  <li key={i} style={{ fontSize: '13px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
+                    <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '14px' }}>{idea.name}</span>
+                    <span style={{ color: 'var(--color-dim)', fontSize: '13px' }}> — {idea.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {/* Right 40% */}
+        <div style={{ flex: '0 0 38%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+          {/* Delete button top-right */}
+          <div style={{ alignSelf: 'flex-end', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={onDelete}
+              onMouseEnter={() => setDeleteHovered(true)}
+              onMouseLeave={() => setDeleteHovered(false)}
+              style={{
+                background: 'transparent',
+                border: `1px solid ${deleteHovered ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                borderRadius: '6px',
+                padding: '6px',
+                color: deleteHovered ? '#ef4444' : 'var(--color-dim)',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+              title="Delete thesis"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+
+          <HealthRing score={healthScore} />
+
+          {heroTickers.length > 0 && (
+            <div style={{ width: '100%' }}>
+              {heroTickers.map((t, i) => <TickerChart key={i} ticker={t} />)}
+            </div>
+          )}
+        </div>
       </div>
 
-      {tree.description && (
-        <p style={{ color: 'var(--color-dim)', fontSize: '14px', lineHeight: 1.6, marginBottom: '16px', fontFamily: 'var(--font-sans)', maxWidth: '720px' }}>
-          {tree.description}
-        </p>
-      )}
-
-      {heroTickers.length > 0 && (
-        <div style={{ marginBottom: heroIdeas.length > 0 ? '14px' : '0' }}>
-          {heroTickers.map((t, i) => <TickerChart key={i} ticker={t} />)}
-        </div>
-      )}
-
-      {heroIdeas.length > 0 && (
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '12px' }}>
-            <Lightbulb size={12} />
-            <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
-          </div>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {heroIdeas.map((idea, i) => (
-              <li key={i} style={{ fontSize: '12px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
-                <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{idea.name}</span>
-                <span style={{ color: 'var(--color-dim)' }}> — {idea.description}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Conviction History */}
+      {thesis && <ConvictionHistory thesisId={thesis.id} />}
     </div>
   );
 }
 
 // ---------- Node Cards ----------
 
-function SecondOrderCard({ node, accent, conviction, onConvictionChange }) {
+function SecondOrderCard({ node, conviction, onConvictionChange }) {
   const tickers = (node.tickers || []).slice(0, 4);
   const ideas = (node.startup_ideas || []).slice(0, 3);
   const confidence = useMemo(() => mockNodeConfidence(node.label), [node.label]);
@@ -299,20 +522,20 @@ function SecondOrderCard({ node, accent, conviction, onConvictionChange }) {
   return (
     <div style={{
       padding: '20px',
-      background: accent.bg,
-      border: `1px solid ${accent.borderSolid}`,
-      borderLeft: `3px solid ${accent.border}`,
+      background: 'rgba(6,182,212,0.04)',
+      border: '1px solid rgba(6,182,212,0.2)',
+      borderLeft: '3px solid #06b6d4',
       borderRadius: '8px',
     }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
-        <h3 style={{ color: accent.border, fontSize: '14px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
+        <h3 style={{ color: '#06b6d4', fontSize: '17px', fontWeight: 700, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
           {node.label}
         </h3>
         <ConfidenceRing score={displayScore} />
       </div>
 
       {node.description && (
-        <p style={{ color: 'var(--color-dim)', fontSize: '13px', lineHeight: 1.5, marginBottom: '10px', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ color: 'var(--color-dim)', fontSize: '14px', lineHeight: 1.5, marginBottom: '10px', fontFamily: 'var(--font-sans)' }}>
           {node.description}
         </p>
       )}
@@ -325,16 +548,16 @@ function SecondOrderCard({ node, accent, conviction, onConvictionChange }) {
 
       {ideas.length > 0 && (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '12px' }}>
-            <Lightbulb size={12} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '13px' }}>
+            <Lightbulb size={13} />
             <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
           </div>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {ideas.map((idea, i) => (
-              <li key={i} style={{ fontSize: '12px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
-                <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{idea.name}</span>
+              <li key={i} style={{ fontSize: '13px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
+                <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '14px' }}>{idea.name}</span>
                 {idea.description && (
-                  <span style={{ color: 'var(--color-dim)' }}> — {idea.description}</span>
+                  <span style={{ color: 'var(--color-dim)', fontSize: '13px' }}> — {idea.description}</span>
                 )}
               </li>
             ))}
@@ -347,7 +570,7 @@ function SecondOrderCard({ node, accent, conviction, onConvictionChange }) {
   );
 }
 
-function ThirdOrderCard({ node, parentAccent }) {
+function ThirdOrderCard({ node }) {
   const tickers = (node.tickers || []).slice(0, 4);
   const ideas = (node.startup_ideas || []).slice(0, 3);
   const confidence = useMemo(() => mockNodeConfidence(node.label), [node.label]);
@@ -355,19 +578,20 @@ function ThirdOrderCard({ node, parentAccent }) {
   return (
     <div style={{
       padding: '16px',
-      background: 'rgba(139,92,246,0.04)',
-      border: '1px solid rgba(139,92,246,0.2)',
+      background: 'rgba(168,85,247,0.04)',
+      border: '1px solid rgba(168,85,247,0.2)',
+      borderLeft: '3px solid #a855f7',
       borderRadius: '8px',
     }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '6px' }}>
-        <h3 style={{ color: 'var(--color-purple)', fontSize: '13px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
+        <h3 style={{ color: '#a855f7', fontSize: '15px', fontWeight: 700, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
           {node.label}
         </h3>
         <ConfidenceRing score={confidence} size={28} />
       </div>
 
       {node.description && (
-        <p style={{ color: 'var(--color-dim)', fontSize: '12px', lineHeight: 1.5, marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ color: 'var(--color-dim)', fontSize: '13px', lineHeight: 1.5, marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
           {node.description}
         </p>
       )}
@@ -380,16 +604,16 @@ function ThirdOrderCard({ node, parentAccent }) {
 
       {ideas.length > 0 && (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', color: 'var(--color-purple)', fontSize: '11px' }}>
-            <Lightbulb size={11} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', color: '#a855f7', fontSize: '12px' }}>
+            <Lightbulb size={12} />
             <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
           </div>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {ideas.map((idea, i) => (
-              <li key={i} style={{ fontSize: '12px', marginBottom: '4px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
-                <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{idea.name}</span>
+              <li key={i} style={{ fontSize: '13px', marginBottom: '4px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
+                <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '14px' }}>{idea.name}</span>
                 {idea.description && (
-                  <span style={{ color: 'var(--color-dim)' }}> — {idea.description}</span>
+                  <span style={{ color: 'var(--color-dim)', fontSize: '13px' }}> — {idea.description}</span>
                 )}
               </li>
             ))}
@@ -400,11 +624,10 @@ function ThirdOrderCard({ node, parentAccent }) {
   );
 }
 
-// ---------- Collapsible 3rd-order group ----------
+// ---------- 3rd-order group (always visible) ----------
 
-function ThirdOrderGroup({ children, parentAccent }) {
-  const [expanded, setExpanded] = useState(false);
-  if (!children || children.length === 0) return null;
+function ThirdOrderGroup({ children: nodes }) {
+  if (!nodes || nodes.length === 0) return null;
 
   return (
     <div style={{ marginLeft: '40px', position: 'relative' }}>
@@ -418,43 +641,30 @@ function ThirdOrderGroup({ children, parentAccent }) {
         background: 'rgba(255,255,255,0.1)',
       }} />
 
-      <button
-        onClick={() => setExpanded(!expanded)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          background: 'transparent',
-          border: 'none',
-          color: 'var(--color-dim)',
-          fontSize: '11px',
-          fontFamily: 'var(--font-sans)',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          cursor: 'pointer',
-          padding: '6px 0',
-          marginBottom: expanded ? '10px' : '0',
-        }}
-      >
-        {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-        3rd Order Effects ({children.length})
-      </button>
+      <div style={{
+        fontSize: '11px',
+        fontWeight: 600,
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        color: '#a855f7',
+        fontFamily: 'var(--font-sans)',
+        marginBottom: '10px',
+      }}>
+        3rd Order Effects →
+      </div>
 
-      {expanded && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {children.map((to) => (
-            <ThirdOrderCard key={to.id} node={to} parentAccent={parentAccent} />
-          ))}
-        </div>
-      )}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {nodes.map((to) => (
+          <ThirdOrderCard key={to.id} node={to} />
+        ))}
+      </div>
     </div>
   );
 }
 
 // ---------- Main Tree View ----------
 
-export default function TreeView({ tree, thesis }) {
+export default function TreeView({ tree, thesis, onDelete }) {
   const secondOrder = tree?.children || [];
   const [convictions, setConvictions] = useState(() => {
     const init = {};
@@ -462,7 +672,6 @@ export default function TreeView({ tree, thesis }) {
     return init;
   });
 
-  // Weighted average health from conviction sliders (scaled to 0-100)
   const healthScore = useMemo(() => {
     if (secondOrder.length === 0) return 50;
     let total = 0;
@@ -482,10 +691,8 @@ export default function TreeView({ tree, thesis }) {
 
   return (
     <div>
-      {/* Hero thesis card */}
-      <HeroCard tree={tree} thesis={thesis} healthScore={healthScore} />
+      <HeroCard tree={tree} thesis={thesis} healthScore={healthScore} onDelete={onDelete} />
 
-      {/* 2nd Order Effects */}
       {secondOrder.length > 0 && (
         <>
           <div style={{
@@ -493,11 +700,11 @@ export default function TreeView({ tree, thesis }) {
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
-            color: 'var(--color-dim)',
+            color: '#06b6d4',
             fontFamily: 'var(--font-sans)',
             marginBottom: '12px',
           }}>
-            2nd Order Effects
+            2nd Order Effects →
           </div>
 
           <div style={{
@@ -505,20 +712,16 @@ export default function TreeView({ tree, thesis }) {
             gap: '16px',
             gridTemplateColumns: `repeat(${Math.min(secondOrder.length, 3)}, 1fr)`,
           }}>
-            {secondOrder.map((so, idx) => {
-              const accent = CARD_ACCENTS[idx % CARD_ACCENTS.length];
-              return (
-                <div key={so.id} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <SecondOrderCard
-                    node={so}
-                    accent={accent}
-                    conviction={convictions[so.id] ?? 5}
-                    onConvictionChange={(v) => setConvictions(prev => ({ ...prev, [so.id]: v }))}
-                  />
-                  <ThirdOrderGroup children={so.children || []} parentAccent={accent} />
-                </div>
-              );
-            })}
+            {secondOrder.map((so) => (
+              <div key={so.id} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <SecondOrderCard
+                  node={so}
+                  conviction={convictions[so.id] ?? 5}
+                  onConvictionChange={(v) => setConvictions(prev => ({ ...prev, [so.id]: v }))}
+                />
+                <ThirdOrderGroup children={so.children || []} />
+              </div>
+            ))}
           </div>
         </>
       )}

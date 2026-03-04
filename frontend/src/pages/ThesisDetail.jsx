@@ -1,24 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { getThesis, getTree, deleteThesis } from '../utils/api';
-import HealthGauge from '../components/HealthGauge';
 import TreeView from '../components/TreeView';
-import HealthTab from '../components/HealthTab';
-
-const tabs = [
-  { id: 'tree', label: 'Tree View', emoji: '🌿' },
-  { id: 'health', label: 'Health', emoji: '📊' },
-];
 
 export default function ThesisDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [thesis, setThesis] = useState(null);
   const [tree, setTree] = useState(null);
-  const [activeTab, setActiveTab] = useState('tree');
   const [loading, setLoading] = useState(true);
-  const [deleteHovered, setDeleteHovered] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -53,7 +44,6 @@ export default function ThesisDetail() {
 
   return (
     <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
-      {/* Back button */}
       <Link
         to="/"
         style={{
@@ -73,117 +63,7 @@ export default function ThesisDetail() {
         ← Back to Dashboard
       </Link>
 
-      {/* Header: title + HealthRing */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '24px', marginBottom: '16px' }}>
-        <div style={{ flex: 1 }}>
-          <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--color-text)', fontFamily: 'var(--font-sans)', lineHeight: 1.3 }}>
-            {thesis.title}
-          </h1>
-          {thesis.description && (
-            <p style={{ fontSize: '14px', color: 'var(--color-dim)', marginTop: '12px', lineHeight: 1.6, maxWidth: '720px', fontFamily: 'var(--font-sans)' }}>
-              {thesis.description}
-            </p>
-          )}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <HealthGauge score={thesis.health_score} size={72} />
-          <button
-            onClick={handleDelete}
-            onMouseEnter={() => setDeleteHovered(true)}
-            onMouseLeave={() => setDeleteHovered(false)}
-            style={{
-              background: 'transparent',
-              border: `1px solid ${deleteHovered ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}`,
-              borderRadius: '8px',
-              padding: '10px',
-              color: deleteHovered ? '#ef4444' : 'var(--color-dim)',
-              cursor: 'pointer',
-              transition: 'all 0.15s',
-            }}
-            title="Delete thesis"
-          >
-            <Trash2 size={18} />
-          </button>
-        </div>
-      </div>
-
-      {/* Meta row */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        fontSize: '12px',
-        color: 'var(--color-dim)',
-        fontFamily: 'var(--font-mono)',
-        marginBottom: '28px',
-        flexWrap: 'wrap',
-      }}>
-        {thesis.activation_date && (
-          <>
-            <span>Active since {new Date(thesis.activation_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
-            <span style={{ color: 'var(--color-faint)' }}>·</span>
-          </>
-        )}
-        <span>{thesis.node_count} tree nodes</span>
-        {thesis.keywords?.length > 0 && (
-          <>
-            <span style={{ color: 'var(--color-faint)' }}>·</span>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              {thesis.keywords.map(k => (
-                <span key={k} style={{
-                  padding: '2px 8px',
-                  background: 'rgba(255,255,255,0.04)',
-                  color: 'var(--color-dim)',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontFamily: 'var(--font-mono)',
-                }}>
-                  {k}
-                </span>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Tab bar */}
-      <div style={{
-        display: 'flex',
-        gap: '4px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        marginBottom: '24px',
-      }}>
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '12px 20px',
-              background: 'transparent',
-              border: 'none',
-              borderBottom: activeTab === tab.id ? '2px solid #22c55e' : '2px solid transparent',
-              color: activeTab === tab.id ? '#22c55e' : 'var(--color-dim)',
-              fontSize: '13px',
-              fontWeight: 500,
-              fontFamily: 'var(--font-sans)',
-              cursor: 'pointer',
-              transition: 'color 0.15s',
-            }}
-          >
-            <span style={{ fontSize: '14px' }}>{tab.emoji}</span>
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab content */}
-      <div>
-        {activeTab === 'tree' && <TreeView tree={tree} thesis={thesis} />}
-        {activeTab === 'health' && <HealthTab thesisId={parseInt(id)} />}
-      </div>
+      <TreeView tree={tree} thesis={thesis} onDelete={handleDelete} />
     </div>
   );
 }

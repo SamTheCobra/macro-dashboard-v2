@@ -133,10 +133,72 @@ def _generate_seed_trees(db, thesis_ids=None):
                 db.commit()
 
 
+def regenerate_incomplete_trees():
+    """Scan for theses with only a root node and regenerate their trees."""
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key or api_key.startswith("your_"):
+        print("[startup] Skipping tree regeneration — no valid ANTHROPIC_API_KEY")
+        return
+
+    db = SessionLocal()
+    try:
+        from .services.ai_service import generate_thesis_tree, store_thesis_tree
+
+        # Find theses with only 1 node (root only)
+        from sqlalchemy import func
+        incomplete = (
+            db.query(Thesis.id, Thesis.title, func.count(TreeNode.id).label("node_count"))
+            .join(TreeNode, TreeNode.thesis_id == Thesis.id)
+            .group_by(Thesis.id)
+            .having(func.count(TreeNode.id) <= 1)
+            .all()
+        )
+
+        if not incomplete:
+            print("[startup] All theses have complete trees")
+            return
+
+        print(f"[startup] Found {len(incomplete)} theses with incomplete trees, regenerating...")
+        for thesis_id, title, node_count in incomplete:
+            thesis = db.query(Thesis).filter(Thesis.id == thesis_id).first()
+            try:
+                print(f"[startup]   Regenerating: {title}")
+                # Delete existing root node
+                db.query(TreeNode).filter(TreeNode.thesis_id == thesis_id).delete()
+                db.flush()
+
+                tree_data = generate_thesis_tree(title)
+                store_thesis_tree(db, thesis, tree_data)
+                new_count = db.query(TreeNode).filter(TreeNode.thesis_id == thesis_id).count()
+                print(f"[startup]   -> OK: {new_count} nodes")
+            except Exception as e:
+                print(f"[startup]   -> FAILED: {title}: {e}")
+                db.rollback()
+                # Ensure root node exists
+                if db.query(TreeNode).filter(TreeNode.thesis_id == thesis_id).count() == 0:
+                    db.add(TreeNode(
+                        thesis_id=thesis_id,
+                        parent_id=None,
+                        node_type="thesis",
+                        label=title,
+                        description=thesis.description or "",
+                        sort_order=0,
+                    ))
+                    db.commit()
+
+        print("[startup] Tree regeneration complete")
+    except Exception as e:
+        print(f"[startup] Tree regeneration error: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
     seed_if_empty()
+    regenerate_incomplete_trees()
     from .services.score_cache import start_background_updater, stop_background_updater
     start_background_updater()
     yield

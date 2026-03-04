@@ -1,8 +1,28 @@
 import os
+import re
 import json
+import logging
 import anthropic
 from sqlalchemy.orm import Session
 from ..models import Thesis, TreeNode, NodeTicker, StartupIdea
+
+logger = logging.getLogger(__name__)
+
+
+def _clean_json_response(text: str) -> str:
+    """Strip markdown fences and fix common JSON issues from AI responses."""
+    # Strip markdown code fences
+    text = text.strip()
+    if text.startswith("```"):
+        # Remove opening fence (with optional language tag)
+        text = re.sub(r'^```(?:json)?\s*\n?', '', text)
+        # Remove closing fence
+        text = re.sub(r'\n?```\s*$', '', text)
+
+    # Remove trailing commas before } and ]
+    text = re.sub(r',\s*([}\]])', r'\1', text)
+
+    return text.strip()
 
 
 SYSTEM_PROMPT = """You are a sharp, opinionated macro investor who explains ideas like a smart friend at a bar.
@@ -31,10 +51,8 @@ GOOD (casual, punchy, specific):
 """
 
 
-def generate_thesis_tree(thesis_statement: str) -> dict:
-    """Call Claude to expand a thesis statement into a full causal tree."""
-    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-
+def _call_claude_for_tree(client, thesis_statement: str) -> str:
+    """Make the API call to Claude and return raw response text."""
     user_prompt = f"""Given this macro investment thesis:
 "{thesis_statement}"
 
@@ -125,7 +143,9 @@ IMPORTANT:
   GOOD: "TinyFeast — $8/day meal kit for people on Ozempic. Half the calories, twice the protein, fits in a lunchbox."
   BAD: "WeightWise — Insurance analytics platform that calculates ROI of GLP-1 coverage"
   GOOD: "ClaimFlip — Shows employers they save $11k/year per employee on GLP-1s vs obesity complications. Sells to HR departments."
-  BAD: "A platform for health optimization" (boring, says nothing)"""
+  BAD: "A platform for health optimization" (boring, says nothing)
+
+Return ONLY the JSON object. No markdown, no code fences, no explanation."""
 
     message = client.messages.create(
         model="claude-sonnet-4-20250514",
@@ -134,15 +154,31 @@ IMPORTANT:
         system=SYSTEM_PROMPT,
     )
 
-    response_text = message.content[0].text
+    return message.content[0].text
 
-    # Extract JSON from response (handle markdown code blocks)
-    if "```json" in response_text:
-        response_text = response_text.split("```json")[1].split("```")[0]
-    elif "```" in response_text:
-        response_text = response_text.split("```")[1].split("```")[0]
 
-    return json.loads(response_text.strip())
+def generate_thesis_tree(thesis_statement: str) -> dict:
+    """Call Claude to expand a thesis statement into a full causal tree.
+    Cleans JSON response and retries once on parse failure."""
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+    for attempt in range(2):
+        response_text = _call_claude_for_tree(client, thesis_statement)
+        cleaned = _clean_json_response(response_text)
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError as e:
+            if attempt == 0:
+                logger.warning(
+                    "JSON parse failed for '%s' (attempt 1), retrying: %s",
+                    thesis_statement[:60], e,
+                )
+            else:
+                logger.error(
+                    "JSON parse failed for '%s' after retry: %s\nRaw response:\n%s",
+                    thesis_statement[:60], e, response_text[:500],
+                )
+                raise
 
 
 def store_thesis_tree(db: Session, thesis: Thesis, tree_data: dict) -> None:
@@ -236,10 +272,5 @@ Return ONLY valid JSON:
         system="You are a macro investment analyst. Classify news headlines relative to investment theses. Be precise and brief.",
     )
 
-    text = message.content[0].text
-    if "```json" in text:
-        text = text.split("```json")[1].split("```")[0]
-    elif "```" in text:
-        text = text.split("```")[1].split("```")[0]
-
-    return json.loads(text.strip())
+    text = _clean_json_response(message.content[0].text)
+    return json.loads(text)

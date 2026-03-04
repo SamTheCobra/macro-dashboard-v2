@@ -1,7 +1,11 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Thesis, TreeNode, NodeTicker, StartupIdea
+from ..services.ai_service import generate_thesis_tree, store_thesis_tree
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/theses/{thesis_id}/tree", tags=["tree"])
 
@@ -76,3 +80,48 @@ def get_tree_flat(thesis_id: int, db: Session = Depends(get_db)):
         })
 
     return {"nodes": result}
+
+
+@router.post("/regenerate")
+def regenerate_tree(thesis_id: int, db: Session = Depends(get_db)):
+    """Delete existing tree nodes and re-generate via AI."""
+    thesis = db.query(Thesis).filter(Thesis.id == thesis_id).first()
+    if not thesis:
+        raise HTTPException(status_code=404, detail="Thesis not found")
+
+    logger.info("Regenerating tree for thesis %d: %s", thesis_id, thesis.title)
+
+    # Delete existing tree data (cascades to tickers and startup_ideas via relationships)
+    db.query(StartupIdea).filter(
+        StartupIdea.node_id.in_(
+            db.query(TreeNode.id).filter(TreeNode.thesis_id == thesis_id)
+        )
+    ).delete(synchronize_session=False)
+    db.query(NodeTicker).filter(
+        NodeTicker.node_id.in_(
+            db.query(TreeNode.id).filter(TreeNode.thesis_id == thesis_id)
+        )
+    ).delete(synchronize_session=False)
+    db.query(TreeNode).filter(TreeNode.thesis_id == thesis_id).delete()
+    db.flush()
+
+    try:
+        tree_data = generate_thesis_tree(thesis.title)
+        store_thesis_tree(db, thesis, tree_data)
+        node_count = db.query(TreeNode).filter(TreeNode.thesis_id == thesis_id).count()
+        logger.info("  -> Regenerated with %d nodes", node_count)
+        return {"ok": True, "node_count": node_count}
+    except Exception as e:
+        logger.error("  -> Regeneration failed for '%s': %s", thesis.title, e)
+        db.rollback()
+        # Ensure at least root node exists
+        db.add(TreeNode(
+            thesis_id=thesis.id,
+            parent_id=None,
+            node_type="thesis",
+            label=thesis.title,
+            description=thesis.description or "",
+            sort_order=0,
+        ))
+        db.commit()
+        raise HTTPException(status_code=502, detail=f"AI generation failed: {e}")

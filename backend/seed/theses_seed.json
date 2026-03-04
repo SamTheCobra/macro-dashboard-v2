@@ -365,5 +365,68 @@
       {"ticker": "GRMN", "direction": "long", "entry_price": 170.00, "target_price": 240.00, "stop_loss": 140.00, "position_size_pct": 3.0, "status": "active", "notes": "Garmin — wearables with best-in-class sleep analytics. Hardcore wellness crowd loves them."},
       {"ticker": "TPX", "direction": "long", "entry_price": 50.00, "target_price": 75.00, "stop_loss": 38.00, "position_size_pct": 2.0, "status": "watching", "notes": "Tempur-Sealy — premium mattress leader. Sleep-as-status benefits the high-end mattress category."}
     ]
+  },
+  {
+    "title": "Pets Are the New Kids \u2192 $200B Pet Economy",
+    "description": "Young couples are choosing dogs over babies. Not as a phase — as their actual life plan. Pet spending per household is up 40% in 5 years. The pet insurance and premium pet food TAM is exploding while birth rates crater.",
+    "keywords": ["pets", "pet insurance", "pet food", "veterinary", "birth rate decline"],
+    "activation_date": "2024-06-01T00:00:00",
+    "conviction_entries": [
+      {"score": 7, "note": "Initiating thesis. US pet ownership at all-time high of 67% of households. Average annual pet spending passed $2k per household.", "date": "2024-06-01T00:00:00"},
+      {"score": 8, "note": "Chewy subscriber growth re-accelerating. Pet insurance penetration still only 4% in US vs 25% in UK — massive runway. Premium pet food growing 20%+ YoY.", "date": "2025-01-01T00:00:00"},
+      {"score": 8, "note": "Trupanion and FIGO reporting 30%+ policy growth. Vet visits up across all age cohorts. Pet wellness is the new kid wellness.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "CHWY", "direction": "long", "entry_price": 28.00, "target_price": 48.00, "stop_loss": 20.00, "position_size_pct": 4.0, "status": "active", "notes": "Chewy — dominant online pet retailer. Autoship model creates recurring revenue. Pet humanization drives higher AOV."},
+      {"ticker": "TRUP", "direction": "long", "entry_price": 35.00, "target_price": 60.00, "stop_loss": 25.00, "position_size_pct": 3.0, "status": "active", "notes": "Trupanion — pet insurance pure play. 4% penetration rate means massive growth runway as pets-as-kids mindset deepens."},
+      {"ticker": "IDXX", "direction": "long", "entry_price": 520.00, "target_price": 650.00, "stop_loss": 440.00, "position_size_pct": 3.0, "status": "active", "notes": "IDEXX Labs — veterinary diagnostics monopoly. Every pet parent wants blood work and preventive care now."}
+    ]
+  },
+  {
+    "title": "Cursive Is Dead \u2192 Digital Handwriting Takes Over",
+    "description": "Most adults under 30 can barely read cursive, let alone write it. Handwriting itself is disappearing as a skill. Tablet + stylus note-taking, digital signatures, and AI handwriting recognition are replacing pen-and-paper across education and business.",
+    "keywords": ["handwriting", "digital notes", "edtech", "tablet stylus", "education technology"],
+    "activation_date": "2025-01-01T00:00:00",
+    "conviction_entries": [
+      {"score": 5, "note": "Initiating thesis. Only 20% of Gen Z can read cursive fluently. iPad + Apple Pencil now standard in most college classrooms. Goodnotes and Notability are top education apps.", "date": "2025-01-01T00:00:00"},
+      {"score": 6, "note": "ReMarkable tablet sales up 80% YoY. Schools shifting from physical notebooks to digital-first. Wacom stylus market growing 25%+.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "AAPL", "direction": "long", "entry_price": 230.00, "target_price": 285.00, "stop_loss": 200.00, "position_size_pct": 3.0, "status": "active", "notes": "Apple — iPad + Pencil dominates digital note-taking. Education market share growing as schools go digital-first."},
+      {"ticker": "MSFT", "direction": "long", "entry_price": 420.00, "target_price": 520.00, "stop_loss": 360.00, "position_size_pct": 3.0, "status": "active", "notes": "Microsoft — Surface + OneNote ecosystem. Enterprise digital note-taking and inking features improving rapidly."},
+      {"ticker": "DUOL", "direction": "long", "entry_price": 280.00, "target_price": 420.00, "stop_loss": 220.00, "position_size_pct": 2.0, "status": "watching", "notes": "Duolingo — expanding beyond languages into math and general education. Gamified learning replaces traditional skills teaching."}
+    ]
+  },
+  {
+    "title": "Climate Panic \u2192 Great Lakes Revival",
+    "description": "Phoenix hit 120\u00b0F, Miami's flooding weekly, and insurance companies are pulling out of Florida. Meanwhile, Buffalo and Detroit have cheap houses, abundant water, and mild summers. The climate migration to the Great Lakes is already happening — and it's accelerating.",
+    "keywords": ["climate migration", "Great Lakes", "Sun Belt", "real estate", "insurance crisis", "water scarcity"],
+    "activation_date": "2024-09-01T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Initiating thesis. State Farm and Allstate pulling out of Florida and California. Great Lakes metro home prices up 15-20% while national market flat.", "date": "2024-09-01T00:00:00"},
+      {"score": 7, "note": "Duluth, MN and Buffalo, NY seeing first population growth in decades. Remote workers leading the migration wave. Phoenix water restrictions tightening.", "date": "2025-01-01T00:00:00"},
+      {"score": 7, "note": "FEMA flood maps expanded, making 2M+ more homes effectively uninsurable. Great Lakes governors marketing climate resilience openly.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "AWK", "direction": "long", "entry_price": 130.00, "target_price": 170.00, "stop_loss": 110.00, "position_size_pct": 3.0, "status": "active", "notes": "American Water Works — largest US water utility. Great Lakes region exposure and water infrastructure investment cycle."},
+      {"ticker": "O", "direction": "long", "entry_price": 55.00, "target_price": 70.00, "stop_loss": 45.00, "position_size_pct": 3.0, "status": "active", "notes": "Realty Income — diversified REIT with Midwest exposure. Benefits from population inflows to climate-resilient markets."},
+      {"ticker": "EQR", "direction": "short", "entry_price": 68.00, "target_price": 48.00, "stop_loss": 78.00, "position_size_pct": 2.0, "status": "watching", "notes": "Equity Residential — Sun Belt apartment REIT. Overexposed to Phoenix, Miami, and Austin where climate/insurance costs are rising."}
+    ]
+  },
+  {
+    "title": "McMansion Era Over \u2192 Tiny Is the New Flex",
+    "description": "For the first time in 50 years, the average new American home is getting smaller. McMansions are out, and efficient 1,200 sq ft homes are in. Modular housing, convertible furniture, and clever storage solutions are the new status symbols.",
+    "keywords": ["small homes", "modular housing", "home building", "space-saving", "housing affordability"],
+    "activation_date": "2025-01-01T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Initiating thesis. Census data confirms median new home size declining for third straight year. Modular home companies raising significant capital.", "date": "2025-01-01T00:00:00"},
+      {"score": 6, "note": "IKEA small-space furniture line outselling traditional lines 3:1 in urban markets. ADU (accessory dwelling unit) permits up 200%+ in California.", "date": "2025-02-01T00:00:00"},
+      {"score": 7, "note": "Lennar and D.R. Horton both launching sub-1,500 sqft product lines. Homebuilder sentiment shifting to affordability over size.", "date": "2025-03-01T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "LEN", "direction": "long", "entry_price": 155.00, "target_price": 210.00, "stop_loss": 125.00, "position_size_pct": 3.0, "status": "active", "notes": "Lennar — leading homebuilder pivoting to smaller, more affordable models. Volume over margin strategy aligns with trend."},
+      {"ticker": "DHI", "direction": "long", "entry_price": 145.00, "target_price": 195.00, "stop_loss": 115.00, "position_size_pct": 3.0, "status": "active", "notes": "D.R. Horton — America's largest homebuilder. Affordable housing focus gives them the biggest addressable market."},
+      {"ticker": "WSM", "direction": "long", "entry_price": 160.00, "target_price": 220.00, "stop_loss": 130.00, "position_size_pct": 2.0, "status": "watching", "notes": "Williams-Sonoma — West Elm brand is the go-to for small-space furniture. Multi-functional pieces for smaller homes."}
+    ]
   }
 ]

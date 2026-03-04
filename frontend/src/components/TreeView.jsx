@@ -663,7 +663,7 @@ function ThirdOrderGroup({ children: nodes }) {
         3rd Order Effects →
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
         {nodes.map((to) => (
           <ThirdOrderCard key={to.id} node={to} />
         ))}
@@ -720,7 +720,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
           <div style={{
             display: 'grid',
             gap: '16px',
-            gridTemplateColumns: `repeat(${Math.min(secondOrder.length, 3)}, 1fr)`,
+            gridTemplateColumns: 'repeat(2, 1fr)',
           }}>
             {secondOrder.map((so) => (
               <div key={so.id} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

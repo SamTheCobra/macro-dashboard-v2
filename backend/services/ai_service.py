@@ -118,10 +118,13 @@ IMPORTANT:
 - TONE: Write like a smart friend, not a Wall Street report. Be specific, punchy, and opinionated.
 - Card titles: 5-10 words, punchy. "Banks Finally Catch a Break" not "Financial Sector Normalization"
 - Descriptions: 2-3 sentences, plain English, concrete. Name real products and companies.
-- Startup names should sound like REAL startups — catchy brand names (like "CurveAlert", "AppetiteTrack", "GridLeap")
-- Startup descriptions: one-liner that makes you go "oh that's clever"
-  GOOD: "Pings you when the yield curve moves so you can front-run the banks"
-  GOOD: "GLP-1 meal planning app that adjusts portions as your appetite changes on Ozempic"
+- Each startup idea must be a REAL plausible business, not a generic SaaS name. Think Y Combinator pitch deck quality.
+- Startup names: 1-2 words, punchy, lowercase-friendly, memorable (like "CurveAlert", "TinyFeast", "ClaimFlip")
+- Startup descriptions: 1 sentence with a specific detail (price point, metric, or customer)
+  BAD: "PortionPerfect — GLP-1-optimized meal delivery service with micro-portions designed for appetite-suppressed users"
+  GOOD: "TinyFeast — $8/day meal kit for people on Ozempic. Half the calories, twice the protein, fits in a lunchbox."
+  BAD: "WeightWise — Insurance analytics platform that calculates ROI of GLP-1 coverage"
+  GOOD: "ClaimFlip — Shows employers they save $11k/year per employee on GLP-1s vs obesity complications. Sells to HR departments."
   BAD: "A platform for health optimization" (boring, says nothing)"""
 
     message = client.messages.create(

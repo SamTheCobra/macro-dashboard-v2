@@ -69,12 +69,6 @@ export default function ThesisCard({ thesis }) {
         <span style={{ color: 'var(--color-dim)' }}>
           Evid <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{thesis.evidence_score?.toFixed(1) ?? '–'}</span>
         </span>
-        <span style={{ color: 'var(--color-dim)' }}>
-          Pulse <span style={{
-            color: (thesis.news_pulse || 5) > 6 ? '#22c55e' : (thesis.news_pulse || 5) < 4 ? '#ef4444' : '#f59e0b',
-            fontWeight: 500,
-          }}>{thesis.news_pulse?.toFixed(1) ?? '–'}</span>
-        </span>
       </div>
 
       {/* Footer: date + ticker badges */}

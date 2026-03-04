@@ -233,6 +233,7 @@ app.add_middleware(
 
 app.include_router(theses.router)
 app.include_router(tree.router)
+app.include_router(tree.node_router)
 app.include_router(conviction.router)
 app.include_router(evidence.router)
 app.include_router(news.router)

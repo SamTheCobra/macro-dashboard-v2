@@ -34,3 +34,8 @@ def _migrate_add_columns():
                 conn.execute(text("ALTER TABLE theses ADD COLUMN evidence_score FLOAT DEFAULT 5.0"))
             if "last_evidence_refresh" not in cols:
                 conn.execute(text("ALTER TABLE theses ADD COLUMN last_evidence_refresh DATETIME"))
+    if "tree_nodes" in insp.get_table_names():
+        cols = {c["name"] for c in insp.get_columns("tree_nodes")}
+        with engine.begin() as conn:
+            if "user_conviction" not in cols:
+                conn.execute(text("ALTER TABLE tree_nodes ADD COLUMN user_conviction INTEGER"))

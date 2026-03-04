@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Trash2, RefreshCw } from 'lucide-react';
-import { getConviction, putConviction, getThesis, refreshEvidence } from '../utils/api';
+import { getConviction, putConviction, getThesis, refreshEvidence, updateNodeConviction } from '../utils/api';
 
 // ---------- Mock data generators ----------
 
@@ -903,7 +903,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
   const [soConvictions, setSoConvictions] = useState(() => {
     const init = {};
     secondOrder.forEach(so => {
-      init[so.id] = Math.round(mockNodeConfidence(so.label) / 10);
+      init[so.id] = so.user_conviction ?? Math.round(mockNodeConfidence(so.label) / 10);
     });
     return init;
   });
@@ -912,7 +912,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
     const init = {};
     secondOrder.forEach(so => {
       (so.children || []).forEach(to => {
-        init[to.id] = Math.round(mockNodeConfidence(to.label) / 10);
+        init[to.id] = to.user_conviction ?? Math.round(mockNodeConfidence(to.label) / 10);
       });
     });
     return init;
@@ -973,14 +973,27 @@ export default function TreeView({ tree, thesis, onDelete }) {
     }, 500);
   }, [thesis?.id, triggerPulse, refreshHealth]);
 
+  const nodeDebounceRef = useRef({});
+  useEffect(() => {
+    return () => Object.values(nodeDebounceRef.current).forEach(clearTimeout);
+  }, []);
+
   const handleSoConvictionChange = useCallback((nodeId, value) => {
     setSoConvictions(prev => ({ ...prev, [nodeId]: value }));
     triggerPulse(nodeId, 'parent');
+    clearTimeout(nodeDebounceRef.current[nodeId]);
+    nodeDebounceRef.current[nodeId] = setTimeout(() => {
+      updateNodeConviction(nodeId, value).catch(() => {});
+    }, 500);
   }, [triggerPulse]);
 
   const handleToConvictionChange = useCallback((toId, soId, value) => {
     setToConvictions(prev => ({ ...prev, [toId]: value }));
     triggerPulse(toId, soId, 'parent');
+    clearTimeout(nodeDebounceRef.current[toId]);
+    nodeDebounceRef.current[toId] = setTimeout(() => {
+      updateNodeConviction(toId, value).catch(() => {});
+    }, 500);
   }, [triggerPulse]);
 
   // Sub-card health scores (local display only, not stored in backend)

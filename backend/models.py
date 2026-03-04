@@ -36,6 +36,7 @@ class TreeNode(Base):
     label = Column(String(500), nullable=False)
     description = Column(Text)
     sort_order = Column(Integer, default=0)
+    user_conviction = Column(Integer, nullable=True)
 
     thesis = relationship("Thesis", back_populates="tree_nodes")
     parent = relationship("TreeNode", remote_side=[id], backref="children")

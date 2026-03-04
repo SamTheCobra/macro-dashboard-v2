@@ -37,6 +37,9 @@ export const createBet = (thesisId, data) => api.post(`/theses/${thesisId}/bets`
 export const updateBet = (betId, data) => api.put(`/bets/${betId}`, data);
 export const deleteBet = (betId) => api.delete(`/bets/${betId}`);
 
+// Tree node conviction
+export const updateNodeConviction = (nodeId, score) => api.put(`/tree-nodes/${nodeId}/conviction`, { score });
+
 // Macro regime
 export const getMacroRegime = () => api.get('/regime/current');
 

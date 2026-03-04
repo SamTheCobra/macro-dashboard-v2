@@ -7,7 +7,26 @@ from ..services.ai_service import generate_thesis_tree, store_thesis_tree
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel
+
 router = APIRouter(prefix="/api/theses/{thesis_id}/tree", tags=["tree"])
+
+# Standalone router for tree node endpoints (no thesis_id prefix)
+node_router = APIRouter(tags=["tree"])
+
+
+class NodeConvictionUpdate(BaseModel):
+    score: int
+
+
+@node_router.put("/api/tree-nodes/{node_id}/conviction")
+def update_node_conviction(node_id: int, data: NodeConvictionUpdate, db: Session = Depends(get_db)):
+    node = db.query(TreeNode).filter(TreeNode.id == node_id).first()
+    if not node:
+        raise HTTPException(status_code=404, detail="Tree node not found")
+    node.user_conviction = max(1, min(10, data.score))
+    db.commit()
+    return {"ok": True, "user_conviction": node.user_conviction}
 
 
 @router.get("")
@@ -30,6 +49,7 @@ def get_tree(thesis_id: int, db: Session = Depends(get_db)):
             "label": node.label,
             "description": node.description,
             "sort_order": node.sort_order,
+            "user_conviction": node.user_conviction,
             "tickers": [
                 {"id": t.id, "symbol": t.symbol, "rationale": t.rationale, "direction": t.direction}
                 for t in tickers
@@ -69,6 +89,7 @@ def get_tree_flat(thesis_id: int, db: Session = Depends(get_db)):
             "label": node.label,
             "description": node.description,
             "sort_order": node.sort_order,
+            "user_conviction": node.user_conviction,
             "tickers": [
                 {"id": t.id, "symbol": t.symbol, "rationale": t.rationale, "direction": t.direction}
                 for t in tickers

@@ -33,9 +33,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                 {{"symbol": "TICK3", "rationale": "Why this ticker benefits/suffers", "direction": "long"}}
             ],
             "startup_ideas": [
-                {{"name": "Startup Name", "description": "What this startup would do and why it's timely"}},
-                {{"name": "Startup Name 2", "description": "What this startup would do and why it's timely"}},
-                {{"name": "Startup Name 3", "description": "What this startup would do and why it's timely"}}
+                {{"name": "CatchyBrandName", "description": "One-line plain-English pitch of what this startup builds and for whom"}},
+                {{"name": "AnotherName", "description": "One-line pitch explaining the product and why it's timely"}},
+                {{"name": "ThirdName", "description": "One-line pitch — be specific, not generic"}}
             ],
             "third_order_effects": [
                 {{
@@ -47,9 +47,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                         {{"symbol": "TICK3", "rationale": "Why", "direction": "short"}}
                     ],
                     "startup_ideas": [
-                        {{"name": "Startup Name", "description": "Description"}},
-                        {{"name": "Startup Name 2", "description": "Description"}},
-                        {{"name": "Startup Name 3", "description": "Description"}}
+                        {{"name": "BrandName", "description": "One-line pitch of what it builds and for whom"}},
+                        {{"name": "BrandName2", "description": "Specific one-line pitch"}},
+                        {{"name": "BrandName3", "description": "Specific one-line pitch"}}
                     ]
                 }},
                 {{
@@ -61,9 +61,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                         {{"symbol": "TICK3", "rationale": "Why", "direction": "long"}}
                     ],
                     "startup_ideas": [
-                        {{"name": "Startup Name", "description": "Description"}},
-                        {{"name": "Startup Name 2", "description": "Description"}},
-                        {{"name": "Startup Name 3", "description": "Description"}}
+                        {{"name": "BrandName", "description": "One-line pitch of what it builds and for whom"}},
+                        {{"name": "BrandName2", "description": "Specific one-line pitch"}},
+                        {{"name": "BrandName3", "description": "Specific one-line pitch"}}
                     ]
                 }},
                 {{
@@ -75,9 +75,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                         {{"symbol": "TICK3", "rationale": "Why", "direction": "long"}}
                     ],
                     "startup_ideas": [
-                        {{"name": "Startup Name", "description": "Description"}},
-                        {{"name": "Startup Name 2", "description": "Description"}},
-                        {{"name": "Startup Name 3", "description": "Description"}}
+                        {{"name": "BrandName", "description": "One-line pitch of what it builds and for whom"}},
+                        {{"name": "BrandName2", "description": "Specific one-line pitch"}},
+                        {{"name": "BrandName3", "description": "Specific one-line pitch"}}
                     ]
                 }}
             ]
@@ -92,7 +92,11 @@ IMPORTANT:
 - Tickers should be real, tradeable US equity or ETF symbols
 - Direction should be "long" if the thesis benefits the ticker, "short" if it hurts it
 - Keywords should be search terms useful for finding relevant news articles
-- Be specific and actionable, not generic"""
+- Be specific and actionable, not generic
+- Startup idea names should be catchy, colloquial brand names (like "AppetiteTrack", "GridLeap", "ProofLayer")
+- Startup idea descriptions must be specific one-line pitches explaining WHAT the product does and WHO it's for
+  Example: "GLP-1 meal planning app that adjusts portions as appetite changes on Ozempic/Wegovy"
+  NOT: "A platform for health optimization" (too generic)"""
 
     message = client.messages.create(
         model="claude-sonnet-4-20250514",

@@ -233,6 +233,8 @@ function inferSectorETF(label, description) {
 
 function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
   const [showTooltip, setShowTooltip] = useState(false);
+  const ringRef = useRef(null);
+  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
   const sw = size >= 64 ? 5 : 2.5;
   const r = (size - sw * 2) / 2;
   const circ = 2 * Math.PI * r;
@@ -240,10 +242,22 @@ function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
   const offset = circ - (clamped / 100) * circ;
   const color = clamped >= 70 ? '#22c55e' : clamped >= 50 ? '#f59e0b' : '#ef4444';
 
+  const handleMouseEnter = () => {
+    if (ringRef.current) {
+      const rect = ringRef.current.getBoundingClientRect();
+      setTooltipPos({
+        top: rect.top,
+        left: rect.left + rect.width / 2,
+      });
+    }
+    setShowTooltip(true);
+  };
+
   return (
     <div
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', flexShrink: 0, position: 'relative' }}
-      onMouseEnter={() => setShowTooltip(true)}
+      ref={ringRef}
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', flexShrink: 0 }}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setShowTooltip(false)}
     >
       <div style={{
@@ -274,18 +288,17 @@ function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
 
       {showTooltip && tooltipContent && (
         <div style={{
-          position: 'absolute',
-          bottom: '100%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          marginBottom: '8px',
+          position: 'fixed',
+          top: tooltipPos.top - 8,
+          left: tooltipPos.left,
+          transform: 'translate(-50%, -100%)',
           background: 'var(--color-tooltip-bg)',
           border: '1px solid var(--color-tooltip-border)',
           borderRadius: '12px',
           padding: '16px',
           maxWidth: '280px',
           minWidth: '240px',
-          zIndex: 100,
+          zIndex: 9999,
           pointerEvents: 'none',
         }}>
           {tooltipContent}
@@ -537,8 +550,10 @@ function StickyHeroBar({ visible, title, healthScore, conviction, tickers }) {
 
   return (
     <div style={{
-      position: 'sticky',
+      position: 'fixed',
       top: '52px',
+      left: 0,
+      right: 0,
       zIndex: 40,
       height: '48px',
       background: 'var(--color-header-bg)',

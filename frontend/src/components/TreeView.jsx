@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Lightbulb, Trash2 } from 'lucide-react';
-import { getConviction, addConviction, putConviction } from '../utils/api';
+import { Trash2 } from 'lucide-react';
+import { getConviction, putConviction } from '../utils/api';
 
 // ---------- Mock data generators ----------
 
@@ -169,23 +169,19 @@ function inferSectorETF(label, description) {
 
 function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
   const [showTooltip, setShowTooltip] = useState(false);
-  const sw = size >= 64 ? 6 : 3;
+  const sw = size >= 64 ? 5 : 2.5;
   const r = (size - sw * 2) / 2;
   const circ = 2 * Math.PI * r;
   const clamped = Math.min(Math.max(score || 0, 0), 100);
   const offset = circ - (clamped / 100) * circ;
   const color = clamped >= 70 ? '#22c55e' : clamped >= 50 ? '#f59e0b' : '#ef4444';
-  const labelText = size >= 64 ? 'Health' : 'Confidence';
 
   return (
     <div
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: size >= 64 ? '4px' : '3px', flexShrink: 0, position: 'relative' }}
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', flexShrink: 0, position: 'relative' }}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      {size >= 64 ? null : (
-        <span style={{ fontSize: '9px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{labelText}</span>
-      )}
       <div style={{
         position: 'relative', width: size, height: size,
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -203,16 +199,15 @@ function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
         </svg>
         <span style={{
           position: 'absolute',
-          fontSize: size >= 64 ? '24px' : '12px',
+          fontSize: size >= 64 ? '22px' : '11px',
           fontWeight: 700, fontFamily: 'var(--font-mono)',
           color, transition: 'color 0.3s',
         }}>{Math.round(clamped)}</span>
       </div>
       {size >= 64 && (
-        <span style={{ fontSize: '11px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{labelText}</span>
+        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em' }}>Health</span>
       )}
 
-      {/* Tooltip */}
       {showTooltip && tooltipContent && (
         <div style={{
           position: 'absolute',
@@ -221,7 +216,7 @@ function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
           transform: 'translateX(-50%)',
           marginBottom: '8px',
           background: 'rgba(0,0,0,0.95)',
-          border: '1px solid rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: '12px',
           padding: '16px',
           maxWidth: '280px',
@@ -233,7 +228,7 @@ function HealthRing({ score, size = 96, tooltipContent, pulsing }) {
           <div style={{
             position: 'absolute', bottom: '-6px', left: '50%', transform: 'translateX(-50%) rotate(45deg)',
             width: '10px', height: '10px', background: 'rgba(0,0,0,0.95)',
-            border: '1px solid rgba(255,255,255,0.12)',
+            border: '1px solid rgba(255,255,255,0.1)',
             borderTop: 'none', borderLeft: 'none',
           }} />
         </div>
@@ -248,7 +243,7 @@ function TooltipRow({ label, value, max }) {
   const color = value >= 7 ? '#22c55e' : value >= 4 ? '#f59e0b' : '#ef4444';
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '2px 0' }}>
-      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-sans)' }}>{label}</span>
+      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-sans)' }}>{label}</span>
       <span style={{ fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{value.toFixed(1)}/{max}</span>
     </div>
   );
@@ -257,7 +252,7 @@ function TooltipRow({ label, value, max }) {
 function ParentTooltip({ conviction, secondOrderAvg, evidenceScore }) {
   return (
     <div>
-      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-mono)', marginBottom: '10px', lineHeight: 1.5 }}>
+      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)', marginBottom: '10px', lineHeight: 1.5 }}>
         Health = (Your conviction x 50%) + (2nd order avg x 35%) + (Evidence x 15%)
       </div>
       <TooltipRow label="Core Conviction" value={conviction} max={10} />
@@ -270,7 +265,7 @@ function ParentTooltip({ conviction, secondOrderAvg, evidenceScore }) {
 function SecondOrderTooltip({ conviction, thirdOrderAvg }) {
   return (
     <div>
-      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-mono)', marginBottom: '10px', lineHeight: 1.5 }}>
+      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)', marginBottom: '10px', lineHeight: 1.5 }}>
         Confidence = (Your conviction x 70%) + (3rd order avg x 30%)
       </div>
       <TooltipRow label="Your Conviction" value={conviction} max={10} />
@@ -282,7 +277,7 @@ function SecondOrderTooltip({ conviction, thirdOrderAvg }) {
 function ThirdOrderTooltip({ conviction }) {
   return (
     <div>
-      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-mono)', marginBottom: '10px', lineHeight: 1.5 }}>
+      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)', marginBottom: '10px', lineHeight: 1.5 }}>
         Confidence = Your conviction x 10
       </div>
       <TooltipRow label="Your Conviction" value={conviction} max={10} />
@@ -300,12 +295,13 @@ function TickerChart({ ticker, isSector }) {
   const min = Math.min(...vals);
   const max = Math.max(...vals);
   const range = max - min || 1;
-  const w = 200, h = 32;
+  const w = 180, h = 24;
   const trending = vals[vals.length - 1] > vals[0];
   const color = trending ? '#22c55e' : '#ef4444';
-  const fillColor = trending ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)';
+  const fillColor = trending ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)';
   const desc = ticker.rationale || mockTickerDescription(ticker.symbol, ticker.direction);
   const fullName = getTickerName(ticker.symbol);
+  const accentColor = isLong ? '#22c55e' : '#ef4444';
 
   const lineD = points.map((p, i) => {
     const x = (i / (points.length - 1)) * w;
@@ -323,32 +319,24 @@ function TickerChart({ ticker, isSector }) {
     setTooltip({ x: (clamped / (points.length - 1)) * w, point: points[clamped] });
   }, [points]);
 
+  const rowOpacity = isSector ? 0.4 : 1;
+
   return (
-    <div style={{ padding: '4px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '4px', minWidth: '70px', flexShrink: 0,
-        }}>
-          <span style={{ fontSize: '10px', color: isLong ? '#22c55e' : '#ef4444' }}>{isLong ? '\u25B2' : '\u25BC'}</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700, color: isLong ? '#22c55e' : '#ef4444' }}>
+    <div style={{ opacity: rowOpacity }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'baseline', gap: '0' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700, color: accentColor, flexShrink: 0 }}>
             {ticker.symbol}
           </span>
-          {isSector && (
-            <span style={{
-              fontSize: '9px', fontWeight: 600, fontFamily: 'var(--font-mono)',
-              background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)',
-              padding: '1px 5px', borderRadius: '3px', marginLeft: '2px',
-            }}>SECTOR</span>
-          )}
+          <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-sans)', marginLeft: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            · {fullName}
+          </span>
         </div>
-        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {fullName}
-        </span>
-        <div style={{ position: 'relative', flex: 1, maxWidth: '200px', marginLeft: 'auto' }}
+        <div style={{ position: 'relative', width: '180px', flexShrink: 0 }}
           onMouseMove={handleMouse}
           onMouseLeave={() => setTooltip(null)}
         >
-          <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ display: 'block' }}>
+          <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ display: 'block', borderRadius: '4px' }}>
             <path d={areaD} fill={fillColor} />
             <path d={lineD} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -356,10 +344,10 @@ function TickerChart({ ticker, isSector }) {
             <div style={{
               position: 'absolute',
               left: `${(tooltip.x / w) * 100}%`,
-              top: '-28px',
+              top: '-24px',
               transform: 'translateX(-50%)',
-              background: 'rgba(0,0,0,0.85)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'rgba(0,0,0,0.9)',
+              border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '4px',
               padding: '2px 6px',
               fontSize: '10px',
@@ -375,8 +363,8 @@ function TickerChart({ ticker, isSector }) {
         </div>
       </div>
       <div style={{
-        fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-sans)',
-        marginLeft: '80px', marginTop: '1px', lineHeight: 1.3,
+        fontSize: '12px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-sans)',
+        marginTop: '2px', lineHeight: 1.3,
       }}>
         {desc}
       </div>
@@ -395,159 +383,43 @@ const CONVICTION_LABELS = [
 function ConvictionSlider({ value, onChange, label = 'Your Conviction', large }) {
   const color = value >= 7 ? '#22c55e' : value >= 4 ? '#f59e0b' : '#ef4444';
   const convLabel = CONVICTION_LABELS[value] || '';
-  const emoji = value >= 9 ? ' \uD83D\uDE80' : value >= 7 ? ' \uD83D\uDD25' : value >= 5 ? ' \uD83D\uDD28' : value >= 3 ? ' \uD83E\uDD14' : ' \uD83D\uDC40';
+  const [showLabel, setShowLabel] = useState(false);
+  const fadeRef = useRef(null);
+
+  const startDrag = useCallback(() => {
+    clearTimeout(fadeRef.current);
+    setShowLabel(true);
+  }, []);
+
+  const endDrag = useCallback(() => {
+    clearTimeout(fadeRef.current);
+    fadeRef.current = setTimeout(() => setShowLabel(false), 1000);
+  }, []);
+
+  useEffect(() => () => clearTimeout(fadeRef.current), []);
+
   return (
-    <div style={{ marginTop: large ? '18px' : '14px', paddingTop: large ? '16px' : '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <div style={{ paddingTop: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-        <span style={{ fontSize: large ? '16px' : '14px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)', fontWeight: large ? 600 : 400 }}>{label}</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: large ? '15px' : '14px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>{convLabel}{emoji}</span>
-          <span style={{ fontSize: large ? '16px' : '14px', fontWeight: 700, fontFamily: 'var(--font-mono)', color }}>{value}/10</span>
+        <span style={{
+          fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.06em',
+          color: 'rgba(255,255,255,0.3)', fontFamily: 'var(--font-sans)', fontWeight: large ? 600 : 500,
+        }}>{label}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{
+            fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-sans)',
+            opacity: showLabel ? 1 : 0, transition: 'opacity 0.3s',
+          }}>{convLabel}</span>
+          <span style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-mono)', color: showLabel ? color : 'rgba(255,255,255,0.35)' }}>{value}/10</span>
         </div>
       </div>
-      <input type="range" min="1" max="10" value={value} onChange={e => onChange(parseInt(e.target.value))}
+      <input type="range" min="1" max="10" value={value}
+        onChange={e => onChange(parseInt(e.target.value))}
+        onMouseDown={startDrag} onMouseUp={endDrag}
+        onTouchStart={startDrag} onTouchEnd={endDrag}
         className="accent-green"
-        style={{ width: '100%', height: large ? '6px' : '4px', cursor: 'pointer' }}
+        style={{ width: '100%', height: '4px', cursor: 'pointer' }}
       />
-    </div>
-  );
-}
-
-// ---------- Conviction History (embedded in hero) ----------
-
-function scoreColor(s) {
-  if (s >= 7) return '#22c55e';
-  if (s >= 4) return '#f59e0b';
-  return '#ef4444';
-}
-
-function scoreBg(s) {
-  if (s >= 7) return 'rgba(34,197,94,0.15)';
-  if (s >= 4) return 'rgba(245,158,11,0.15)';
-  return 'rgba(239,68,68,0.15)';
-}
-
-function ConvictionHistory({ thesisId }) {
-  const [entries, setEntries] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [score, setScore] = useState(5);
-  const [note, setNote] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  const loadEntries = useCallback(() => {
-    getConviction(thesisId).then(r => setEntries(r.data)).catch(() => {});
-  }, [thesisId]);
-
-  useEffect(() => { loadEntries(); }, [loadEntries]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      await addConviction(thesisId, { score: parseInt(score), note });
-      setNote('');
-      setScore(5);
-      setShowForm(false);
-      loadEntries();
-    } catch { /* ignore */ }
-    setSaving(false);
-  };
-
-  return (
-    <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-        <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>Conviction History</h3>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '4px',
-            padding: '4px 10px', fontSize: '11px',
-            background: 'rgba(34,197,94,0.1)', color: '#22c55e',
-            border: '1px solid rgba(34,197,94,0.3)', borderRadius: '6px',
-            cursor: 'pointer', fontFamily: 'var(--font-sans)',
-          }}
-        >
-          + Add Entry
-        </button>
-      </div>
-
-      {entries.length > 0 && (
-        <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', gap: '3px', marginBottom: '12px' }}>
-          {entries.map((entry) => {
-            const pct = Math.max(0, Math.min(100, (entry.score / 10) * 100));
-            return (
-              <div key={entry.id} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
-                title={`${entry.score}/10 – ${entry.note || ''}`}
-              >
-                <span style={{ fontSize: '9px', color: 'var(--color-dim)', fontFamily: 'var(--font-mono)' }}>{entry.score}</span>
-                <div style={{
-                  width: '100%', borderRadius: '2px 2px 0 0',
-                  background: scoreColor(entry.score),
-                  height: `${pct}%`, minHeight: '3px',
-                }} />
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {showForm && (
-        <form onSubmit={handleSubmit} style={{
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.06)',
-          borderRadius: '8px', padding: '12px', marginBottom: '10px',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <label style={{ fontSize: '11px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)' }}>Score:</label>
-            <input type="range" min="0" max="10" value={score} onChange={e => setScore(e.target.value)} className="accent-green" style={{ flex: 1 }} />
-            <span style={{ fontSize: '13px', fontWeight: 700, color: '#22c55e', width: '20px', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>{score}</span>
-          </div>
-          <textarea
-            value={note} onChange={e => setNote(e.target.value)}
-            placeholder="What changed your conviction?"
-            style={{
-              width: '100%', background: 'var(--color-bg)', border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: '6px', padding: '8px 10px', fontSize: '12px', color: 'var(--color-text)',
-              resize: 'none', height: '60px', fontFamily: 'var(--font-sans)', outline: 'none',
-            }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
-            <button type="submit" disabled={saving} style={{
-              padding: '4px 12px', background: '#22c55e', color: 'var(--color-bg)',
-              fontSize: '11px', fontWeight: 600, borderRadius: '6px', border: 'none',
-              cursor: 'pointer', opacity: saving ? 0.5 : 1, fontFamily: 'var(--font-sans)',
-            }}>
-              {saving ? 'Saving...' : 'Save'}
-            </button>
-          </div>
-        </form>
-      )}
-
-      <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        {[...entries].reverse().map(entry => (
-          <div key={entry.id} style={{
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            borderRadius: '8px', padding: '10px',
-            display: 'flex', alignItems: 'flex-start', gap: '10px',
-          }}>
-            <div style={{
-              flexShrink: 0, width: '28px', height: '28px', borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)',
-              background: scoreBg(entry.score), color: scoreColor(entry.score),
-            }}>
-              {entry.score}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              {entry.note && <p style={{ fontSize: '12px', color: 'var(--color-text)', fontFamily: 'var(--font-sans)', lineHeight: 1.4 }}>{entry.note}</p>}
-              <span style={{ fontSize: '10px', color: 'var(--color-dim)', marginTop: '2px', display: 'block', fontFamily: 'var(--font-mono)' }}>
-                {entry.date ? new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
@@ -565,9 +437,29 @@ function TickersList({ tickers, label, description }) {
   const displayTickers = (tickers || []).slice(0, 3);
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {displayTickers.map((t, i) => <TickerChart key={i} ticker={t} />)}
       {sectorETF && <TickerChart ticker={sectorETF} isSector />}
+    </div>
+  );
+}
+
+// ---------- Startup Ideas list ----------
+
+function IdeasList({ ideas }) {
+  if (!ideas || ideas.length === 0) return null;
+  return (
+    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {ideas.map((idea, i) => (
+          <div key={i}>
+            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>{idea.name}</span>
+            {idea.description && (
+              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-sans)' }}> — {idea.description}</span>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -605,39 +497,38 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
   return (
     <div style={{
       padding: '28px',
-      background: 'linear-gradient(to right, rgba(245,158,11,0.06), transparent)',
-      border: '1px solid rgba(245,158,11,0.2)',
+      background: 'rgba(255,255,255,0.02)',
       borderLeft: '3px solid #f59e0b',
       borderRadius: '8px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
       marginBottom: '32px',
     }}>
       <div style={{ display: 'flex', gap: '32px' }}>
-        {/* Left 60% */}
-        <div style={{ flex: '0 0 60%', minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '10px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#f59e0b', fontFamily: 'var(--font-sans)', flex: 1, lineHeight: 1.3 }}>
+        {/* Left */}
+        <div style={{ flex: '0 0 60%', minWidth: 0, borderRight: '1px solid rgba(255,255,255,0.06)', paddingRight: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#f59e0b', fontFamily: 'var(--font-sans)', flex: 1, lineHeight: 1.3 }}>
               {tree.label}
             </h2>
           </div>
 
           {tree.description && (
-            <p style={{ color: 'var(--color-dim)', fontSize: '16px', lineHeight: 1.7, marginBottom: '14px', fontFamily: 'var(--font-sans)' }}>
+            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '14px', lineHeight: 1.5, marginBottom: '20px', fontFamily: 'var(--font-sans)' }}>
               {tree.description}
             </p>
           )}
 
-          {/* Core Conviction slider on hero */}
           <ConvictionSlider value={parentConviction} onChange={onParentConvictionChange} label="Core Conviction" large />
 
           {tags.length > 0 && (
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '14px', marginBottom: '14px' }}>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '16px' }}>
               {tags.map(k => (
                 <span key={k} style={{
                   padding: '2px 8px',
                   background: 'rgba(255,255,255,0.04)',
-                  color: 'var(--color-dim)',
+                  color: 'rgba(255,255,255,0.35)',
                   borderRadius: '4px',
-                  fontSize: '13px',
+                  fontSize: '12px',
                   fontFamily: 'var(--font-mono)',
                 }}>
                   {k}
@@ -647,26 +538,15 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
           )}
 
           {heroIdeas.length > 0 && (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '14px' }}>
-                <Lightbulb size={14} />
-                <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
-              </div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {heroIdeas.map((idea, i) => (
-                  <li key={i} style={{ fontSize: '14px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
-                    <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '15px' }}>{idea.name}</span>
-                    <span style={{ color: 'var(--color-dim)', fontSize: '14px' }}> — {idea.description}</span>
-                  </li>
-                ))}
-              </ul>
+            <div style={{ marginTop: '20px' }}>
+              <IdeasList ideas={heroIdeas} />
             </div>
           )}
         </div>
 
-        {/* Right 40% */}
+        {/* Right */}
         <div style={{ flex: '0 0 38%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-          <div style={{ alignSelf: 'flex-end', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ alignSelf: 'flex-end' }}>
             <button
               onClick={onDelete}
               onMouseEnter={() => setDeleteHovered(true)}
@@ -676,7 +556,7 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
                 border: `1px solid ${deleteHovered ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}`,
                 borderRadius: '6px',
                 padding: '6px',
-                color: deleteHovered ? '#ef4444' : 'var(--color-dim)',
+                color: deleteHovered ? '#ef4444' : 'rgba(255,255,255,0.25)',
                 cursor: 'pointer',
                 transition: 'all 0.15s',
               }}
@@ -696,7 +576,6 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
         </div>
       </div>
 
-      {thesis && <ConvictionHistory thesisId={thesis.id} />}
     </div>
   );
 }
@@ -709,47 +588,34 @@ function SecondOrderCard({ node, conviction, onConvictionChange, healthScore, to
 
   return (
     <div style={{
-      padding: '20px',
-      background: 'rgba(6,182,212,0.04)',
-      border: '1px solid rgba(6,182,212,0.2)',
+      padding: '28px',
+      background: 'rgba(255,255,255,0.02)',
       borderLeft: '3px solid #06b6d4',
       borderRadius: '8px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
-        <h3 style={{ color: '#06b6d4', fontSize: '17px', fontWeight: 700, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+        <h3 style={{ color: '#06b6d4', fontSize: '16px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
           {node.label}
         </h3>
-        <HealthRing score={healthScore} size={32} tooltipContent={tooltipContent} pulsing={pulsing} />
+        <HealthRing score={healthScore} size={28} tooltipContent={tooltipContent} pulsing={pulsing} />
       </div>
 
       {node.description && (
-        <p style={{ color: 'var(--color-dim)', fontSize: '15px', lineHeight: 1.6, marginBottom: '10px', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '14px', lineHeight: 1.5, marginBottom: '20px', fontFamily: 'var(--font-sans)' }}>
           {node.description}
         </p>
       )}
 
       {tickers.length > 0 && (
-        <div style={{ marginBottom: ideas.length > 0 ? '12px' : '0' }}>
+        <div style={{ marginBottom: ideas.length > 0 ? '24px' : '20px' }}>
           <TickersList tickers={tickers} label={node.label} description={node.description} />
         </div>
       )}
 
       {ideas.length > 0 && (
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px', color: 'var(--color-purple)', fontSize: '14px' }}>
-            <Lightbulb size={14} />
-            <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
-          </div>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {ideas.map((idea, i) => (
-              <li key={i} style={{ fontSize: '14px', marginBottom: '6px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
-                <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '15px' }}>{idea.name}</span>
-                {idea.description && (
-                  <span style={{ color: 'var(--color-dim)', fontSize: '14px' }}> — {idea.description}</span>
-                )}
-              </li>
-            ))}
-          </ul>
+        <div style={{ marginBottom: '20px' }}>
+          <IdeasList ideas={ideas} />
         </div>
       )}
 
@@ -764,47 +630,34 @@ function ThirdOrderCard({ node, conviction, onConvictionChange, healthScore, too
 
   return (
     <div style={{
-      padding: '16px',
-      background: 'rgba(168,85,247,0.04)',
-      border: '1px solid rgba(168,85,247,0.2)',
+      padding: '28px',
+      background: 'rgba(255,255,255,0.02)',
       borderLeft: '3px solid #a855f7',
       borderRadius: '8px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '6px' }}>
-        <h3 style={{ color: '#a855f7', fontSize: '15px', fontWeight: 700, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+        <h3 style={{ color: '#a855f7', fontSize: '14px', fontWeight: 600, lineHeight: 1.4, fontFamily: 'var(--font-sans)', flex: 1 }}>
           {node.label}
         </h3>
         <HealthRing score={healthScore} size={28} tooltipContent={tooltipContent} pulsing={pulsing} />
       </div>
 
       {node.description && (
-        <p style={{ color: 'var(--color-dim)', fontSize: '14px', lineHeight: 1.6, marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '14px', lineHeight: 1.5, marginBottom: '20px', fontFamily: 'var(--font-sans)' }}>
           {node.description}
         </p>
       )}
 
       {tickers.length > 0 && (
-        <div style={{ marginBottom: ideas.length > 0 ? '10px' : '0' }}>
+        <div style={{ marginBottom: ideas.length > 0 ? '24px' : '20px' }}>
           <TickersList tickers={tickers} label={node.label} description={node.description} />
         </div>
       )}
 
       {ideas.length > 0 && (
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', color: '#a855f7', fontSize: '13px' }}>
-            <Lightbulb size={13} />
-            <span style={{ fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Startup Ideas</span>
-          </div>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {ideas.map((idea, i) => (
-              <li key={i} style={{ fontSize: '14px', marginBottom: '4px', lineHeight: 1.4, fontFamily: 'var(--font-sans)' }}>
-                <span style={{ color: 'var(--color-text)', fontWeight: 700, fontSize: '15px' }}>{idea.name}</span>
-                {idea.description && (
-                  <span style={{ color: 'var(--color-dim)', fontSize: '14px' }}> — {idea.description}</span>
-                )}
-              </li>
-            ))}
-          </ul>
+        <div style={{ marginBottom: '20px' }}>
+          <IdeasList ideas={ideas} />
         </div>
       )}
 
@@ -818,11 +671,9 @@ function ThirdOrderCard({ node, conviction, onConvictionChange, healthScore, too
 export default function TreeView({ tree, thesis, onDelete }) {
   const secondOrder = tree?.children || [];
 
-  // --- State: parent conviction ---
   const initialParentConviction = Math.round(thesis?.conviction_score ?? 5);
   const [parentConviction, setParentConviction] = useState(initialParentConviction);
 
-  // --- State: 2nd order convictions (keyed by node id) ---
   const [soConvictions, setSoConvictions] = useState(() => {
     const init = {};
     secondOrder.forEach(so => {
@@ -831,7 +682,6 @@ export default function TreeView({ tree, thesis, onDelete }) {
     return init;
   });
 
-  // --- State: 3rd order convictions (keyed by node id) ---
   const [toConvictions, setToConvictions] = useState(() => {
     const init = {};
     secondOrder.forEach(so => {
@@ -842,7 +692,6 @@ export default function TreeView({ tree, thesis, onDelete }) {
     return init;
   });
 
-  // --- Pulse state ---
   const [pulsingIds, setPulsingIds] = useState(new Set());
   const pulseTimerRef = useRef(null);
 
@@ -854,7 +703,6 @@ export default function TreeView({ tree, thesis, onDelete }) {
 
   useEffect(() => () => clearTimeout(pulseTimerRef.current), []);
 
-  // --- Load latest conviction from API for parent ---
   useEffect(() => {
     if (!thesis?.id) return;
     getConviction(thesis.id).then(r => {
@@ -864,7 +712,6 @@ export default function TreeView({ tree, thesis, onDelete }) {
     }).catch(() => {});
   }, [thesis?.id]);
 
-  // --- Persist parent conviction (debounced) ---
   const parentDebounceRef = useRef(null);
   useEffect(() => () => clearTimeout(parentDebounceRef.current), []);
 
@@ -888,10 +735,8 @@ export default function TreeView({ tree, thesis, onDelete }) {
     triggerPulse(toId, soId, 'parent');
   }, [triggerPulse]);
 
-  // --- Bottom-up health calculations ---
   const evidenceScore = thesis?.evidence_score ?? 5;
 
-  // 3rd order health: slider * 10
   const toHealthScores = useMemo(() => {
     const map = {};
     secondOrder.forEach(so => {
@@ -902,7 +747,6 @@ export default function TreeView({ tree, thesis, onDelete }) {
     return map;
   }, [secondOrder, toConvictions]);
 
-  // 2nd order health: (own slider * 0.7 + avg children * 0.3) * 10
   const soHealthScores = useMemo(() => {
     const map = {};
     secondOrder.forEach(so => {
@@ -918,18 +762,16 @@ export default function TreeView({ tree, thesis, onDelete }) {
     return map;
   }, [secondOrder, soConvictions, toConvictions]);
 
-  // Parent health: (own slider * 0.5 + avg 2nd order health/10 * 0.35 + evidence * 0.15) * 10
   const parentHealthScore = useMemo(() => {
     let soAvg = 5;
     if (secondOrder.length > 0) {
       const soSum = secondOrder.reduce((sum, so) => sum + (soHealthScores[so.id] ?? 50), 0);
-      soAvg = soSum / secondOrder.length / 10; // convert back to 0-10 scale
+      soAvg = soSum / secondOrder.length / 10;
     }
     const health = (parentConviction * 0.5 + soAvg * 0.35 + evidenceScore * 0.15) * 10;
     return Math.round(Math.max(0, Math.min(100, health)));
   }, [parentConviction, secondOrder, soHealthScores, evidenceScore]);
 
-  // Avg values for tooltips
   const soAvgFor10 = useMemo(() => {
     if (secondOrder.length === 0) return 5;
     return secondOrder.reduce((s, so) => s + (soHealthScores[so.id] ?? 50), 0) / secondOrder.length / 10;
@@ -937,7 +779,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
 
   if (!tree) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '384px', color: 'var(--color-dim)', fontSize: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '384px', color: 'rgba(255,255,255,0.35)', fontSize: '14px' }}>
         No tree data available. Generate a tree to see the causal analysis.
       </div>
     );
@@ -965,15 +807,15 @@ export default function TreeView({ tree, thesis, onDelete }) {
       {secondOrder.length > 0 && (
         <>
           <div style={{
-            fontSize: '13px',
+            fontSize: '11px',
             fontWeight: 600,
             textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            color: '#06b6d4',
+            letterSpacing: '0.08em',
+            color: 'rgba(6,182,212,0.6)',
             fontFamily: 'var(--font-sans)',
             marginBottom: '12px',
           }}>
-            2nd Order Effects →
+            2nd Order Effects
           </div>
 
           <div style={{
@@ -1008,7 +850,7 @@ export default function TreeView({ tree, thesis, onDelete }) {
                       <div style={{
                         width: '1px',
                         height: '16px',
-                        background: 'rgba(255,255,255,0.08)',
+                        background: 'rgba(255,255,255,0.06)',
                         margin: '0 auto',
                       }} />
 
@@ -1021,9 +863,8 @@ export default function TreeView({ tree, thesis, onDelete }) {
                                 <div style={{
                                   width: '1px',
                                   height: '8px',
-                                  background: 'rgba(255,255,255,0.08)',
+                                  background: 'rgba(255,255,255,0.06)',
                                   margin: '0 auto',
-                                  marginBottom: '0',
                                   position: 'absolute',
                                   top: '-8px',
                                   left: '50%',

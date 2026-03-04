@@ -210,5 +210,83 @@
       {"ticker": "GOOG", "direction": "short", "entry_price": 175.00, "target_price": 120.00, "stop_loss": 200.00, "position_size_pct": 2.0, "status": "watching", "notes": "Search ad model threatened by AI answers and bot-polluted content. Programmatic display most vulnerable."},
       {"ticker": "TTD", "direction": "short", "entry_price": 110.00, "target_price": 60.00, "stop_loss": 135.00, "position_size_pct": 1.0, "status": "watching", "notes": "Pure-play programmatic DSP. If bot traffic invalidates open web inventory, TTD's core value proposition erodes."}
     ]
+  },
+  {
+    "title": "WFH Is Forever \u2192 Soundproofing Goes Mainstream",
+    "description": "Remote work isn't going back. Your home office IS your office now, and everyone's sick of hearing their neighbor's dog on Zoom calls. Acoustic panels and soundproofing are quietly becoming a billion-dollar category that nobody's talking about yet.",
+    "keywords": ["remote work", "soundproofing", "home office", "acoustic panels", "WFH"],
+    "activation_date": "2025-01-15T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Initiating thesis. WFH stabilized at ~30% of work days. Home improvement spend shifting from kitchens to offices.", "date": "2025-01-15T00:00:00"},
+      {"score": 7, "note": "Amazon acoustic panel sales up 200%+ YoY. Corporate hybrid policies making home office quality a permanent need.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "HD", "direction": "long", "entry_price": 380.00, "target_price": 450.00, "stop_loss": 340.00, "position_size_pct": 3.0, "status": "active", "notes": "Home Depot — biggest home improvement retailer, directly benefits from WFH office upgrades."},
+      {"ticker": "LOW", "direction": "long", "entry_price": 250.00, "target_price": 310.00, "stop_loss": 215.00, "position_size_pct": 3.0, "status": "active", "notes": "Lowe's — same thesis as HD, capturing DIY acoustic/office improvement spend."},
+      {"ticker": "MLKN", "direction": "long", "entry_price": 25.00, "target_price": 40.00, "stop_loss": 18.00, "position_size_pct": 2.0, "status": "watching", "notes": "MillerKnoll — premium office furniture maker. Herman Miller Aeron is basically the WFH status symbol."}
+    ]
+  },
+  {
+    "title": "Nobody Answers the Phone Anymore \u2192 Call Centers Die",
+    "description": "Gen Z literally won't pick up a phone call from an unknown number. Commercial call center real estate is getting crushed while async support platforms like Zendesk and Intercom are eating the whole customer service industry.",
+    "keywords": ["call centers", "async support", "Gen Z", "commercial real estate", "customer service"],
+    "activation_date": "2024-11-01T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Initiating thesis. Phone call volume down 25% since 2019. Chat/messaging support tickets up 40% same period.", "date": "2024-11-01T00:00:00"},
+      {"score": 7, "note": "Major banks closing call centers and shifting to AI chatbots. Office REIT occupancy in call center metros declining.", "date": "2025-01-01T00:00:00"},
+      {"score": 7, "note": "Zendesk AI agent handling 60%+ of tier-1 tickets. Companies saving $15-20/interaction vs phone.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "TWLO", "direction": "long", "entry_price": 65.00, "target_price": 110.00, "stop_loss": 48.00, "position_size_pct": 3.0, "status": "active", "notes": "Twilio — messaging API backbone for every async support platform. Benefits no matter who wins the CX wars."},
+      {"ticker": "VNO", "direction": "short", "entry_price": 28.00, "target_price": 16.00, "stop_loss": 35.00, "position_size_pct": 2.0, "status": "watching", "notes": "Vornado — office REIT with heavy exposure to secondary markets where call centers cluster."},
+      {"ticker": "NOW", "direction": "long", "entry_price": 850.00, "target_price": 1100.00, "stop_loss": 720.00, "position_size_pct": 3.0, "status": "active", "notes": "ServiceNow — enterprise workflow automation replacing call center processes with AI-driven ticketing."}
+    ]
+  },
+  {
+    "title": "Silent EVs Are Killing Pedestrians",
+    "description": "Electric cars make zero noise below 20mph. Pedestrian injuries in parking lots and urban areas are up 30%+ since EV adoption hit critical mass. Wearable safety tech and urban sensing are about to become mandatory categories.",
+    "keywords": ["EV safety", "pedestrian", "wearable tech", "urban sensing", "electric vehicles"],
+    "activation_date": "2025-02-01T00:00:00",
+    "conviction_entries": [
+      {"score": 5, "note": "Initiating thesis. NHTSA data shows pedestrian fatalities at 40-year high. EV sound regulations being drafted but won't solve parking lot problem.", "date": "2025-02-01T00:00:00"},
+      {"score": 5, "note": "Insurance companies flagging EV-pedestrian incidents as growing loss category. Wearable alert device patents spiking.", "date": "2025-03-01T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "TSLA", "direction": "long", "entry_price": 250.00, "target_price": 400.00, "stop_loss": 180.00, "position_size_pct": 2.0, "status": "watching", "notes": "Tesla — largest EV fleet, most to gain from solving this problem first with software updates and external speakers."},
+      {"ticker": "GRMN", "direction": "long", "entry_price": 165.00, "target_price": 230.00, "stop_loss": 135.00, "position_size_pct": 3.0, "status": "active", "notes": "Garmin — wearable safety devices and sensors. Natural extension into pedestrian alert wearables."},
+      {"ticker": "PGR", "direction": "long", "entry_price": 230.00, "target_price": 290.00, "stop_loss": 195.00, "position_size_pct": 3.0, "status": "active", "notes": "Progressive — auto insurer benefiting from higher premiums as EV-pedestrian risk gets priced into policies."}
+    ]
+  },
+  {
+    "title": "Dating Apps Broke Relationships \u2192 AI Therapists Win",
+    "description": "Tinder and Hinge turned dating into swiping through a human catalog. Now everyone's relationships are disposable and nobody knows how to communicate. Couples therapists have 6-month waitlists, so AI therapy companions are filling the gap — and it's actually working.",
+    "keywords": ["dating apps", "AI therapy", "mental health", "relationships", "telehealth", "couples therapy"],
+    "activation_date": "2024-09-01T00:00:00",
+    "conviction_entries": [
+      {"score": 6, "note": "Initiating thesis. Match Group DAU declining while therapy app downloads surge. AI companion apps like Replika hitting 30M+ users.", "date": "2024-09-01T00:00:00"},
+      {"score": 7, "note": "BetterHelp revenue up but therapist shortage is real — 75% of US counties have zero practicing therapists. AI filling the gap.", "date": "2025-01-01T00:00:00"},
+      {"score": 7, "note": "FDA greenlighting digital therapeutics for anxiety/depression. Insurance starting to cover AI-assisted therapy sessions.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "MTCH", "direction": "short", "entry_price": 32.00, "target_price": 20.00, "stop_loss": 42.00, "position_size_pct": 2.0, "status": "active", "notes": "Match Group — Tinder/Hinge parent. DAU declining, paying users churning. Dating app fatigue is real."},
+      {"ticker": "TDOC", "direction": "long", "entry_price": 15.00, "target_price": 30.00, "stop_loss": 10.00, "position_size_pct": 2.0, "status": "watching", "notes": "Teladoc — telehealth platform expanding into mental health. AI therapy integration is their best growth lever."},
+      {"ticker": "AMWL", "direction": "long", "entry_price": 1.50, "target_price": 5.00, "stop_loss": 0.80, "position_size_pct": 1.0, "status": "watching", "notes": "Amwell — digital health platform. High risk micro-cap but positioned for AI-first therapy delivery."}
+    ]
+  },
+  {
+    "title": "Every Meal Is Content Now \u2192 Ugly Food Dies",
+    "description": "Instagram and TikTok turned every restaurant plate into a content opportunity. Doesn't matter if your ramen is the best in the city — if it doesn't photograph well, you're dead. Restaurants are hiring plating designers and lighting consultants before they hire sous chefs.",
+    "keywords": ["food photography", "restaurant tech", "social media", "plating", "Instagram food"],
+    "activation_date": "2024-10-01T00:00:00",
+    "conviction_entries": [
+      {"score": 5, "note": "Initiating thesis. Restaurant design spend up 40% on ambiance/lighting. Food photography as a service is a growing freelance category.", "date": "2024-10-01T00:00:00"},
+      {"score": 6, "note": "Toast and Square data showing restaurants with high social engagement have 25% better revenue. Visual-first menus becoming standard.", "date": "2025-01-01T00:00:00"},
+      {"score": 6, "note": "DoorDash and Uber Eats now ranking restaurants partly by photo quality. Chain restaurants investing heavily in visual identity.", "date": "2025-02-15T00:00:00"}
+    ],
+    "bets": [
+      {"ticker": "TOST", "direction": "long", "entry_price": 30.00, "target_price": 50.00, "stop_loss": 22.00, "position_size_pct": 3.0, "status": "active", "notes": "Toast — restaurant tech platform. Adding social media integration and AI-powered menu optimization."},
+      {"ticker": "SQ", "direction": "long", "entry_price": 75.00, "target_price": 110.00, "stop_loss": 58.00, "position_size_pct": 3.0, "status": "active", "notes": "Square/Block — restaurant POS + marketing tools. Helps small restaurants compete visually with chains."},
+      {"ticker": "DASH", "direction": "long", "entry_price": 165.00, "target_price": 220.00, "stop_loss": 130.00, "position_size_pct": 2.0, "status": "watching", "notes": "DoorDash — delivery platform where food photography directly drives orders. Photo-first discovery is their moat."}
+    ]
   }
 ]

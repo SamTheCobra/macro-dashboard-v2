@@ -26,16 +26,25 @@ def init_db():
 def _migrate_add_columns():
     """Add new columns to existing tables if they don't exist (SQLite migration)."""
     from sqlalchemy import text, inspect
-    insp = inspect(engine)
-    if "theses" in insp.get_table_names():
-        cols = {c["name"] for c in insp.get_columns("theses")}
-        with engine.begin() as conn:
+
+    # Use a fresh connection so inspect sees the real on-disk schema
+    with engine.connect() as conn:
+        insp = inspect(conn)
+        table_names = insp.get_table_names()
+
+        if "theses" in table_names:
+            cols = {c["name"] for c in insp.get_columns("theses")}
             if "evidence_score" not in cols:
                 conn.execute(text("ALTER TABLE theses ADD COLUMN evidence_score FLOAT DEFAULT 5.0"))
+                print("[migrate] Added theses.evidence_score")
             if "last_evidence_refresh" not in cols:
                 conn.execute(text("ALTER TABLE theses ADD COLUMN last_evidence_refresh DATETIME"))
-    if "tree_nodes" in insp.get_table_names():
-        cols = {c["name"] for c in insp.get_columns("tree_nodes")}
-        with engine.begin() as conn:
+                print("[migrate] Added theses.last_evidence_refresh")
+
+        if "tree_nodes" in table_names:
+            cols = {c["name"] for c in insp.get_columns("tree_nodes")}
             if "user_conviction" not in cols:
                 conn.execute(text("ALTER TABLE tree_nodes ADD COLUMN user_conviction INTEGER"))
+                print("[migrate] Added tree_nodes.user_conviction")
+
+        conn.commit()

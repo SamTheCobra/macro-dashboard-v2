@@ -4,17 +4,11 @@ import { Loader2, Trash2 } from 'lucide-react';
 import { getThesis, getTree, deleteThesis } from '../utils/api';
 import HealthGauge from '../components/HealthGauge';
 import TreeView from '../components/TreeView';
-import ConvictionLog from '../components/ConvictionLog';
-import EvidenceChart from '../components/EvidenceChart';
-import NewsPulse from '../components/NewsPulse';
-import BetsTracker from '../components/BetsTracker';
+import HealthTab from '../components/HealthTab';
 
 const tabs = [
-  { id: 'tree', label: 'Tree View', emoji: '🌳' },
-  { id: 'evidence', label: 'Evidence', emoji: '📊' },
-  { id: 'conviction', label: 'Conviction', emoji: '🎯' },
-  { id: 'news', label: 'News Pulse', emoji: '📰' },
-  { id: 'bets', label: 'Bets', emoji: '💰' },
+  { id: 'tree', label: 'Tree View', emoji: '🌿' },
+  { id: 'health', label: 'Health', emoji: '📊' },
 ];
 
 export default function ThesisDetail() {
@@ -188,10 +182,7 @@ export default function ThesisDetail() {
       {/* Tab content */}
       <div>
         {activeTab === 'tree' && <TreeView tree={tree} />}
-        {activeTab === 'conviction' && <ConvictionLog thesisId={parseInt(id)} />}
-        {activeTab === 'evidence' && <EvidenceChart thesisId={parseInt(id)} />}
-        {activeTab === 'news' && <NewsPulse thesisId={parseInt(id)} />}
-        {activeTab === 'bets' && <BetsTracker thesisId={parseInt(id)} />}
+        {activeTab === 'health' && <HealthTab thesisId={parseInt(id)} />}
       </div>
     </div>
   );

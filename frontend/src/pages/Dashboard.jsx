@@ -23,7 +23,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '0 32px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>Active Theses</h1>

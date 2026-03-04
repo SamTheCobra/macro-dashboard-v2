@@ -52,7 +52,7 @@ export default function Layout() {
 
         {/* Macro regime */}
         {regime && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontFamily: 'var(--font-mono)', fontSize: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Activity size={13} style={{ color: regimeColors[regime.regime] || 'rgba(255,255,255,0.45)' }} />
               <span style={{ color: 'rgba(255,255,255,0.4)' }}>Regime</span>
@@ -88,7 +88,7 @@ export default function Layout() {
             border: '1px solid rgba(34,197,94,0.3)',
             color: '#22c55e',
             borderRadius: '8px',
-            fontSize: '13px',
+            fontSize: '14px',
             fontWeight: 500,
             fontFamily: 'var(--font-sans)',
             cursor: 'pointer',

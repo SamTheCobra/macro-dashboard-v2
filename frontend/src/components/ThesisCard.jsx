@@ -24,7 +24,7 @@ export default function ThesisCard({ thesis }) {
       {/* Title + HealthRing */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
         <h3 style={{
-          fontSize: '15px',
+          fontSize: '17px',
           fontWeight: 700,
           color: hovered ? '#22c55e' : 'var(--color-text)',
           fontFamily: 'var(--font-sans)',
@@ -34,13 +34,13 @@ export default function ThesisCard({ thesis }) {
         }}>
           {thesis.title}
         </h3>
-        <HealthGauge score={thesis.health_score} size={48} />
+        <HealthGauge score={thesis.health_score} size={56} />
       </div>
 
       {/* Description (2 lines) */}
       {thesis.description && (
         <p style={{
-          fontSize: '12px',
+          fontSize: '14px',
           color: 'var(--color-dim)',
           marginTop: '10px',
           lineHeight: '1.5',
@@ -61,7 +61,7 @@ export default function ThesisCard({ thesis }) {
         gap: '16px',
         marginTop: '14px',
         fontFamily: 'var(--font-mono)',
-        fontSize: '11px',
+        fontSize: '13px',
       }}>
         <span style={{ color: 'var(--color-dim)' }}>
           Conv <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{thesis.conviction_score?.toFixed(1) ?? '–'}</span>
@@ -84,7 +84,7 @@ export default function ThesisCard({ thesis }) {
         justifyContent: 'space-between',
         marginTop: '14px',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--color-dim)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--color-dim)' }}>
           {thesis.activation_date && (
             <span>{new Date(thesis.activation_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
           )}
@@ -98,10 +98,10 @@ export default function ThesisCard({ thesis }) {
                 padding: '2px 8px',
                 background: 'rgba(34,197,94,0.1)',
                 color: '#22c55e',
-                fontSize: '10px',
+                fontSize: '12px',
                 borderRadius: '4px',
                 fontFamily: 'var(--font-mono)',
-                fontWeight: 500,
+                fontWeight: 700,
               }}>
                 {t}
               </span>

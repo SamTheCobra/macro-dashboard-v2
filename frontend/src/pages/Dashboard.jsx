@@ -26,11 +26,11 @@ export default function Dashboard() {
     <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '0 32px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>Active Theses</h1>
-          <p style={{ fontSize: '13px', color: 'var(--color-dim)', marginTop: '4px', fontFamily: 'var(--font-sans)' }}>Sorted by Health Score</p>
+          <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>Active Theses</h1>
+          <p style={{ fontSize: '15px', color: 'var(--color-dim)', marginTop: '4px', fontFamily: 'var(--font-sans)' }}>Sorted by Health Score</p>
         </div>
-        <span style={{ fontSize: '12px', color: 'var(--color-dim)', fontFamily: 'var(--font-mono)' }}>
-          {theses.length} thesis{theses.length !== 1 ? 'es' : ''}
+        <span style={{ fontSize: '15px', color: 'var(--color-dim)', fontFamily: 'var(--font-mono)' }}>
+          {theses.length} thes{theses.length !== 1 ? 'es' : 'is'}
         </span>
       </div>
 

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Loader2, Sparkles } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { createThesis } from '../utils/api';
 
 export default function NewThesisModal({ onClose }) {
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [btnHovered, setBtnHovered] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -27,56 +28,171 @@ export default function NewThesisModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-card border border-border rounded-xl w-full max-w-xl mx-4 overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-semibold text-text flex items-center gap-2">
-            <Sparkles size={18} className="text-green" />
-            New Thesis
-          </h2>
-          <button onClick={onClose} className="text-dim hover:text-text transition-colors p-1 cursor-pointer bg-transparent border-0">
-            <X size={20} />
-          </button>
-        </div>
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(0,0,0,0.7)',
+        backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)',
+      }}
+    >
+      <div style={{
+        width: '100%',
+        maxWidth: '560px',
+        margin: '0 16px',
+        background: 'var(--color-bg, #0a0e14)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '16px',
+        padding: '32px',
+        position: 'relative',
+      }}>
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--color-dim)',
+            cursor: 'pointer',
+            padding: '4px',
+            transition: 'color 0.15s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--color-text)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--color-dim)'}
+        >
+          <X size={20} />
+        </button>
 
-        <form onSubmit={handleSubmit} className="p-6">
-          <label className="block text-sm text-dim mb-2">Enter your thesis</label>
+        {/* Title */}
+        <h2 style={{
+          fontSize: '22px',
+          fontWeight: 700,
+          color: '#f59e0b',
+          fontFamily: 'var(--font-sans)',
+          marginBottom: '8px',
+        }}>
+          ✨ New Thesis
+        </h2>
+
+        {/* Subtitle */}
+        <p style={{
+          fontSize: '14px',
+          color: 'var(--color-dim)',
+          lineHeight: 1.5,
+          fontFamily: 'var(--font-sans)',
+          marginBottom: '24px',
+        }}>
+          Describe a macro thesis and Claude will map out the causal chain, relevant tickers, and startup opportunities.
+        </p>
+
+        <form onSubmit={handleSubmit}>
           <textarea
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g., Electricity demand will outpace supply through 2031 due to AI data centers"
-            className="w-full bg-bg border border-border rounded-lg px-4 py-3 text-text text-sm resize-none h-28 focus:outline-none focus:border-green/50 placeholder:text-dim/50 font-[inherit]"
             disabled={loading}
             autoFocus
+            style={{
+              width: '100%',
+              minHeight: '120px',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '10px',
+              padding: '16px',
+              fontSize: '15px',
+              lineHeight: 1.5,
+              color: 'var(--color-text)',
+              fontFamily: 'var(--font-sans)',
+              resize: 'none',
+              outline: 'none',
+              transition: 'border-color 0.15s',
+              boxSizing: 'border-box',
+            }}
+            onFocus={e => e.target.style.borderColor = 'rgba(34,197,94,0.4)'}
+            onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
           />
 
           {error && (
-            <p className="text-red text-sm mt-3">{error}</p>
+            <div style={{
+              marginTop: '12px',
+              padding: '12px 16px',
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: '8px',
+              fontSize: '14px',
+              color: '#ef4444',
+              fontFamily: 'var(--font-sans)',
+              lineHeight: 1.4,
+            }}>
+              {error}
+            </div>
           )}
 
-          <div className="mt-4 flex items-center gap-3">
-            <p className="text-xs text-dim flex-1">
-              Claude AI will generate a full causal tree with second & third-order effects, ticker symbols, and startup ideas.
-            </p>
-            <button
-              type="submit"
-              disabled={loading || !title.trim()}
-              className="flex items-center gap-2 px-6 py-2.5 bg-green text-bg rounded-lg font-semibold text-sm hover:bg-green/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer border-0"
-            >
-              {loading ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                'Generate Tree'
-              )}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading || !title.trim()}
+            onMouseEnter={() => setBtnHovered(true)}
+            onMouseLeave={() => setBtnHovered(false)}
+            style={{
+              width: '100%',
+              height: '48px',
+              marginTop: '16px',
+              background: loading || !title.trim()
+                ? 'rgba(34,197,94,0.3)'
+                : btnHovered
+                  ? 'linear-gradient(135deg, #16a34a, #22c55e)'
+                  : 'linear-gradient(135deg, #22c55e, #16a34a)',
+              border: 'none',
+              borderRadius: '10px',
+              fontSize: '16px',
+              fontWeight: 700,
+              color: '#fff',
+              fontFamily: 'var(--font-sans)',
+              cursor: loading || !title.trim() ? 'not-allowed' : 'pointer',
+              opacity: loading || !title.trim() ? 0.5 : 1,
+              transition: 'all 0.15s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+            }}
+          >
+            {loading ? (
+              <>
+                <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                Generating...
+              </>
+            ) : (
+              'Generate Tree'
+            )}
+          </button>
 
           {loading && (
-            <div className="mt-4 text-sm text-dim flex items-center gap-2">
-              <div className="w-2 h-2 bg-green rounded-full animate-pulse" />
+            <div style={{
+              marginTop: '12px',
+              fontSize: '13px',
+              color: 'var(--color-dim)',
+              fontFamily: 'var(--font-sans)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}>
+              <div style={{
+                width: '6px',
+                height: '6px',
+                background: '#22c55e',
+                borderRadius: '50%',
+                animation: 'pulse 1.5s ease-in-out infinite',
+              }} />
               Claude is analyzing your thesis and building the causal tree... This may take 15-30 seconds.
             </div>
           )}

@@ -18,7 +18,7 @@ _updater_thread: threading.Thread | None = None
 _stop_event = threading.Event()
 
 STARTUP_DELAY = 30  # seconds before first market data fetch
-UPDATE_INTERVAL = 1800  # 30 minutes between full refreshes
+UPDATE_INTERVAL = 86400  # 24 hours between full refreshes
 
 
 def get_cached_scores(thesis_id: int) -> dict | None:
@@ -53,27 +53,25 @@ def _update_all_scores():
             try:
                 scores = get_all_scores(db, thesis)
                 set_cached_scores(thesis.id, scores)
-                logger.info(f"Updated scores for thesis {thesis.id}: {thesis.title}")
-            except Exception as e:
-                logger.error(f"Failed to update scores for thesis {thesis.id}: {e}")
+            except Exception:
+                # Fail silently — yfinance 429s and transient errors are expected
+                pass
     finally:
         db.close()
 
 
 def _background_worker():
-    """Background thread: wait startup delay, then periodically update scores."""
-    logger.info(f"Score updater: waiting {STARTUP_DELAY}s before first market data fetch...")
+    """Background thread: wait startup delay, run once, then sleep 24h between runs."""
     if _stop_event.wait(STARTUP_DELAY):
         return
 
     while not _stop_event.is_set():
         try:
-            logger.info("Score updater: refreshing all thesis scores...")
             _update_all_scores()
-            logger.info("Score updater: refresh complete.")
-        except Exception as e:
-            logger.error(f"Score updater error: {e}")
+        except Exception:
+            pass  # Fail silently
 
+        # Sleep 24 hours before next run
         if _stop_event.wait(UPDATE_INTERVAL):
             return
 
@@ -87,7 +85,6 @@ def start_background_updater():
     _stop_event.clear()
     _updater_thread = threading.Thread(target=_background_worker, daemon=True, name="score-updater")
     _updater_thread.start()
-    logger.info("Background score updater started.")
 
 
 def stop_background_updater():
@@ -97,4 +94,3 @@ def stop_background_updater():
     if _updater_thread is not None:
         _updater_thread.join(timeout=5)
         _updater_thread = None
-    logger.info("Background score updater stopped.")

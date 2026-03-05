@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Trash2, RefreshCw } from 'lucide-react';
-import { getConviction, putConviction, getThesis, refreshEvidence, updateNodeConviction } from '../utils/api';
+import { Trash2, RefreshCw, Pencil, Check } from 'lucide-react';
+import { getConviction, putConviction, getThesis, refreshEvidence, updateNodeConviction, updateThesis } from '../utils/api';
 
 // ---------- Mock data generators ----------
 
@@ -657,8 +657,16 @@ function StickyHeroBar({ visible, title, description, healthScore, conviction, t
 
 // ---------- Hero Thesis Card ----------
 
-function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvictionChange, tooltipContent, pulsing, onDelete, evidenceScore, onRefreshEvidence, refreshingEvidence }) {
+function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvictionChange, tooltipContent, pulsing, onDelete, evidenceScore, onRefreshEvidence, refreshingEvidence, editingTitle, editTitleValue, onEditTitleStart, onEditTitleChange, onEditTitleSave, onEditTitleCancel, titleSaved }) {
   const [deleteHovered, setDeleteHovered] = useState(false);
+  const titleInputRef = useRef(null);
+
+  useEffect(() => {
+    if (editingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [editingTitle]);
 
   const heroTickers = useMemo(() => {
     if (thesis?.top_tickers?.length) {
@@ -698,10 +706,75 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
       <div style={{ display: 'flex', gap: '32px' }}>
         {/* Left */}
         <div style={{ flex: '0 0 60%', minWidth: 0, borderRight: '1px solid var(--color-border)', paddingRight: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--color-accent-amber)', fontFamily: 'var(--font-sans)', flex: 1, lineHeight: 1.3 }}>
-              {tree.label}
-            </h2>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '12px' }}>
+            {editingTitle ? (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  ref={titleInputRef}
+                  type="text"
+                  value={editTitleValue}
+                  onChange={e => onEditTitleChange(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') onEditTitleSave();
+                    if (e.key === 'Escape') onEditTitleCancel();
+                  }}
+                  onBlur={onEditTitleSave}
+                  style={{
+                    fontSize: '22px',
+                    fontWeight: 700,
+                    color: 'var(--color-accent-amber)',
+                    fontFamily: 'var(--font-sans)',
+                    flex: 1,
+                    lineHeight: 1.3,
+                    background: 'var(--color-bg)',
+                    border: '1px solid var(--color-accent-amber)',
+                    borderRadius: '4px',
+                    padding: '2px 8px',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+            ) : (
+              <>
+                <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--color-accent-amber)', fontFamily: 'var(--font-sans)', flex: 1, lineHeight: 1.3 }}>
+                  {tree.label}
+                </h2>
+                <button
+                  onClick={onEditTitleStart}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    color: 'var(--color-dim)',
+                    opacity: 0.5,
+                    transition: 'opacity 0.15s',
+                    flexShrink: 0,
+                    marginTop: '3px',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '0.5'}
+                  title="Edit title"
+                >
+                  <Pencil size={14} />
+                </button>
+                {titleSaved && (
+                  <span style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontSize: '12px',
+                    color: '#22c55e',
+                    fontFamily: 'var(--font-sans)',
+                    opacity: 0.8,
+                    flexShrink: 0,
+                    marginTop: '5px',
+                  }}>
+                    <Check size={12} /> Saved
+                  </span>
+                )}
+              </>
+            )}
           </div>
 
           {tree.description && (
@@ -897,8 +970,14 @@ function ThirdOrderCard({ node, conviction, onConvictionChange, healthScore, too
 
 // ---------- Main Tree View ----------
 
-export default function TreeView({ tree, thesis, onDelete }) {
+export default function TreeView({ tree: initialTree, thesis: initialThesis, onDelete }) {
+  const [tree, setTree] = useState(initialTree);
+  const [thesis, setThesis] = useState(initialThesis);
   const secondOrder = tree?.children || [];
+
+  // Keep in sync if props change
+  useEffect(() => { setTree(initialTree); }, [initialTree]);
+  useEffect(() => { setThesis(initialThesis); }, [initialThesis]);
 
   // Health score: backend is source of truth
   const [healthScore, setHealthScore] = useState(thesis?.health_score ?? 50);
@@ -906,6 +985,43 @@ export default function TreeView({ tree, thesis, onDelete }) {
   // Evidence score from backend (Google Trends)
   const [evidenceScore, setEvidenceScore] = useState(thesis?.evidence_score ?? 5);
   const [refreshingEvidence, setRefreshingEvidence] = useState(false);
+
+  // Inline title editing
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editTitleValue, setEditTitleValue] = useState(tree?.label || '');
+  const [titleSaved, setTitleSaved] = useState(false);
+  const titleSavedTimer = useRef(null);
+
+  const handleEditTitleStart = useCallback(() => {
+    setEditTitleValue(tree?.label || '');
+    setEditingTitle(true);
+  }, [tree?.label]);
+
+  const handleEditTitleCancel = useCallback(() => {
+    setEditingTitle(false);
+    setEditTitleValue(tree?.label || '');
+  }, [tree?.label]);
+
+  const handleEditTitleSave = useCallback(() => {
+    const trimmed = editTitleValue.trim();
+    if (!trimmed || trimmed === tree?.label) {
+      setEditingTitle(false);
+      return;
+    }
+    if (!thesis?.id) return;
+    setEditingTitle(false);
+    updateThesis(thesis.id, { title: trimmed })
+      .then(r => {
+        setTree(prev => ({ ...prev, label: trimmed }));
+        setThesis(prev => prev ? { ...prev, title: trimmed } : prev);
+        setTitleSaved(true);
+        clearTimeout(titleSavedTimer.current);
+        titleSavedTimer.current = setTimeout(() => setTitleSaved(false), 2000);
+      })
+      .catch(() => {});
+  }, [editTitleValue, tree?.label, thesis?.id]);
+
+  useEffect(() => () => clearTimeout(titleSavedTimer.current), []);
 
   const handleRefreshEvidence = useCallback(() => {
     if (!thesis?.id || refreshingEvidence) return;
@@ -1114,6 +1230,13 @@ export default function TreeView({ tree, thesis, onDelete }) {
           evidenceScore={evidenceScore}
           onRefreshEvidence={handleRefreshEvidence}
           refreshingEvidence={refreshingEvidence}
+          editingTitle={editingTitle}
+          editTitleValue={editTitleValue}
+          onEditTitleStart={handleEditTitleStart}
+          onEditTitleChange={setEditTitleValue}
+          onEditTitleSave={handleEditTitleSave}
+          onEditTitleCancel={handleEditTitleCancel}
+          titleSaved={titleSaved}
           tooltipContent={
             <ParentTooltip
               conviction={parentConviction}

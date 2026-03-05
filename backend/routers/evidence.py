@@ -66,19 +66,21 @@ def _refresh_all_evidence_background():
     db = SessionLocal()
     try:
         theses = db.query(Thesis).filter(Thesis.status == "active").all()
-        logger.info(f"[evidence] Starting bulk refresh for {len(theses)} theses")
+        print(f"[evidence-refresh] Starting bulk refresh for {len(theses)} active theses")
 
+        refreshed = 0
+        failed = 0
         for thesis in theses:
             keywords = thesis.keywords or []
             if not keywords:
-                logger.info(f"[evidence] Skipping '{thesis.title}' — no keywords")
+                print(f"[evidence-refresh] Skipping thesis_id={thesis.id} '{thesis.title}' — no keywords")
                 continue
 
             # Skip if refreshed within 24 hours
             if thesis.last_evidence_refresh:
                 hours_ago = (datetime.datetime.utcnow() - thesis.last_evidence_refresh).total_seconds() / 3600
                 if hours_ago < 24:
-                    logger.info(f"[evidence] Skipping '{thesis.title}' — refreshed {hours_ago:.1f}h ago")
+                    print(f"[evidence-refresh] Skipping thesis_id={thesis.id} — refreshed {hours_ago:.1f}h ago")
                     continue
 
             try:
@@ -87,19 +89,22 @@ def _refresh_all_evidence_background():
                     thesis.evidence_score = result["final_score"]
                     thesis.last_evidence_refresh = datetime.datetime.utcnow()
                     db.commit()
-                    logger.info(f"[evidence] Refreshed: {thesis.title} -> score: {result['final_score']}")
+                    refreshed += 1
+                    print(f"[evidence-refresh] thesis_id={thesis.id} done, score={result['final_score']}")
                 else:
-                    logger.warning(f"[evidence] No data for: {thesis.title}")
+                    failed += 1
+                    print(f"[evidence-refresh] Failed: thesis_id={thesis.id} reason=no data returned")
             except Exception as e:
-                logger.error(f"[evidence] Failed for '{thesis.title}': {e}")
+                failed += 1
+                print(f"[evidence-refresh] Failed: thesis_id={thesis.id} reason={e}")
                 db.rollback()
 
-            # Rate limit: 3 seconds between theses
-            time.sleep(3)
+            # Rate limit: 10 seconds between theses to avoid Google 429s
+            time.sleep(10)
 
-        logger.info("[evidence] Bulk refresh complete")
+        print(f"[evidence-refresh] Complete. refreshed={refreshed} failed={failed}")
     except Exception as e:
-        logger.error(f"[evidence] Bulk refresh error: {e}")
+        print(f"[evidence-refresh] Bulk refresh error: {e}")
         db.rollback()
     finally:
         db.close()

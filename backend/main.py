@@ -11,12 +11,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import init_db, SessionLocal
-from .models import Thesis, TreeNode, NodeTicker, StartupIdea, ConvictionEntry, Bet
+from .models import Thesis, TreeNode, NodeTicker, StartupIdea, ConvictionEntry, Bet, SeededTitle
 from .routers import theses, tree, conviction, evidence, news, bets, macro
 
 
 def seed_if_empty():
-    """Seed the database with theses data, adding any new entries from the seed file."""
+    """Seed the database with theses data, adding any new entries from the seed file.
+
+    Respects deletions: if a thesis was previously seeded but later deleted
+    by the user, it will not be re-added.
+    """
     db = SessionLocal()
     try:
         seed_path = Path(__file__).parent / "seed" / "theses_seed.json"
@@ -27,7 +31,19 @@ def seed_if_empty():
             seed_data = json.load(f)
 
         existing_titles = {t.title for t in db.query(Thesis.title).all()}
-        new_entries = [t for t in seed_data if t["title"] not in existing_titles]
+        previously_seeded = {t.title for t in db.query(SeededTitle.title).all()}
+
+        # Backfill: mark existing theses from seed file as seeded
+        seed_titles_set = {t["title"] for t in seed_data}
+        for title in existing_titles & seed_titles_set - previously_seeded:
+            db.add(SeededTitle(title=title))
+        if existing_titles & seed_titles_set - previously_seeded:
+            db.commit()
+
+        new_entries = [
+            t for t in seed_data
+            if t["title"] not in existing_titles and t["title"] not in previously_seeded
+        ]
 
         if not new_entries:
             return
@@ -43,6 +59,9 @@ def seed_if_empty():
             db.add(thesis)
             db.flush()
             new_thesis_ids.append(thesis.id)
+
+            # Track that this title was seeded (so deletions are respected)
+            db.add(SeededTitle(title=thesis_data["title"]))
 
             # Create a basic tree structure from seed data
             root_node = TreeNode(
@@ -133,78 +152,21 @@ def _generate_seed_trees(db, thesis_ids=None):
                 db.commit()
 
 
-def regenerate_incomplete_trees():
-    """Scan for theses with only a root node and regenerate their trees."""
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key or api_key.startswith("your_"):
-        print("[startup] Skipping tree regeneration — no valid ANTHROPIC_API_KEY")
-        return
-
-    db = SessionLocal()
-    try:
-        from .services.ai_service import generate_thesis_tree, store_thesis_tree
-
-        # Find theses with only 1 node (root only)
-        from sqlalchemy import func
-        incomplete = (
-            db.query(Thesis.id, Thesis.title, func.count(TreeNode.id).label("node_count"))
-            .join(TreeNode, TreeNode.thesis_id == Thesis.id)
-            .group_by(Thesis.id)
-            .having(func.count(TreeNode.id) <= 1)
-            .all()
-        )
-
-        if not incomplete:
-            print("[startup] All theses have complete trees")
-            return
-
-        print(f"[startup] Found {len(incomplete)} theses with incomplete trees, regenerating...")
-        for thesis_id, title, node_count in incomplete:
-            thesis = db.query(Thesis).filter(Thesis.id == thesis_id).first()
-            try:
-                print(f"[startup]   Regenerating: {title}")
-                # Delete existing root node
-                db.query(TreeNode).filter(TreeNode.thesis_id == thesis_id).delete()
-                db.flush()
-
-                tree_data = generate_thesis_tree(title)
-                store_thesis_tree(db, thesis, tree_data)
-                new_count = db.query(TreeNode).filter(TreeNode.thesis_id == thesis_id).count()
-                print(f"[startup]   -> OK: {new_count} nodes")
-            except Exception as e:
-                print(f"[startup]   -> FAILED: {title}: {e}")
-                db.rollback()
-                # Ensure root node exists
-                if db.query(TreeNode).filter(TreeNode.thesis_id == thesis_id).count() == 0:
-                    db.add(TreeNode(
-                        thesis_id=thesis_id,
-                        parent_id=None,
-                        node_type="thesis",
-                        label=title,
-                        description=thesis.description or "",
-                        sort_order=0,
-                    ))
-                    db.commit()
-
-        print("[startup] Tree regeneration complete")
-    except Exception as e:
-        print(f"[startup] Tree regeneration error: {e}")
-        db.rollback()
-    finally:
-        db.close()
-
-
 def _auto_refresh_evidence():
     """Auto-refresh evidence scores on startup if stale (>24h)."""
     import threading
     def _run():
         import time as _time
-        _time.sleep(10)  # Wait for server to be ready
+        print("[evidence-refresh] Scheduled — waiting 10s for server readiness...")
+        _time.sleep(10)
         try:
+            print("[evidence-refresh] Starting auto-refresh...")
             from .routers.evidence import _refresh_all_evidence_background
             _refresh_all_evidence_background()
         except Exception as e:
-            print(f"[evidence] Auto-refresh error: {e}")
+            print(f"[evidence-refresh] Auto-refresh error: {e}")
+            import traceback
+            traceback.print_exc()
     t = threading.Thread(target=_run, daemon=True)
     t.start()
 
@@ -213,7 +175,6 @@ def _auto_refresh_evidence():
 async def lifespan(app: FastAPI):
     init_db()
     seed_if_empty()
-    regenerate_incomplete_trees()
     from .services.score_cache import start_background_updater, stop_background_updater
     start_background_updater()
     _auto_refresh_evidence()

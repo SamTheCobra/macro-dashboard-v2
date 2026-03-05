@@ -4,6 +4,9 @@ from pytrends.request import TrendReq
 
 logger = logging.getLogger(__name__)
 
+MAX_RETRIES = 3
+RETRY_WAIT = 60  # seconds
+
 
 def _score_momentum(recent_avg: float, earlier_avg: float) -> float:
     """Score trend momentum on 1-10 scale based on % change."""
@@ -39,6 +42,30 @@ def _score_recency(last_30_avg: float, prev_30_avg: float) -> float:
         return 2.0
 
 
+def _fetch_trends_with_retry(kw_list: list[str]):
+    """Fetch Google Trends data with retry/backoff on failure."""
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            pytrends = TrendReq(hl='en-US', tz=360, timeout=(10, 25))
+            pytrends.build_payload(kw_list, cat=0, timeframe='today 12-m', geo='', gprop='')
+            time.sleep(2)  # Rate limit protection
+            df = pytrends.interest_over_time()
+            return df
+        except Exception as e:
+            logger.warning(
+                f"[evidence-refresh] pytrends attempt {attempt}/{MAX_RETRIES} failed "
+                f"for {kw_list}: {e}"
+            )
+            if attempt < MAX_RETRIES:
+                logger.info(f"[evidence-refresh] Waiting {RETRY_WAIT}s before retry...")
+                time.sleep(RETRY_WAIT)
+            else:
+                logger.error(
+                    f"[evidence-refresh] All {MAX_RETRIES} attempts exhausted for {kw_list}"
+                )
+                raise
+
+
 def get_evidence_score(keywords: list[str]) -> dict | None:
     """Fetch Google Trends data for keywords and compute evidence scores.
 
@@ -52,11 +79,7 @@ def get_evidence_score(keywords: list[str]) -> dict | None:
     kw_list = keywords[:5]
 
     try:
-        pytrends = TrendReq(hl='en-US', tz=360, timeout=(10, 25))
-        pytrends.build_payload(kw_list, cat=0, timeframe='today 12-m', geo='', gprop='')
-        time.sleep(2)  # Rate limit protection
-
-        df = pytrends.interest_over_time()
+        df = _fetch_trends_with_retry(kw_list)
         if df is None or df.empty:
             logger.warning(f"No trend data returned for keywords: {kw_list}")
             return None

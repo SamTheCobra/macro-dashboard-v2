@@ -114,6 +114,14 @@ class Bet(Base):
     thesis = relationship("Thesis", back_populates="bets")
 
 
+class SeededTitle(Base):
+    """Tracks which thesis titles have been seeded, so deletions are respected."""
+    __tablename__ = "seeded_titles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(500), nullable=False, unique=True)
+
+
 class MarketDataCache(Base):
     __tablename__ = "market_data_cache"
 

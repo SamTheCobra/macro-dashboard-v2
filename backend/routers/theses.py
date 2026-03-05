@@ -123,6 +123,13 @@ def update_thesis(thesis_id: int, data: ThesisUpdate, db: Session = Depends(get_
 
     if data.title is not None:
         thesis.title = data.title
+        # Also update root TreeNode label to match
+        root_node = db.query(TreeNode).filter(
+            TreeNode.thesis_id == thesis.id,
+            TreeNode.parent_id.is_(None),
+        ).first()
+        if root_node:
+            root_node.label = data.title
     if data.status is not None:
         thesis.status = data.status
     if data.keywords is not None:

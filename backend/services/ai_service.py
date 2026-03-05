@@ -279,30 +279,3 @@ Return ONLY valid JSON:
 
     text = _clean_json_response(message.content[0].text)
     return json.loads(text)
-
-
-def condense_title(raw_title: str) -> str:
-    """Use Claude to condense a long thesis title into a punchy 8-12 word version."""
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key or api_key.startswith("your_"):
-        return raw_title
-
-    client = anthropic.Anthropic(api_key=api_key)
-    try:
-        response = client.messages.create(
-            model="claude-opus-4-5",
-            max_tokens=100,
-            messages=[{
-                "role": "user",
-                "content": f"""Condense this thesis into a punchy 6-10 word title. 
-Keep the core idea, make it sound like a bold investment bet.
-No quotes, no punctuation at the end, just the title.
-
-Thesis: {raw_title}
-
-Title:"""
-            }]
-        )
-        return response.content[0].text.strip()
-    except Exception:
-        return raw_title

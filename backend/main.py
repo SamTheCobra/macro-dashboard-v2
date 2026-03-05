@@ -27,34 +27,11 @@ def seed_if_empty():
         return
 
 
-def _auto_refresh_evidence():
-    """Auto-refresh evidence scores on startup if stale (>24h)."""
-    import threading
-    def _run():
-        import time as _time
-        print("[evidence-refresh] Scheduled — waiting 10s for server readiness...")
-        _time.sleep(10)
-        try:
-            print("[evidence-refresh] Starting auto-refresh...")
-            from .routers.evidence import _refresh_all_evidence_background
-            _refresh_all_evidence_background()
-        except Exception as e:
-            print(f"[evidence-refresh] Auto-refresh error: {e}")
-            import traceback
-            traceback.print_exc()
-    t = threading.Thread(target=_run, daemon=True)
-    t.start()
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
     seed_if_empty()
-    from .services.score_cache import start_background_updater, stop_background_updater
-    start_background_updater()
-    _auto_refresh_evidence()
     yield
-    stop_background_updater()
 
 
 app = FastAPI(title="Macro Dashboard v2", lifespan=lifespan)

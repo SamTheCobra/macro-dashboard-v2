@@ -16,6 +16,7 @@ class Thesis(Base):
     activation_date = Column(DateTime, default=datetime.datetime.utcnow)
     keywords = Column(JSON, default=list)
     evidence_score = Column(Float, default=5.0)
+    evidence_breakdown = Column(JSON, nullable=True)
     last_evidence_refresh = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

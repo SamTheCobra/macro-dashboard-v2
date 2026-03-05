@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Trash2, RefreshCw, Pencil, Check } from 'lucide-react';
-import { getConviction, putConviction, getThesis, refreshEvidence, updateNodeConviction, updateThesis } from '../utils/api';
+import { getConviction, putConviction, getThesis, refreshEvidence, updateNodeConviction, updateThesis, getEvidence } from '../utils/api';
 
 // ---------- Mock data generators ----------
 
@@ -401,9 +401,16 @@ function TickerChart({ ticker, isSector }) {
     <div style={{ opacity: rowOpacity }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'baseline', gap: '0', overflow: 'hidden' }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700, color: accentColor, flexShrink: 0 }}>
+          <a
+            href={`https://finance.yahoo.com/quote/${ticker.symbol}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700, color: accentColor, flexShrink: 0, textDecoration: 'none' }}
+            onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+            onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+          >
             {ticker.symbol}
-          </span>
+          </a>
           {fullName && (
             <span style={{ fontSize: '14px', color: 'var(--color-dim)', fontFamily: 'var(--font-sans)', marginLeft: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               · {fullName}
@@ -619,17 +626,24 @@ function StickyHeroBar({ visible, title, description, healthScore, conviction, t
           {tickerSymbols.length > 0 && (
             <div style={{ display: 'flex', gap: '4px' }}>
               {tickerSymbols.map(t => (
-                <span key={t.symbol} style={{
-                  padding: '2px 6px',
-                  background: 'var(--color-ticker-badge-bg)',
-                  color: 'var(--color-accent-green)',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  borderRadius: '3px',
-                  fontFamily: 'var(--font-mono)',
-                }}>
+                <a
+                  key={t.symbol}
+                  href={`https://finance.yahoo.com/quote/${t.symbol}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    padding: '2px 6px',
+                    background: 'var(--color-ticker-badge-bg)',
+                    color: 'var(--color-accent-green)',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    borderRadius: '3px',
+                    fontFamily: 'var(--font-mono)',
+                    textDecoration: 'none',
+                  }}
+                >
                   {t.symbol}
-                </span>
+                </a>
               ))}
             </div>
           )}
@@ -657,8 +671,9 @@ function StickyHeroBar({ visible, title, description, healthScore, conviction, t
 
 // ---------- Hero Thesis Card ----------
 
-function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvictionChange, tooltipContent, pulsing, onDelete, evidenceScore, onRefreshEvidence, refreshingEvidence, editingTitle, editTitleValue, onEditTitleStart, onEditTitleChange, onEditTitleSave, onEditTitleCancel, titleSaved }) {
+function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvictionChange, tooltipContent, pulsing, onDelete, evidenceScore, onRefreshEvidence, refreshingEvidence, evidenceBreakdown, editingTitle, editTitleValue, onEditTitleStart, onEditTitleChange, onEditTitleSave, onEditTitleCancel, titleSaved }) {
   const [deleteHovered, setDeleteHovered] = useState(false);
+  const [evidenceTooltipVisible, setEvidenceTooltipVisible] = useState(false);
   const titleInputRef = useRef(null);
 
   useEffect(() => {
@@ -835,7 +850,11 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
 
           {/* Evidence section */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ textAlign: 'center' }}>
+            <div
+              style={{ textAlign: 'center', position: 'relative', cursor: evidenceBreakdown ? 'help' : 'default' }}
+              onMouseEnter={() => evidenceBreakdown && setEvidenceTooltipVisible(true)}
+              onMouseLeave={() => setEvidenceTooltipVisible(false)}
+            >
               <div style={{
                 fontSize: '20px',
                 fontWeight: 700,
@@ -850,6 +869,51 @@ function HeroCard({ tree, thesis, healthScore, parentConviction, onParentConvict
               <div style={{ fontSize: '9px', color: 'var(--color-faint)', fontFamily: 'var(--font-sans)', opacity: 0.6 }}>
                 via Google Trends
               </div>
+              {evidenceTooltipVisible && evidenceBreakdown && (
+                <div style={{
+                  position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)',
+                  marginBottom: '8px', zIndex: 50,
+                  background: 'var(--color-tooltip-bg, #1a1a2e)', border: '1px solid var(--color-border)',
+                  borderRadius: '8px', padding: '12px 14px', fontSize: '11px', fontFamily: 'var(--font-sans)',
+                  color: 'var(--color-text)', minWidth: '220px', maxWidth: '300px', textAlign: 'left',
+                }}>
+                  <div style={{ fontWeight: 700, marginBottom: '8px', fontSize: '12px' }}>Evidence Breakdown</div>
+                  {evidenceBreakdown.keywords_queried?.length > 0 && (
+                    <div style={{ marginBottom: '6px' }}>
+                      <span style={{ color: 'var(--color-dim)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Keywords</span>
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '3px' }}>
+                        {evidenceBreakdown.keywords_queried.map(kw => (
+                          <span key={kw} style={{ padding: '1px 6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>{kw}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '6px' }}>
+                    <div>
+                      <span style={{ color: 'var(--color-dim)', fontSize: '10px' }}>Momentum</span>
+                      <div style={{ fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{evidenceBreakdown.trend_momentum}/10</div>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--color-dim)', fontSize: '10px' }}>Breadth</span>
+                      <div style={{ fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{evidenceBreakdown.keyword_breadth}/10</div>
+                    </div>
+                  </div>
+                  {evidenceBreakdown.recent_headlines?.length > 0 && (
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '6px', marginTop: '4px' }}>
+                      <span style={{ color: 'var(--color-dim)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Headlines</span>
+                      {evidenceBreakdown.recent_headlines.map((h, i) => (
+                        <div key={i} style={{ marginTop: '4px', fontSize: '10px', lineHeight: 1.3 }}>
+                          <span style={{
+                            display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', marginRight: '5px',
+                            background: h.classification === 'confirming' ? '#22c55e' : h.classification === 'contradicting' ? '#ef4444' : '#888',
+                          }} />
+                          {h.title}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <button
               onClick={onRefreshEvidence}
@@ -984,6 +1048,7 @@ export default function TreeView({ tree: initialTree, thesis: initialThesis, onD
 
   // Evidence score from backend (Google Trends)
   const [evidenceScore, setEvidenceScore] = useState(thesis?.evidence_score ?? 5);
+  const [evidenceBreakdown, setEvidenceBreakdown] = useState(null);
   const [refreshingEvidence, setRefreshingEvidence] = useState(false);
 
   // Inline title editing
@@ -1030,6 +1095,7 @@ export default function TreeView({ tree: initialTree, thesis: initialThesis, onD
       .then(r => {
         if (r.data?.evidence_score != null) setEvidenceScore(r.data.evidence_score);
         if (r.data?.health_score != null) setHealthScore(r.data.health_score);
+        if (r.data?.evidence_breakdown) setEvidenceBreakdown(r.data.evidence_breakdown);
       })
       .catch(() => {})
       .finally(() => setRefreshingEvidence(false));
@@ -1073,6 +1139,9 @@ export default function TreeView({ tree: initialTree, thesis: initialThesis, onD
       if (r.data && r.data.length > 0) {
         setParentConviction(r.data[r.data.length - 1].score);
       }
+    }).catch(() => {});
+    getEvidence(thesis.id).then(r => {
+      if (r.data?.evidence_breakdown) setEvidenceBreakdown(r.data.evidence_breakdown);
     }).catch(() => {});
   }, [thesis?.id]);
 
@@ -1230,6 +1299,7 @@ export default function TreeView({ tree: initialTree, thesis: initialThesis, onD
           evidenceScore={evidenceScore}
           onRefreshEvidence={handleRefreshEvidence}
           refreshingEvidence={refreshingEvidence}
+          evidenceBreakdown={evidenceBreakdown}
           editingTitle={editingTitle}
           editTitleValue={editTitleValue}
           onEditTitleStart={handleEditTitleStart}

@@ -1,16 +1,33 @@
 import datetime
 from sqlalchemy.orm import Session
-from ..models import Thesis, ConvictionEntry, NodeTicker
+from ..models import Thesis, ConvictionEntry, NodeTicker, TreeNode
 from .news_service import get_news_pulse
 
 
 def get_conviction_score(db: Session, thesis_id: int) -> float:
-    """Get the latest conviction score (0-10) for a thesis."""
+    """Get weighted conviction score (0-10) across all tree nodes.
+    Root conviction: 40%, 2nd-order avg: 35%, 3rd-order avg: 25%."""
+    # Root conviction from ConvictionEntry
     latest = db.query(ConvictionEntry).filter(
         ConvictionEntry.thesis_id == thesis_id
     ).order_by(ConvictionEntry.date.desc()).first()
+    root_conv = float(latest.score) if latest else 5.0
 
-    return float(latest.score) if latest else 5.0
+    # Get child node convictions
+    nodes = db.query(TreeNode).filter(TreeNode.thesis_id == thesis_id).all()
+    so_scores = [float(n.user_conviction) for n in nodes if n.node_type == "second_order" and n.user_conviction is not None]
+    to_scores = [float(n.user_conviction) for n in nodes if n.node_type == "third_order" and n.user_conviction is not None]
+
+    # If no child convictions set, fall back to root only
+    if not so_scores and not to_scores:
+        return root_conv
+
+    so_avg = sum(so_scores) / len(so_scores) if so_scores else root_conv
+    to_avg = sum(to_scores) / len(to_scores) if to_scores else so_avg
+
+    # Weighted average: root 40%, 2nd-order 35%, 3rd-order 25%
+    weighted = root_conv * 0.4 + so_avg * 0.35 + to_avg * 0.25
+    return round(min(max(weighted, 0), 10), 1)
 
 
 def get_evidence_score(db: Session, thesis: Thesis) -> float:

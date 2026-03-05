@@ -151,3 +151,4 @@ class HealthScoreDetail(BaseModel):
     health_score: float
     ticker_performance_score: float
     news_pulse_score: float
+    evidence_breakdown: Optional[dict] = None

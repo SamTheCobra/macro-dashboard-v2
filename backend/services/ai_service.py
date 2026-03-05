@@ -34,19 +34,19 @@ WRITING STYLE — THIS IS CRITICAL:
 - Be specific and concrete, not abstract. Name real companies, real products, real trends.
 - Card titles should be 5-10 words, punchy, and immediately clear what the bet is.
 - Descriptions should be 2-3 sentences max, plain English, like you're texting a friend.
-- Ticker descriptions should say what the company actually DOES and why you care RIGHT NOW.
+- Ticker descriptions should name the company's specific product/asset/revenue driver and explain the exact causal link to the thesis — not generic phrases like "benefits from this trend".
 - Startup ideas should sound like real pitch deck names with a clear one-liner.
 
 BAD (too academic/formal):
 - Title: "Agricultural Commodity Shifts"
 - Description: "Reduced overall food consumption leads to lower demand for commodity crops used in processed foods"
-- Ticker desc: "Benefits directly from wider net interest margins"
+- Ticker desc: "Benefits directly from wider net interest margins" (no specifics about which company or why)
 - Startup: "YieldSignal — Analytics dashboard for yield curve indicators"
 
 GOOD (casual, punchy, specific):
 - Title: "Farmers Get Wrecked as America Stops Eating"
 - Description: "Everyone on Ozempic means less Doritos, less corn syrup, less everything. Commodity crop demand craters while high-protein clean food demand explodes."
-- Ticker desc: "Makes Ozempic — literally printing money right now"
+- Ticker desc: "NVO makes Ozempic — GLP-1 scripts doubled in 2024 and they own 60% market share, this is a direct play on the obesity drug boom"
 - Startup: "CurveAlert — Pings you when the yield curve moves so you can front-run the banks"
 """
 
@@ -66,9 +66,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
             "description": "Detailed description of this second-order effect",
             "relevant_sector_etf": {{"symbol": "XLK", "rationale": "Sector ETF and why it's the right sector proxy"}},
             "tickers": [
-                {{"symbol": "TICK", "rationale": "One-line description: what this company/ETF is and why it's relevant here", "direction": "long"}},
-                {{"symbol": "TICK2", "rationale": "One-line description: what this company/ETF is and why it's relevant here", "direction": "long"}},
-                {{"symbol": "TICK3", "rationale": "One-line description: what this company/ETF is and why it's relevant here", "direction": "long"}}
+                {{"symbol": "TICK", "rationale": "Name the company's specific product/asset, then explain the causal link to this node's effect", "direction": "long"}},
+                {{"symbol": "TICK2", "rationale": "Name the company's specific product/asset, then explain the causal link to this node's effect", "direction": "long"}},
+                {{"symbol": "TICK3", "rationale": "Name the company's specific product/asset, then explain the causal link to this node's effect", "direction": "long"}}
             ],
             "startup_ideas": [
                 {{"name": "CatchyBrandName", "description": "One-line plain-English pitch of what this startup builds and for whom"}},
@@ -81,9 +81,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                     "description": "Detailed description",
                     "relevant_sector_etf": {{"symbol": "XLF", "rationale": "Sector ETF and why"}},
                     "tickers": [
-                        {{"symbol": "TICK", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
-                        {{"symbol": "TICK2", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
-                        {{"symbol": "TICK3", "rationale": "One-line: what this is and why it's relevant", "direction": "short"}}
+                        {{"symbol": "TICK", "rationale": "Name the specific product/asset/revenue and explain the causal link to this effect", "direction": "long"}},
+                        {{"symbol": "TICK2", "rationale": "Name the specific product/asset/revenue and explain the causal link to this effect", "direction": "long"}},
+                        {{"symbol": "TICK3", "rationale": "Name the specific product/asset/revenue and explain the causal link to this effect", "direction": "short"}}
                     ],
                     "startup_ideas": [
                         {{"name": "BrandName", "description": "One-line pitch of what it builds and for whom"}},
@@ -96,9 +96,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                     "description": "Description",
                     "relevant_sector_etf": {{"symbol": "XLE", "rationale": "Sector ETF and why"}},
                     "tickers": [
-                        {{"symbol": "TICK", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
-                        {{"symbol": "TICK2", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
-                        {{"symbol": "TICK3", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}}
+                        {{"symbol": "TICK", "rationale": "Name the specific product/asset/revenue and explain the causal link to this effect", "direction": "long"}},
+                        {{"symbol": "TICK2", "rationale": "Name the specific product/asset/revenue and explain the causal link to this effect", "direction": "long"}},
+                        {{"symbol": "TICK3", "rationale": "Name the specific product/asset/revenue and explain the causal link to this effect", "direction": "long"}}
                     ],
                     "startup_ideas": [
                         {{"name": "BrandName", "description": "One-line pitch of what it builds and for whom"}},
@@ -111,9 +111,9 @@ Generate a complete causal analysis tree. Return ONLY valid JSON with this exact
                     "description": "Description",
                     "relevant_sector_etf": {{"symbol": "XLV", "rationale": "Sector ETF and why"}},
                     "tickers": [
-                        {{"symbol": "TICK", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
-                        {{"symbol": "TICK2", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}},
-                        {{"symbol": "TICK3", "rationale": "One-line: what this is and why it's relevant", "direction": "long"}}
+                        {{"symbol": "TICK", "rationale": "Name the specific product/asset/revenue and explain the causal link to this effect", "direction": "long"}},
+                        {{"symbol": "TICK2", "rationale": "Name the specific product/asset/revenue and explain the causal link to this effect", "direction": "long"}},
+                        {{"symbol": "TICK3", "rationale": "Name the specific product/asset/revenue and explain the causal link to this effect", "direction": "long"}}
                     ],
                     "startup_ideas": [
                         {{"name": "BrandName", "description": "One-line pitch of what it builds and for whom"}},
@@ -133,10 +133,14 @@ IMPORTANT:
 - relevant_sector_etf should be a SPDR sector ETF (XLK, XLF, XLV, XLE, XLP, XLY, XLI, XLB, XLU, XLRE, XLC) that best represents the sector for that effect
 - Tickers should be real, tradeable US equity or ETF symbols
 - Direction should be "long" if the thesis benefits the ticker, "short" if it hurts it
-- Ticker rationale: say what the company/ETF actually IS and why you'd care RIGHT NOW, in plain English
-  GOOD: "Makes Ozempic — literally printing money right now"
-  GOOD: "Regional banks ETF, gets murdered when the curve inverts"
+- Ticker rationale: MUST explain the SPECIFIC causal link between THIS thesis node and THIS company's business.
+  Name the company's actual product/asset/revenue driver, then connect it to the effect described in this node.
+  GOOD: "WELL owns 1,500+ senior housing properties and occupancy rates rise directly with boomer aging — this is their core business."
+  GOOD: "NVO makes Ozempic — literally printing money as GLP-1 prescriptions double every year"
+  GOOD: "KRE is 80% regional banks that hold long-duration bonds, so when the curve inverts their portfolios get crushed"
   BAD: "Benefits from this macro trend" (too generic, says nothing)
+  BAD: "Well-positioned to capitalize on these dynamics" (empty phrase, no specifics)
+  BAD: "Stands to gain from increased demand" (gain HOW? demand for WHAT specifically?)
 - Keywords should be search terms useful for finding relevant news articles
 - TONE: Write like a smart friend, not a Wall Street report. Be specific, punchy, and opinionated.
 - Card titles: 5-10 words, punchy. "Banks Finally Catch a Break" not "Financial Sector Normalization"

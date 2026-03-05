@@ -5,7 +5,7 @@ import time
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ..database import get_db, SessionLocal
-from ..models import Thesis
+from ..models import Thesis, NewsArticle
 from ..schemas import HealthScoreDetail
 from ..services.scoring_service import get_all_scores_fast, get_conviction_score
 
@@ -21,6 +21,7 @@ def get_evidence(thesis_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Thesis not found")
 
     scores = get_all_scores_fast(db, thesis)
+    scores["evidence_breakdown"] = thesis.evidence_breakdown
     return HealthScoreDetail(**scores)
 
 
@@ -41,8 +42,27 @@ def refresh_evidence(thesis_id: int, db: Session = Depends(get_db)):
     if result is None:
         raise HTTPException(status_code=502, detail="Google Trends request failed. Try again later.")
 
-    # Update thesis with new evidence score
+    # Get recent news headlines for the breakdown
+    recent_news = db.query(NewsArticle).filter(
+        NewsArticle.thesis_id == thesis.id,
+    ).order_by(NewsArticle.published_at.desc()).limit(3).all()
+    recent_headlines = [
+        {"title": n.title, "classification": n.classification, "source": n.source}
+        for n in recent_news
+    ]
+
+    # Build and store evidence breakdown
+    breakdown = {
+        "keywords_queried": result["trend_data"]["keywords_queried"],
+        "trend_momentum": result["trend_data"]["trend_momentum"],
+        "keyword_breadth": result["trend_data"]["keyword_breadth"],
+        "recency_bonus": result["trend_data"]["recency_bonus"],
+        "recent_headlines": recent_headlines,
+    }
+
+    # Update thesis with new evidence score and breakdown
     thesis.evidence_score = result["final_score"]
+    thesis.evidence_breakdown = breakdown
     thesis.last_evidence_refresh = datetime.datetime.utcnow()
     db.commit()
     db.refresh(thesis)
@@ -56,6 +76,7 @@ def refresh_evidence(thesis_id: int, db: Session = Depends(get_db)):
         "evidence_score": result["final_score"],
         "trend_data": result["trend_data"],
         "health_score": health,
+        "evidence_breakdown": breakdown,
     }
 
 

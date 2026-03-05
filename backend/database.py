@@ -42,6 +42,9 @@ def _migrate_add_columns():
             if "last_evidence_refresh" not in cols:
                 conn.execute(text("ALTER TABLE theses ADD COLUMN last_evidence_refresh DATETIME"))
                 print("[migrate] Added theses.last_evidence_refresh")
+            if "evidence_breakdown" not in cols:
+                conn.execute(text("ALTER TABLE theses ADD COLUMN evidence_breakdown JSON"))
+                print("[migrate] Added theses.evidence_breakdown")
 
         if "tree_nodes" in table_names:
             cols = {c["name"] for c in insp.get_columns("tree_nodes")}

@@ -47,7 +47,7 @@ export default function Dashboard() {
           margin: '0 auto 24px',
           lineHeight: '1.6',
         }}>
-          Track your macro investment theses, gather evidence, and monitor conviction over time.
+          Nobody can predict the future. But some things are clearly in motion — and if you follow the chain far enough, you start to see where the value will land. Tangent Book is how I think through what's changing, what follows from that, and where to put money on it.
         </p>
         <button
           onClick={() => setShowModal(true)}

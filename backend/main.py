@@ -11,145 +11,20 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import init_db, SessionLocal
-from .models import Thesis, TreeNode, NodeTicker, StartupIdea, ConvictionEntry, Bet, SeededTitle
 from .routers import theses, tree, conviction, evidence, news, bets, macro
 
 
 def seed_if_empty():
-    """Seed the database with theses data, adding any new entries from the seed file.
+    """Seed the database from the seed file. Returns immediately if empty or missing."""
+    seed_path = Path(__file__).parent / "seed" / "theses_seed.json"
+    if not seed_path.exists():
+        return
 
-    Respects deletions: if a thesis was previously seeded but later deleted
-    by the user, it will not be re-added.
-    """
-    db = SessionLocal()
-    try:
-        seed_path = Path(__file__).parent / "seed" / "theses_seed.json"
-        if not seed_path.exists():
-            return
+    with open(seed_path) as f:
+        seed_data = json.load(f)
 
-        with open(seed_path) as f:
-            seed_data = json.load(f)
-
-        existing_titles = {t.title for t in db.query(Thesis.title).all()}
-        previously_seeded = {t.title for t in db.query(SeededTitle.title).all()}
-
-        # Backfill: mark existing theses from seed file as seeded
-        seed_titles_set = {t["title"] for t in seed_data}
-        for title in existing_titles & seed_titles_set - previously_seeded:
-            db.add(SeededTitle(title=title))
-        if existing_titles & seed_titles_set - previously_seeded:
-            db.commit()
-
-        new_entries = [
-            t for t in seed_data
-            if t["title"] not in existing_titles and t["title"] not in previously_seeded
-        ]
-
-        if not new_entries:
-            return
-
-        new_thesis_ids = []
-        for thesis_data in new_entries:
-            thesis = Thesis(
-                title=thesis_data["title"],
-                description=thesis_data.get("description", ""),
-                keywords=thesis_data.get("keywords", []),
-                activation_date=datetime.datetime.fromisoformat(thesis_data["activation_date"]) if thesis_data.get("activation_date") else None,
-            )
-            db.add(thesis)
-            db.flush()
-            new_thesis_ids.append(thesis.id)
-
-            # Track that this title was seeded (so deletions are respected)
-            db.add(SeededTitle(title=thesis_data["title"]))
-
-            # Create a basic tree structure from seed data
-            root_node = TreeNode(
-                thesis_id=thesis.id,
-                parent_id=None,
-                node_type="thesis",
-                label=thesis.title,
-                description=thesis.description,
-                sort_order=0,
-            )
-            db.add(root_node)
-            db.flush()
-
-            # Add conviction entries
-            for entry in thesis_data.get("conviction_entries", []):
-                db.add(ConvictionEntry(
-                    thesis_id=thesis.id,
-                    score=entry["score"],
-                    note=entry.get("note", ""),
-                    date=datetime.datetime.fromisoformat(entry["date"]) if entry.get("date") else None,
-                ))
-
-            # Add bets
-            for bet_data in thesis_data.get("bets", []):
-                db.add(Bet(
-                    thesis_id=thesis.id,
-                    ticker=bet_data["ticker"],
-                    direction=bet_data.get("direction", "long"),
-                    entry_price=bet_data.get("entry_price"),
-                    target_price=bet_data.get("target_price"),
-                    stop_loss=bet_data.get("stop_loss"),
-                    position_size_pct=bet_data.get("position_size_pct"),
-                    status=bet_data.get("status", "watching"),
-                    notes=bet_data.get("notes"),
-                ))
-
-        db.commit()
-        print(f"Seeded {len(new_entries)} new theses ({db.query(Thesis).count()} total)")
-
-        # Try to generate AI trees for new theses if API key available
-        api_key = os.getenv("ANTHROPIC_API_KEY", "")
-        if api_key and not api_key.startswith("your_"):
-            _generate_seed_trees(db, thesis_ids=new_thesis_ids)
-
-    except Exception as e:
-        print(f"Seed error: {e}")
-        db.rollback()
-    finally:
-        db.close()
-
-
-def _generate_seed_trees(db, thesis_ids=None):
-    """Generate AI trees for seeded theses."""
-    from .services.ai_service import generate_thesis_tree, store_thesis_tree
-
-    query = db.query(Thesis)
-    if thesis_ids:
-        query = query.filter(Thesis.id.in_(thesis_ids))
-    theses = query.all()
-    for thesis in theses:
-        # Skip if already has tree nodes beyond root
-        node_count = db.query(TreeNode).filter(TreeNode.thesis_id == thesis.id).count()
-        if node_count > 1:
-            continue
-
-        try:
-            print(f"Generating tree for: {thesis.title}")
-            tree_data = generate_thesis_tree(thesis.title)
-
-            # Remove existing root node (will be recreated)
-            db.query(TreeNode).filter(TreeNode.thesis_id == thesis.id).delete()
-            db.flush()
-
-            store_thesis_tree(db, thesis, tree_data)
-            print(f"  -> Tree generated with {db.query(TreeNode).filter(TreeNode.thesis_id == thesis.id).count()} nodes")
-        except Exception as e:
-            print(f"  -> AI generation failed for '{thesis.title}': {e}")
-            # Ensure at least root node exists
-            if db.query(TreeNode).filter(TreeNode.thesis_id == thesis.id).count() == 0:
-                db.add(TreeNode(
-                    thesis_id=thesis.id,
-                    parent_id=None,
-                    node_type="thesis",
-                    label=thesis.title,
-                    description=thesis.description,
-                    sort_order=0,
-                ))
-                db.commit()
+    if not seed_data:
+        return
 
 
 def _auto_refresh_evidence():

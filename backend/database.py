@@ -2,7 +2,9 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./macro_dashboard_v2.db")
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_DEFAULT_DB = f"sqlite:///{os.path.join(_PROJECT_ROOT, 'macro_dashboard_v2.db')}"
+DATABASE_URL = os.getenv("DATABASE_URL", _DEFAULT_DB)
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
